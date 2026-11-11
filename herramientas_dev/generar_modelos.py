@@ -1,24 +1,28 @@
 #!/usr/bin/env python3
 """
-Generador procedural de modelos low-poly para "Jugo" (juego incremental de jardín).
+Generador procedural de los modelos de "Jugo" (juego incremental de jardín).
 
-Cada modelo se construye a base de primitivas convexas (cajas, troncos de cono,
-esferas deformadas...) con sombreado plano y una paleta de colores común, y se
-exporta a .glb (glTF binario), que Godot 4 importa directamente.
+Los modelos se construyen por código (primitivas, tubos, superficies de
+revolución, tiras curvas para hojas y briznas, cartas de follaje...) con UVs,
+normales suaves y materiales PBR que usan las texturas de
+assets/modelos/texturas (ver generar_texturas.py). Se exportan a .gltf, que
+Godot 4 importa directamente; las texturas son archivos externos compartidos
+por todos los modelos.
 
 Uso:
-    pip install trimesh numpy scipy
+    pip install trimesh numpy scipy pillow
+    python3 herramientas_dev/generar_texturas.py
     python3 herramientas_dev/generar_modelos.py            # genera todo
-    python3 herramientas_dev/generar_modelos.py casa moneda # solo esos
+    python3 herramientas_dev/generar_modelos.py casa zarza # solo esos
 
 Convenciones:
-    - Unidades en metros, eje Y hacia arriba.
-    - El frente de los modelos mira hacia +Z.
-    - El origen está en la base (en el suelo) salvo en herramientas (origen en
-      el agarre) y UI (origen en el centro).
-    - Las piezas que se animan (ruedas, tapas, alas, patas, puertas...) son
-      nodos hijos con su origen en el punto de giro.
+    - Unidades en metros, eje Y hacia arriba; el frente mira hacia +Z.
+    - Origen en la base (en el suelo); herramientas: en el agarre; UI: centro.
+    - Las piezas animables (ruedas, tapas, alas, patas, puertas...) son nodos
+      hijos con su origen en el punto de giro.
 """
+import base64
+import json
 import math
 import os
 import sys
@@ -26,42 +30,44 @@ import sys
 import numpy as np
 import trimesh
 from trimesh.transformations import rotation_matrix, translation_matrix
-from trimesh.visual.material import PBRMaterial
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SALIDA = os.path.join(RAIZ, "assets", "modelos")
+TEXTURAS = os.path.join(SALIDA, "texturas")
+UP = np.array([0.0, 1.0, 0.0])
 
 # --------------------------------------------------------------------------
-# Paleta (colores sRGB en hex). Se convierten a lineal al exportar.
+# Paleta (colores sRGB en hex)
 # --------------------------------------------------------------------------
 PALETA = {
     # casa
-    "estuco": "#EADFC4", "estuco_osc": "#D8CBAA",
-    "madera": "#C07F43", "madera_clara": "#D9A066", "madera_osc": "#7E4C26",
+    "estuco": "#EADFC4",
+    "madera": "#B9783F", "madera_clara": "#D2A06A", "madera_osc": "#74472A",
     "tejado": "#5F5A72", "tejado_osc": "#46425A",
-    "piedra": "#B3ACA2", "piedra_osc": "#8C857C",
-    "cristal": "#3E5568", "cristal_luz": "#7FA3BF",
+    "piedra": "#B3ACA2", "piedra_osc": "#8C857C", "roca": "#A9A49B",
+    "cristal": "#31475A", "cristal_luz": "#7FA3BF",
     "metal": "#A7AFB6", "metal_osc": "#5D656C",
     # vegetación
-    "hoja": "#6AAA3A", "hoja_clara": "#94C94B", "hoja_osc": "#3F7A2E",
-    "hoja_muy_osc": "#2C5A28",
+    "hoja": "#5E9E3A", "hoja_clara": "#8DBF4A", "hoja_osc": "#3F7A2E", "hoja_muy_osc": "#2C5A28",
     "hierba": "#7DB443", "hierba_clara": "#A9CF57", "hierba_osc": "#4E8A30",
-    "seco": "#CDB46A", "tierra": "#7A5236", "tierra_osc": "#5A3B26",
+    "seco": "#CDB46A", "tierra": "#7A5236",
     "tronco": "#8A5A36", "tronco_osc": "#5E3C24", "corteza_clara": "#B88B5C",
-    "otono_naranja": "#E8822E", "otono_amarillo": "#F2B33D",
-    "otono_rojo": "#C9452E", "otono_marron": "#A0612E",
-    "petalo_amarillo": "#F6C72F", "petalo_amarillo_osc": "#E3A51F",
-    "petalo_rojo": "#D93A35", "petalo_rojo_osc": "#A82828",
+    "otono_naranja": "#E8822E", "otono_amarillo": "#F2B33D", "otono_rojo": "#C9452E", "otono_marron": "#A0612E",
+    "petalo_amarillo": "#F8C61E", "petalo_amarillo_osc": "#EDA512",
+    "petalo_rojo": "#DC3028", "petalo_rojo_osc": "#B02222",
     "petalo_blanco": "#F4F1E6", "centro_flor": "#5A3A1E", "negro": "#1E1C22",
-    "zarza": "#4A3B4E", "zarza_hoja": "#4F7D34", "mora": "#3A1D4A",
-    "seta_roja": "#D8453A", "seta_crema": "#F1E6CC",
-    "musgo": "#6E9A3A",
+    "zarza": "#4A3B4E", "mora": "#3A1D4A",
+    "seta_roja": "#C9342B", "seta_crema": "#EFE3C8", "musgo": "#55782E",
+    # materiales con textura propia (el color es solo orientativo)
+    "hojas_verde": "#5E9E3A", "hojas_osc": "#3F7A2E", "hojas_otono": "#E8822E",
+    "hoja_ancha": "#4F8A34", "hoja_ancha_osc": "#3A6A2A", "hojas_caidas": "#E8822E",
+    "hojarasca": "#C98A3A", "girasol_centro": "#4A2E14", "anillos": "#C9A070",
+    "cesped": "#5E8A30", "tierra_suelo": "#6E4E34", "asfalto": "#3A3A3E",
     # jugabilidad
-    "plastico_negro": "#2B2B33", "plastico_negro_brillo": "#43434F",
-    "lazo_amarillo": "#F2C230",
-    "contenedor": "#3F7F52", "contenedor_osc": "#2D5E3C",
+    "plastico_negro": "#25252B", "plastico_negro_brillo": "#3A3A44", "lazo_amarillo": "#F2C230",
+    "contenedor": "#3A7A4E", "contenedor_osc": "#2A5A3A",
     "camion": "#E8762C", "camion_osc": "#B9561D", "blanco": "#F0EEE8",
-    "goma": "#26262B", "faro": "#FFE6A0", "rojo_luz": "#D8352E",
+    "goma": "#232327", "faro": "#FFE6A0", "rojo_luz": "#D8352E",
     "oro": "#F2C14E", "oro_osc": "#C9922B", "oro_claro": "#FBE08A",
     # herramientas
     "guante": "#7FB8A0", "guante_osc": "#5C9580", "puno_guante": "#E6D9B8",
@@ -69,30 +75,73 @@ PALETA = {
     "mango_negro": "#2E2E35", "naranja_motor": "#EE7A22", "verde_rastrillo": "#58A85A",
     "amarillo_hilo": "#F5D33A",
     # bichos
-    "caparazon": "#3B6FB5", "caparazon_brillo": "#5E93D6", "bicho_osc": "#232533",
+    "caparazon": "#2F62A8", "caparazon_brillo": "#5E93D6", "bicho_osc": "#232533",
     "ojo_blanco": "#FFFFFF", "pupila": "#141418",
     "caracol_cuerpo": "#B9C46C", "caracol_cuerpo_osc": "#97A355",
     "concha": "#C98A4B", "concha_osc": "#9C6334",
-    "avispa_amarilla": "#F4C430", "avispa_negra": "#26232A", "ala": "#DDEFFF",
-    "ojo_avispa": "#7A1E2A",
+    "avispa_amarilla": "#F4C430", "avispa_negra": "#26232A", "ala": "#DDEFFF", "ojo_avispa": "#7A1E2A",
     # ui
     "ui_madera": "#B8773C", "ui_madera_clara": "#E0AE72", "ui_madera_osc": "#6E4122",
     "ui_verde": "#5DBB4F", "ui_verde_osc": "#3A7F33", "ui_papel": "#F3E6C8",
     "ui_cuerda": "#B79B6B", "ui_fondo_barra": "#3A2A1E",
 }
 
-# Materiales con propiedades especiales: (metallic, roughness, alpha)
-ESPECIALES = {
-    "cristal": (0.1, 0.25, 1.0), "cristal_luz": (0.1, 0.2, 1.0),
-    # metalizado moderado: se ve bien incluso sin mapa de entorno
-    "metal": (0.3, 0.45, 1.0), "metal_osc": (0.3, 0.5, 1.0),
-    "acero": (0.35, 0.3, 1.0), "acero_osc": (0.3, 0.4, 1.0),
-    "oro": (0.3, 0.35, 1.0), "oro_osc": (0.3, 0.4, 1.0), "oro_claro": (0.25, 0.3, 1.0),
-    "plastico_negro": (0.0, 0.35, 1.0), "plastico_negro_brillo": (0.0, 0.3, 1.0),
-    "caparazon": (0.25, 0.3, 1.0), "caparazon_brillo": (0.25, 0.25, 1.0),
-    "ala": (0.0, 0.2, 0.45), "ojo_blanco": (0.0, 0.3, 1.0), "pupila": (0.0, 0.2, 1.0),
-    "faro": (0.0, 0.2, 1.0), "mora": (0.0, 0.3, 1.0),
+# Definición de materiales. Por defecto: textura "liso" teñida con el color de la paleta.
+#   tex/normal: texturas · esc: repeticiones por metro · tinte: "media" (tiñe hasta el color
+#   de la paleta), None (textura tal cual) o (r,g,b) lineal · fijo: UV sin orientar a la pieza
+_MADERA = dict(tex="madera", normal="madera_n", esc=1.1, rug=0.7)
+_PIEDRA = dict(tex="piedra_muro", normal="piedra_muro_n", esc=0.8, fijo=True, tinte=None, rug=0.9)
+_TEJA = dict(tex="tejas", normal="tejas_n", esc=0.62, fijo=True, tinte=None, rug=0.8)
+_CORTEZA = dict(tex="corteza", normal="corteza_n", esc=0.6, rug=0.95)
+_BRIZNA = dict(tex="brizna", rug=0.6, esc=1.0)
+_PETALO = dict(tex="petalo", rug=0.55, tinte="color")
+_HOJAS = dict(alfa="MASK", tinte=None, rug=0.6)
+MATS = {
+    "estuco": dict(tex="estuco", normal="estuco_n", esc=0.45, fijo=True, tinte=None, rug=0.95),
+    "madera": _MADERA, "madera_clara": _MADERA, "madera_osc": _MADERA, "corteza_clara": _MADERA,
+    "ui_madera": _MADERA, "ui_madera_clara": _MADERA, "ui_madera_osc": _MADERA,
+    "tejado": _TEJA, "tejado_osc": dict(_TEJA, tinte=(0.6, 0.6, 0.62)),
+    "piedra": _PIEDRA, "piedra_osc": dict(_PIEDRA, tinte=(0.62, 0.6, 0.58)),
+    "roca": dict(tex="roca", normal="roca_n", esc=0.6, tinte=None, rug=0.95, fijo=True),
+    "tronco": dict(_CORTEZA, tinte=None), "tronco_osc": dict(_CORTEZA, tinte=(0.6, 0.58, 0.55)),
+    "zarza": dict(_CORTEZA, tinte=(0.75, 0.6, 0.72), esc=2.0),
+    "hierba": dict(_BRIZNA, tinte=(0.85, 0.92, 0.78)), "hierba_clara": dict(_BRIZNA, tinte=None),
+    "hierba_osc": dict(_BRIZNA, tinte=(0.66, 0.8, 0.6)), "seco": dict(_BRIZNA, tinte=(1.0, 0.8, 0.45)),
+    "petalo_amarillo": _PETALO, "petalo_amarillo_osc": _PETALO, "petalo_rojo": _PETALO,
+    "petalo_rojo_osc": _PETALO, "petalo_blanco": dict(rug=0.6),
+    "hojas_verde": dict(_HOJAS, tex="hojas_verde"),
+    "hojas_osc": dict(_HOJAS, tex="hojas_verde", tinte=(0.62, 0.74, 0.58)),
+    "hojas_otono": dict(_HOJAS, tex="hojas_otono"),
+    "hoja_ancha": dict(_HOJAS, tex="hoja_ancha"),
+    "hoja_ancha_osc": dict(_HOJAS, tex="hoja_ancha", tinte=(0.6, 0.7, 0.58)),
+    "hojas_caidas": dict(_HOJAS, tex="hojas_caidas"),
+    "hojarasca": dict(tex="hojarasca", normal="hojarasca_n", esc=0.7, tinte=None, fijo=True, rug=0.9),
+    "girasol_centro": dict(tex="girasol_centro", tinte=None, rug=0.9),
+    "anillos": dict(tex="anillos", tinte=None, rug=0.8),
+    "cesped": dict(tex="cesped", normal="cesped_n", esc=0.3, tinte=None, fijo=True, rug=1.0),
+    "tierra": dict(tex="tierra", normal="tierra_n", esc=0.6, tinte=None, fijo=True, rug=1.0),
+    "tierra_suelo": dict(tex="tierra", normal="tierra_n", esc=0.4, tinte=None, fijo=True, rug=1.0),
+    "asfalto": dict(tex="asfalto", normal="asfalto_n", esc=0.3, tinte=None, fijo=True, rug=0.9),
+    "plastico_negro": dict(normal="arrugas_n", esc=2.5, rug=0.3),
+    "plastico_negro_brillo": dict(normal="arrugas_n", esc=2.5, rug=0.25),
+    "cristal": dict(tex=None, rug=0.08, met=0.2), "cristal_luz": dict(tex=None, rug=0.08, met=0.2),
+    "metal": dict(met=0.5, rug=0.4), "metal_osc": dict(met=0.5, rug=0.45),
+    "acero": dict(met=0.6, rug=0.28), "acero_osc": dict(met=0.5, rug=0.4),
+    "oro": dict(met=0.45, rug=0.3), "oro_osc": dict(met=0.45, rug=0.35), "oro_claro": dict(met=0.35, rug=0.3),
+    "caparazon": dict(met=0.3, rug=0.2), "caparazon_brillo": dict(met=0.3, rug=0.15),
+    "ala": dict(tex=None, rug=0.2, alfa="BLEND", opacidad=0.45, doble=True),
+    "ojo_blanco": dict(tex=None, rug=0.15), "pupila": dict(tex=None, rug=0.1),
+    "faro": dict(tex=None, rug=0.2), "mora": dict(tex=None, rug=0.25),
+    "camion": dict(rug=0.4), "camion_osc": dict(rug=0.5), "blanco": dict(rug=0.45),
+    "contenedor": dict(rug=0.5), "contenedor_osc": dict(rug=0.55),
+    "goma": dict(rug=0.9), "naranja_motor": dict(rug=0.4), "mango_rojo": dict(rug=0.45),
+    "caracol_cuerpo": dict(rug=0.3), "caracol_cuerpo_osc": dict(rug=0.3),
+    "concha": dict(rug=0.35), "concha_osc": dict(rug=0.35),
+    "seta_roja": dict(rug=0.35), "avispa_amarilla": dict(rug=0.5), "avispa_negra": dict(rug=0.4),
 }
+
+with open(os.path.join(TEXTURAS, "medias.json")) as _f:
+    MEDIAS = json.load(_f)
 
 
 def hex_a_lineal(h):
@@ -101,28 +150,72 @@ def hex_a_lineal(h):
     return [x / 12.92 if x <= 0.04045 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
 
 
-def material(nombre):
-    met, rough, alpha = ESPECIALES.get(nombre, (0.0, 0.85, 1.0))
-    col = hex_a_lineal(PALETA[nombre]) + [alpha]
-    return PBRMaterial(
-        name=nombre, baseColorFactor=col, metallicFactor=met, roughnessFactor=rough,
-        alphaMode="BLEND" if alpha < 1.0 else "OPAQUE", doubleSided=alpha < 1.0,
-    )
+def def_material(nombre):
+    d = dict(tex="liso", normal=None, esc=1.0, rug=0.8, met=0.0, alfa=None, doble=False,
+             tinte="media", fijo=False, opacidad=1.0)
+    d.update(MATS.get(nombre, {}))
+    col = hex_a_lineal(PALETA[nombre])
+    if d["tex"] is None or d["tinte"] == "color":
+        d["factor"] = col
+    elif d["tinte"] == "media":
+        d["factor"] = [min(1.0, c / m) for c, m in zip(col, MEDIAS[d["tex"]])]
+    elif d["tinte"] is None:
+        d["factor"] = [1.0, 1.0, 1.0]
+    else:
+        d["factor"] = list(d["tinte"])
+    return d
 
 
 # --------------------------------------------------------------------------
-# Primitivas
+# Mallas: trimesh con vértices sin compartir + UV; metadatos:
+#   suave: ángulo de suavizado · N: normales explícitas · circ: perímetro (UV cilíndrico)
+#   uv_fijo: UV alternativo no orientado a la pieza (muros, tejados, suelos)
 # --------------------------------------------------------------------------
-def hull(puntos):
-    return trimesh.convex.convex_hull(np.asarray(puntos, dtype=float))
+def _malla(V, UV, suave=40.0, N=None, circ=None, uv_fijo=None):
+    V = np.asarray(V, float).reshape(-1, 3)
+    m = trimesh.Trimesh(vertices=V, faces=np.arange(len(V)).reshape(-1, 3), process=False)
+    m.visual = trimesh.visual.TextureVisuals(uv=np.asarray(UV, float).reshape(-1, 2))
+    m.metadata["suave"] = suave
+    if N is not None:
+        m.metadata["N"] = np.asarray(N, float).reshape(-1, 3)
+    if circ:
+        m.metadata["circ"] = circ
+    if uv_fijo is not None:
+        m.metadata["uv_fijo"] = uv_fijo
+    return m
+
+
+def _uv_planar(tri, fn, fijo):
+    e = tri.reshape(-1, 3).max(0) - tri.reshape(-1, 3).min(0)
+    eje = np.abs(fn).argmax(1)
+    uv = np.zeros((len(tri), 3, 2))
+    for a, (iu, iv) in {0: (2, 1), 1: (0, 2), 2: (0, 1)}.items():
+        if not fijo and e[iu] > e[iv] * 1.01:
+            iu, iv = iv, iu  # la veta (V) sigue el lado largo de la pieza
+        s = eje == a
+        uv[s, :, 0] = tri[s][:, :, iu]
+        uv[s, :, 1] = tri[s][:, :, iv]
+    return uv.reshape(-1, 2)
+
+
+def _de_trimesh(tm, suave=40.0):
+    tri = np.asarray(tm.vertices)[np.asarray(tm.faces)]
+    fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    return _malla(tri, _uv_planar(tri, fn, False), suave, uv_fijo=_uv_planar(tri, fn, True))
+
+
+def hull(puntos, suave=40.0):
+    return _de_trimesh(trimesh.convex.convex_hull(np.asarray(puntos, dtype=float)), suave)
 
 
 def caja(sx, sy, sz):
-    return trimesh.creation.box((sx, sy, sz))
+    return _de_trimesh(trimesh.creation.box((sx, sy, sz)))
 
 
 def cilindro(r0, r1, h, n=8, rot=0.0):
     """Tronco de cono a lo largo de Y, base en y=0."""
+    if n >= 5:
+        n = max(n, 12)
     pts = []
     for i in range(n):
         a = 2 * math.pi * i / n + rot
@@ -131,27 +224,60 @@ def cilindro(r0, r1, h, n=8, rot=0.0):
             pts.append((r1 * math.cos(a), h, r1 * math.sin(a)))
     if r1 <= 1e-5:
         pts.append((0, h, 0))
-    return hull(pts)
+    tm = trimesh.convex.convex_hull(np.asarray(pts))
+    if n < 5:
+        return _de_trimesh(tm)
+    tri = np.asarray(tm.vertices)[np.asarray(tm.faces)]
+    fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    fn /= np.maximum(np.linalg.norm(fn, axis=1, keepdims=True), 1e-12)
+    circ = 2 * math.pi * max(r0, r1)
+    ang = np.arctan2(tri[..., 2], tri[..., 0])
+    eje = np.hypot(tri[..., 0], tri[..., 2]) < 1e-6
+    for k in range(3):
+        ang[:, k] = np.where(eje[:, k], np.where(eje[:, (k + 1) % 3], ang[:, (k + 2) % 3], ang[:, (k + 1) % 3]), ang[:, k])
+    amp = ang.max(1) - ang.min(1) > math.pi
+    ang[amp] = np.where(ang[amp] < 0, ang[amp] + 2 * math.pi, ang[amp])
+    uv = np.stack([ang / (2 * math.pi) * circ, tri[..., 1]], -1)
+    tapa = np.abs(fn[:, 1]) > 0.9
+    uv[tapa] = tri[tapa][:, :, [0, 2]]
+    return _malla(tri, uv, 50.0, circ=circ)
 
 
 def bola(r, sub=1, jitter=0.0, semilla=0, escala=(1, 1, 1)):
-    m = trimesh.creation.icosphere(subdivisions=sub, radius=r)
+    m = trimesh.creation.icosphere(subdivisions=min(sub + 1, 3) if sub >= 0 else 0, radius=r)
     if jitter > 0:
         rng = np.random.default_rng(semilla)
-        f = 1 + rng.uniform(-jitter, jitter, size=(len(m.vertices), 1))
-        m.vertices = m.vertices * f
+        m.vertices = m.vertices * (1 + rng.uniform(-jitter, jitter, size=(len(m.vertices), 1)))
     m.vertices = m.vertices * np.asarray(escala)
-    return m
+    return _de_trimesh(m, 180.0)
+
+
+def bola_ruido(r, sub=3, amp=0.2, semilla=0, escala=(1, 1, 1), cortes=0):
+    """Esfera deformada con ruido coherente (y planos de corte) para rocas y montones."""
+    rng = np.random.default_rng(semilla)
+    m = trimesh.creation.icosphere(subdivisions=sub, radius=1.0)
+    d = np.asarray(m.vertices)
+    desp = np.zeros(len(d))
+    for k in range(7):
+        f = rng.normal(0, 1, 3) * rng.uniform(1.2, 4.0)
+        desp += np.sin(d @ f + rng.uniform(0, 6.28)) / (1 + k * 0.5)
+    v = d * (1 + amp * desp / 2.5)[:, None]
+    for _ in range(cortes):
+        n = rng.normal(0, 1, 3)
+        n /= np.linalg.norm(n)
+        c = rng.uniform(0.6, 0.85)
+        exc = np.maximum(v @ n - c, 0)
+        v = v - np.outer(exc, n)
+    m.vertices = v * r * np.asarray(escala)
+    return _de_trimesh(m, 55.0 if cortes else 180.0)
 
 
 def prisma(poligono, prof):
     """Prisma convexo: polígono en el plano XY extruido en Z (centrado)."""
-    pts = [(x, y, -prof / 2) for x, y in poligono] + [(x, y, prof / 2) for x, y in poligono]
-    return hull(pts)
+    return hull([(x, y, -prof / 2) for x, y in poligono] + [(x, y, prof / 2) for x, y in poligono])
 
 
 def caja_redondeada(sx, sy, sz, r, n=6):
-    """Caja con esquinas redondeadas en el plano XY (grosor en Z)."""
     pts = []
     for cx in (-sx / 2 + r, sx / 2 - r):
         for cy in (-sy / 2 + r, sy / 2 - r):
@@ -172,10 +298,17 @@ def M_trs(t=(0, 0, 0), r=(0, 0, 0), s=1.0):
     return translation_matrix(t) @ R @ S
 
 
-def T(m, t=(0, 0, 0), r=(0, 0, 0), s=1.0):
-    m = m.copy()
-    m.apply_transform(M_trs(t, r, s))
+def aplicar(m, M):
+    """Transforma una malla (también sus normales explícitas, si las tiene)."""
+    m.apply_transform(M)
+    if "N" in m.metadata:
+        N = m.metadata["N"] @ np.linalg.inv(M[:3, :3])
+        m.metadata["N"] = N / np.maximum(np.linalg.norm(N, axis=1, keepdims=True), 1e-12)
     return m
+
+
+def T(m, t=(0, 0, 0), r=(0, 0, 0), s=1.0):
+    return aplicar(m.copy(), M_trs(t, r, s))
 
 
 def viga(p0, p1, r0, r1=None, n=6, cuadrada=False):
@@ -189,31 +322,210 @@ def viga(p0, p1, r0, r1=None, n=6, cuadrada=False):
                  + [(sx * r1, L, sz * r1) for sx in (-1, 1) for sz in (-1, 1)])
     else:
         m = cilindro(r0, r1, L, n)
-    A = trimesh.geometry.align_vectors([0, 1, 0], d / L)
-    m.apply_transform(A)
+    m.apply_transform(trimesh.geometry.align_vectors([0, 1, 0], d / L))
     m.apply_translation(p0)
     return m
 
 
 def hoja_plana(largo, ancho, grosor=0.02):
-    """Hoja con forma de rombo apuntando a +Z, base en el origen."""
-    return hull([(0, 0, 0), (0, 0, largo), (ancho / 2, 0, largo * 0.4),
-                 (-ancho / 2, 0, largo * 0.4), (0, grosor, largo * 0.4),
-                 (0, -grosor, largo * 0.4)])
+    """Rombo plano apuntando a +Z (emblemas y hojitas sueltas)."""
+    return hull([(0, 0, 0), (0, 0, largo), (ancho / 2, 0, largo * 0.4), (-ancho / 2, 0, largo * 0.4),
+                 (0, grosor, largo * 0.4), (0, -grosor, largo * 0.4)])
 
 
-def brizna(alto, ancho, inclinacion=(0.0, 0.0), curva=0.35):
-    """Brizna de hierba en dos tramos (se dobla hacia `inclinacion`)."""
-    dx, dz = inclinacion
-    base = [(-ancho, 0, 0), (ancho, 0, 0), (0, 0, ancho * 0.5)]
-    mid_y = alto * 0.55
-    mid = [(x * 0.6 + dx * curva, mid_y, z * 0.6 + dz * curva) for x, _, z in base]
-    punta = (dx, alto, dz)
-    return [hull(base + mid), hull(mid + [punta])]
+def tubo(pts, radios, lados=8, mod=None, tapa=True):
+    """Tubo suave a lo largo de una curva (troncos, ramas, tallos)."""
+    pts = np.asarray(pts, float)
+    n = len(pts)
+    radios = np.broadcast_to(np.asarray(radios, float), (n,))
+    tg = np.gradient(pts, axis=0)
+    tg /= np.linalg.norm(tg, axis=1, keepdims=True)
+    largo = np.r_[0, np.cumsum(np.linalg.norm(np.diff(pts, axis=0), axis=1))]
+    nr = np.eye(3)[np.abs(tg[0]).argmin()]
+    circ = 2 * math.pi * radios.max()
+    P, Nn, UV = [], [], []
+    for i in range(n):
+        nr = nr - tg[i] * (nr @ tg[i])
+        nr /= np.linalg.norm(nr)
+        b = np.cross(tg[i], nr)
+        fp, fn_, fu = [], [], []
+        for k in range(lados + 1):
+            a = 2 * math.pi * k / lados
+            d = nr * math.cos(a) + b * math.sin(a)
+            r = radios[i] * (mod(i, a) if mod else 1.0)
+            fp.append(pts[i] + d * r)
+            fn_.append(d)
+            fu.append((k / lados * circ, largo[i]))
+        P.append(fp), Nn.append(fn_), UV.append(fu)
+    P, Nn, UV = np.array(P), np.array(Nn), np.array(UV)
+    V, N, U = [], [], []
+    for i in range(n - 1):
+        for k in range(lados):
+            q = [(i, k), (i, k + 1), (i + 1, k + 1), (i + 1, k)]
+            for idx in (q[0], q[1], q[2], q[0], q[2], q[3]):
+                V.append(P[idx]), N.append(Nn[idx]), U.append(UV[idx])
+    if tapa and radios[-1] > 0.015:
+        for k in range(lados):
+            for p_, uv_ in ((pts[-1], (0, 0)), (P[-1, k + 1], (radios[-1], 0)), (P[-1, k], (0, radios[-1]))):
+                V.append(p_), N.append(tg[-1]), U.append(uv_)
+    return _malla(V, U, N=N, circ=circ)
+
+
+def torno(perfil, lados=16, mod=None, suave=70.0):
+    """Superficie de revolución alrededor de Y. perfil = [(radio, y), ...]."""
+    perfil = np.asarray(perfil, float)
+    largo = np.r_[0, np.cumsum(np.linalg.norm(np.diff(perfil, axis=0), axis=1))]
+    circ = 2 * math.pi * perfil[:, 0].max()
+    P = np.zeros((len(perfil), lados + 1, 3))
+    UV = np.zeros((len(perfil), lados + 1, 2))
+    for j, (r, y) in enumerate(perfil):
+        for k in range(lados + 1):
+            a = 2 * math.pi * (k % lados) / lados
+            rr = r * (mod(a, j) if mod else 1.0)
+            P[j, k] = (rr * math.cos(a), y, rr * math.sin(a))
+            UV[j, k] = (k / lados * circ, largo[j])
+    V, U = [], []
+    for j in range(len(perfil) - 1):
+        for k in range(lados):
+            q = [(j, k), (j, k + 1), (j + 1, k + 1), (j + 1, k)]
+            for idx in (q[0], q[2], q[1], q[0], q[3], q[2]):
+                V.append(P[idx]), U.append(UV[idx])
+    V, U = np.array(V).reshape(-1, 3, 3), np.array(U).reshape(-1, 3, 2)
+    ok = np.linalg.norm(np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0]), axis=1) > 1e-10
+    return _malla(V[ok], U[ok], suave, circ=circ)
+
+
+def disco(r, y=0.0, lados=16, mod=None, domo=0.0):
+    """Disco horizontal con UV plano que ocupa toda la textura (anillos, centro de flor)."""
+    V, U = [], []
+    anillos = [0.0, 0.5, 1.0]
+
+    def p(f, k):
+        a = 2 * math.pi * (k % lados) / lados
+        rr = r * f * (mod(a, 0) if mod else 1.0)
+        return (rr * math.cos(a), y + domo * (1 - f * f), rr * math.sin(a)), (0.5 + 0.5 * f * math.cos(a), 0.5 + 0.5 * f * math.sin(a))
+    for i in range(2):
+        for k in range(lados):
+            q = [p(anillos[i], k), p(anillos[i], k + 1), p(anillos[i + 1], k + 1), p(anillos[i + 1], k)]
+            for idx in (0, 1, 2, 0, 2, 3):
+                V.append(q[idx][0]), U.append(q[idx][1])
+    V, U = np.array(V).reshape(-1, 3, 3), np.array(U).reshape(-1, 3, 2)
+    ok = np.linalg.norm(np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0]), axis=1) > 1e-10
+    return _malla(V[ok], U[ok], 180.0)
+
+
+PERFILES = {
+    "brizna": lambda t: (1 - t) ** 0.6,
+    "recto": lambda t: 1.0,
+    "petalo": lambda t: math.sin(math.pi * (0.12 + 0.88 * t)) ** 0.7 if t < 1 else 0.0,
+    "ancho": lambda t: math.sin(math.pi * (0.1 + 0.8 * t)) ** 0.5,
+}
+
+
+def tira(base, rumbo, largo, ancho, a0=80.0, a1=40.0, segs=4, perfil="brizna", pliegue=0.0,
+         arriba=0.4, rollo=0.0, uv=(0, 0, 1, 1)):
+    """Tira curva (brizna, hoja, pétalo). Sale de `base` hacia `rumbo` (grados en planta),
+    con inclinación a0 (grados sobre la horizontal) que acaba en a1. UV: base abajo, punta arriba."""
+    hx, hz = math.cos(math.radians(rumbo)), math.sin(math.radians(rumbo))
+    hv, s0 = np.array([hx, 0, hz]), np.array([-hz, 0, hx])
+    cr, sr = math.cos(math.radians(rollo)), math.sin(math.radians(rollo))
+    fw = PERFILES[perfil]
+    p = np.asarray(base, float).copy()
+    filas = []
+    for i in range(segs + 1):
+        t = i / segs
+        a = math.radians(a0 + (a1 - a0) * t)
+        d = hv * math.cos(a) + UP * math.sin(a)
+        n0 = np.cross(s0, d)
+        s = s0 * cr + n0 * sr
+        n = np.cross(s, d)
+        w = ancho * fw(t)
+        pos = (p - s * w / 2, p - n * pliegue * w, p + s * w / 2)
+        nor = [n + s * pliegue * 1.5, n, n - s * pliegue * 1.5]
+        nor = [x * (1 - arriba) + UP * arriba for x in nor]
+        nor = [x / np.linalg.norm(x) for x in nor]
+        v = uv[3] - (uv[3] - uv[1]) * t
+        uvs = [(uv[0], v), ((uv[0] + uv[2]) / 2, v), (uv[2], v)]
+        filas.append((pos, nor, uvs))
+        p = p + d * largo / segs
+    V, N, U = [], [], []
+    for i in range(segs):
+        A, B = filas[i], filas[i + 1]
+        for c in (0, 1):
+            q = [(A, c), (A, c + 1), (B, c + 1), (B, c)]
+            for f, k in (q[0], q[1], q[2], q[0], q[2], q[3]):
+                V.append(f[0][k]), N.append(f[1][k]), U.append(f[2][k])
+    V, N, U = np.array(V).reshape(-1, 3, 3), np.array(N).reshape(-1, 3, 3), np.array(U).reshape(-1, 3, 2)
+    ok = np.linalg.norm(np.cross(V[:, 1] - V[:, 0], V[:, 2] - V[:, 0]), axis=1) > 1e-12
+    V, N, U = _dos_caras(V[ok], N[ok], U[ok])
+    return _malla(V, U, N=N)
+
+
+def cartas(centros, tam, centro_copa, rng, por=3, dispersion=0.4, arriba=0.25):
+    """Cartas de follaje (racimos de hojas con alfa) con normales 'esféricas' para un sombreado suave."""
+    V, N, U = [], [], []
+    centro_copa = np.asarray(centro_copa, float)
+    for c in centros:
+        for _ in range(por):
+            o = np.asarray(c, float) + rng.normal(0, dispersion, 3)
+            # orientadas más bien hacia fuera de la copa (menos cartas vistas de canto)
+            fuera = o - centro_copa
+            n = fuera / max(np.linalg.norm(fuera), 1e-6) + rng.normal(0, 0.55, 3)
+            n /= np.linalg.norm(n)
+            t1 = np.cross(n, rng.normal(0, 1, 3))
+            t1 /= np.linalg.norm(t1)
+            t2 = np.cross(n, t1)
+            h = tam * rng.uniform(0.75, 1.2) / 2
+            q = [o - t1 * h - t2 * h, o + t1 * h - t2 * h, o + t1 * h + t2 * h, o - t1 * h + t2 * h]
+            uq = [(0, 1), (1, 1), (1, 0), (0, 0)]
+            for k in (0, 1, 2, 0, 2, 3):
+                V.append(q[k]), U.append(uq[k])
+                nn = q[k] - centro_copa
+                nn = nn / max(np.linalg.norm(nn), 1e-6) + UP * arriba
+                N.append(nn / np.linalg.norm(nn))
+    V, N, U = _dos_caras(V, N, U)
+    return _malla(V, U, N=N)
+
+
+def _dos_caras(V, N, U):
+    """Duplica los triángulos con el giro invertido y LAS MISMAS normales: así las hojas se
+    iluminan igual por delante y por detrás (con material de doble cara, el dorso sale oscuro)."""
+    V, N, U = (np.asarray(x, float).reshape(-1, 3, x_) for x, x_ in ((V, 3), (N, 3), (U, 2)))
+    inv = [0, 2, 1]
+    return np.vstack([V, V[:, inv]]), np.vstack([N, N[:, inv]]), np.vstack([U, U[:, inv]])
+
+
+def normales(V, suave):
+    """Normales por vértice con auto-suavizado: se promedian las caras vecinas cuyo ángulo es < suave."""
+    tri = V.reshape(-1, 3, 3)
+    fn = np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0])
+    fu = fn / np.maximum(np.linalg.norm(fn, axis=1, keepdims=True), 1e-12)
+    fa, fuc = np.repeat(fn, 3, 0), np.repeat(fu, 3, 0)
+    _, inv = np.unique(np.round(V / 2e-4).astype(np.int64), axis=0, return_inverse=True)
+    inv = inv.ravel()
+    if suave >= 179:
+        acc = np.zeros((inv.max() + 1, 3))
+        np.add.at(acc, inv, fa)
+        N = acc[inv]
+    else:
+        cosl = math.cos(math.radians(suave))
+        orden = np.argsort(inv, kind="stable")
+        si = inv[orden]
+        ini = np.flatnonzero(np.r_[True, si[1:] != si[:-1]])
+        cuenta = np.diff(np.r_[ini, len(si)])
+        N = np.zeros_like(V)
+        for k in np.unique(cuenta):
+            g = ini[cuenta == k]
+            idx = orden[g[:, None] + np.arange(k)[None, :]]
+            A, Un = fa[idx], fuc[idx]
+            mask = np.einsum("gid,gjd->gij", Un, Un) >= cosl
+            N[idx] = np.einsum("gij,gjd->gid", mask.astype(float), A)
+    ln = np.linalg.norm(N, axis=1, keepdims=True)
+    return np.where(ln > 1e-12, N / np.maximum(ln, 1e-12), fuc)
 
 
 # --------------------------------------------------------------------------
-# Modelo (árbol de nodos con mallas agrupadas por material)
+# Modelo (árbol de nodos con mallas agrupadas por material) y exportación glTF
 # --------------------------------------------------------------------------
 class Modelo:
     def __init__(self, nombre, matriz=None):
@@ -236,26 +548,121 @@ class Modelo:
         self.hijos.append(h)
         return h
 
-    def _volcar(self, escena, padre):
-        escena.graph.update(frame_from=padre, frame_to=self.nombre, matrix=self.matriz)
-        for color, lista in sorted(self.mallas.items()):
-            m = trimesh.util.concatenate(lista)
-            m.unmerge_vertices()  # sombreado plano
-            m.visual = trimesh.visual.TextureVisuals(
-                uv=np.zeros((len(m.vertices), 2)), material=material(color))
-            nombre = f"{self.nombre}_{color}"
-            escena.add_geometry(m, node_name=nombre, geom_name=nombre,
-                                parent_node_name=self.nombre)
+    def limites(self, M=None):
+        M = self.matriz if M is None else M @ self.matriz
+        pts = [trimesh.transform_points(m.vertices, M) for l in self.mallas.values() for m in l]
+        lo = [p.min(0) for p in pts]
+        hi = [p.max(0) for p in pts]
         for h in self.hijos:
-            h._volcar(escena, self.nombre)
+            a, b = h.limites(M)
+            lo.append(a), hi.append(b)
+        return np.min(lo, 0), np.max(hi, 0)
 
     def exportar(self, ruta):
-        escena = trimesh.Scene()
-        self._volcar(escena, escena.graph.base_frame)
+        g = _GLTF()
+        g.j["scenes"][0]["nodes"].append(self._volcar(g))
+        return g.guardar(ruta)
+
+    def _volcar(self, g):
+        nodo = {"name": self.nombre}
+        if not np.allclose(self.matriz, np.eye(4)):
+            nodo["matrix"] = [float(x) for x in self.matriz.T.flatten()]
+        prims = []
+        for color, lista in sorted(self.mallas.items()):
+            d = def_material(color)
+            Vs, Ns, Us = [], [], []
+            for m in lista:
+                V = np.asarray(m.vertices)
+                uv = np.array(m.metadata["uv_fijo"] if d["fijo"] and "uv_fijo" in m.metadata else m.visual.uv, float)
+                if "circ" in m.metadata:
+                    c = m.metadata["circ"] * d["esc"]
+                    uv = uv * [max(1.0, round(c)) / c * d["esc"], d["esc"]]
+                elif "N" not in m.metadata:
+                    uv = uv * d["esc"]
+                Vs.append(V), Us.append(uv)
+                Ns.append(m.metadata["N"] if "N" in m.metadata else normales(V, m.metadata.get("suave", 40.0)))
+            prims.append(g.primitiva(np.vstack(Vs), np.vstack(Ns), np.vstack(Us), color, d))
+        if prims:
+            g.j["meshes"].append({"name": self.nombre, "primitives": prims})
+            nodo["mesh"] = len(g.j["meshes"]) - 1
+        hijos = [h._volcar(g) for h in self.hijos]
+        if hijos:
+            nodo["children"] = hijos
+        g.j["nodes"].append(nodo)
+        return len(g.j["nodes"]) - 1
+
+
+class _GLTF:
+    def __init__(self):
+        self.bin = bytearray()
+        self.j = {"asset": {"version": "2.0", "generator": "Jugo generar_modelos.py"}, "scene": 0,
+                  "scenes": [{"nodes": []}], "nodes": [], "meshes": [], "materials": [], "textures": [],
+                  "images": [], "samplers": [{"magFilter": 9729, "minFilter": 9987, "wrapS": 10497, "wrapT": 10497}],
+                  "accessors": [], "bufferViews": []}
+        self._mat, self._tex, self.tris = {}, {}, 0
+
+    def _acc(self, arr, comp, tipo, destino, limites=False):
+        while len(self.bin) % 4:
+            self.bin.append(0)
+        datos = arr.tobytes()
+        self.j["bufferViews"].append({"buffer": 0, "byteOffset": len(self.bin), "byteLength": len(datos), "target": destino})
+        self.bin += datos
+        a = {"bufferView": len(self.j["bufferViews"]) - 1, "componentType": comp, "count": len(arr), "type": tipo}
+        if limites:
+            a["min"], a["max"] = [float(x) for x in arr.min(0)], [float(x) for x in arr.max(0)]
+        self.j["accessors"].append(a)
+        return len(self.j["accessors"]) - 1
+
+    def _textura(self, nombre):
+        if nombre not in self._tex:
+            ext = "png" if os.path.exists(os.path.join(TEXTURAS, nombre + ".png")) else "jpg"
+            self.j["images"].append({"uri": f"texturas/{nombre}.{ext}", "name": nombre})
+            self.j["textures"].append({"sampler": 0, "source": len(self.j["images"]) - 1, "name": nombre})
+            self._tex[nombre] = len(self.j["textures"]) - 1
+        return {"index": self._tex[nombre]}
+
+    def _material(self, nombre, d):
+        if nombre not in self._mat:
+            pbr = {"baseColorFactor": [float(x) for x in d["factor"]] + [d["opacidad"]],
+                   "metallicFactor": d["met"], "roughnessFactor": d["rug"]}
+            mat = {"name": nombre, "pbrMetallicRoughness": pbr}
+            if d["tex"]:
+                pbr["baseColorTexture"] = self._textura(d["tex"])
+            if d["normal"]:
+                mat["normalTexture"] = self._textura(d["normal"])
+            if d["alfa"]:
+                mat["alphaMode"] = d["alfa"]
+                if d["alfa"] == "MASK":
+                    mat["alphaCutoff"] = 0.5
+            if d["doble"]:
+                mat["doubleSided"] = True
+            self.j["materials"].append(mat)
+            self._mat[nombre] = len(self.j["materials"]) - 1
+        return self._mat[nombre]
+
+    def primitiva(self, V, N, UV, color, d):
+        todo = np.hstack([V, N, UV])
+        _, primero, inv = np.unique(np.round(todo, 4), axis=0, return_index=True, return_inverse=True)
+        todo = todo[primero].astype(np.float32)
+        idx = inv.ravel().astype(np.uint32)
+        self.tris += len(idx) // 3
+        nn = todo[:, 3:6]
+        nn = nn / np.maximum(np.linalg.norm(nn, axis=1, keepdims=True), 1e-12)
+        return {"attributes": {"POSITION": self._acc(np.ascontiguousarray(todo[:, :3]), 5126, "VEC3", 34962, True),
+                               "NORMAL": self._acc(np.ascontiguousarray(nn.astype(np.float32)), 5126, "VEC3", 34962),
+                               "TEXCOORD_0": self._acc(np.ascontiguousarray(todo[:, 6:8]), 5126, "VEC2", 34962)},
+                "indices": self._acc(idx, 5125, "SCALAR", 34963), "material": self._material(color, d)}
+
+    def guardar(self, ruta):
+        self.j["buffers"] = [{"byteLength": len(self.bin),
+                              "uri": "data:application/octet-stream;base64," + base64.b64encode(bytes(self.bin)).decode()}]
+        if not self.j["textures"]:
+            for k in ("textures", "images", "samplers"):
+                del self.j[k]
         os.makedirs(os.path.dirname(ruta), exist_ok=True)
-        with open(ruta, "wb") as f:
-            f.write(escena.export(file_type="glb", include_normals=True))
-        return escena
+        with open(ruta, "w") as f:
+            json.dump(self.j, f, separators=(",", ":"))
+        return self.tris
 
 
 # --------------------------------------------------------------------------
@@ -288,11 +695,11 @@ def flor_mini(m, base, alto, color, semilla):
     rng = np.random.default_rng(semilla)
     x, y, z = base
     top = (x + rng.uniform(-0.05, 0.05), y + alto, z + rng.uniform(-0.05, 0.05))
-    m.add(viga(base, top, 0.015, n=4), "hoja_osc")
-    m.add(T(hoja_plana(0.12, 0.06), (x, y + alto * 0.4, z), (0, rng.uniform(0, 360), -20)), "hoja")
+    m.add(viga(base, top, 0.012, n=5), "hoja_osc")
+    m.add(tira((x, y + alto * 0.35, z), rng.uniform(0, 360), 0.16, 0.08, 40, -10, 3, "recto", pliegue=0.1), "hoja_ancha")
     for i in range(6):
         a = i * 60 + rng.uniform(0, 20)
-        m.add(T(hoja_plana(0.08, 0.06, 0.01), top, (0, a, 0)), color)
+        m.add(tira(top, a, 0.09, 0.06, 15, -15, 2, "petalo"), color)
     m.add(T(bola(0.035, 0), top), "centro_flor")
 
 
@@ -302,18 +709,6 @@ def casa():
     W, D, H, base = 8.0, 6.0, 3.0, 0.45
     top = base + H
     m.add(T(caja(W + 0.3, base, D + 0.3), (0, base / 2, 0)), "piedra")
-    # hiladas de piedra del zócalo
-    for i in range(26):
-        lado = rng.integers(4)
-        u = rng.uniform(-0.48, 0.48)
-        yy = rng.choice([0.12, 0.32])
-        if lado < 2:
-            p = (u * W, yy, (D / 2 + 0.16) * (1 if lado == 0 else -1))
-            s = (rng.uniform(0.3, 0.6), 0.15, 0.04)
-        else:
-            p = ((W / 2 + 0.16) * (1 if lado == 2 else -1), yy, u * D)
-            s = (0.04, 0.15, rng.uniform(0.3, 0.6))
-        m.add(T(caja(*s), p), "piedra_osc")
     m.add(T(caja(W, H, D), (0, base + H / 2, 0)), "estuco")
     m.add(T(caja(W + 0.18, 0.22, D + 0.18), (0, top - 0.08, 0)), "madera")
     for sx in (-1, 1):
@@ -328,26 +723,18 @@ def casa():
     th = math.atan(rise / (D / 2))
     L = (D / 2 + over) / math.cos(th)
     ridge_y = top + rise
+    eave = D / 2 + over
+    n = np.array([0, math.cos(th), math.sin(th)])
+    mid = np.array([0, ridge_y - eave * math.tan(th) / 2, eave / 2]) + n * t / 2
     for lado in (1, -1):
-        n = np.array([0, math.cos(th), lado * math.sin(th)])
-        mid = np.array([0, ridge_y - (D / 2 + over) * math.tan(th) / 2, lado * (D / 2 + over) / 2]) + n * t / 2
-        Mr = M_trs(mid, (math.degrees(th) * lado, 0, 0))
-        losa = caja(W + 0.9, t, L)
-        losa.apply_transform(Mr)
-        m.add(losa, "tejado")
-        for _ in range(34):
-            tej = T(caja(rng.uniform(0.35, 0.6), 0.05, rng.uniform(0.25, 0.4)),
-                    (rng.uniform(-W / 2, W / 2), t / 2 + 0.02, rng.uniform(-L / 2 + 0.2, L / 2 - 0.2)),
-                    (0, rng.uniform(-6, 6), 0))
-            tej.apply_transform(Mr)
-            m.add(tej, "tejado_osc")
-        # tablas del alero
-        eave = (D / 2 + over)
+        Mr = M_trs(r=(0, 0 if lado == 1 else 180, 0)) @ M_trs(mid, (math.degrees(th), 0, 0))
+        m.add(aplicar(caja(W + 0.9, t, L), Mr), "tejado")
+        m.add(aplicar(T(caja(W + 0.9, 0.06, 0.1), (0, -t / 2 + 0.03, L / 2 + 0.03)), Mr), "madera_osc")
         for sx in (-1, 1):
-            m.add(viga((sx * (W / 2 + 0.47), ridge_y + 0.12, 0),
-                       (sx * (W / 2 + 0.47), ridge_y + 0.12 - eave * math.tan(th), lado * eave),
+            m.add(viga((sx * (W / 2 + 0.47), ridge_y + 0.1, 0),
+                       (sx * (W / 2 + 0.47), ridge_y + 0.1 - eave * math.tan(th), lado * eave),
                        0.1, cuadrada=True), "madera")
-    m.add(T(caja(W + 1.0, 0.2, 0.34), (0, ridge_y + 0.12, 0)), "tejado_osc")
+    m.add(T(caja(W + 1.0, 0.16, 0.36), (0, ridge_y + 0.14, 0)), "metal_osc")
     # buhardilla
     bx, bw, bz0, bz1 = -1.7, 1.7, 0.6, D / 2 - 0.25
     by0, by1 = top - 0.2, top + 1.55
@@ -364,15 +751,13 @@ def casa():
     ventana(m, 0.6, 0.75, (bx, top + 0.7, bz1 + 0.01), cruz=True)
     # chimenea
     m.add(T(caja(0.85, 3.4, 0.85), (2.5, top + 1.7, -1.2)), "piedra")
-    for i in range(8):
-        m.add(T(caja(0.3, 0.12, 0.05), (2.5 + rng.uniform(-0.25, 0.25), top + 1.2 + i * 0.27, -1.2 + 0.44)), "piedra_osc")
     m.add(T(caja(1.05, 0.16, 1.05), (2.5, top + 3.45, -1.2)), "piedra_osc")
     # puerta
     dz = D / 2
     dx = 1.6
     m.add(T(caja(1.1, 2.2, 0.1), (dx, base + 1.1, dz + 0.04)), "madera")
     for i in range(4):
-        m.add(T(caja(0.02, 2.1, 0.11), (dx - 0.4 + i * 0.27, base + 1.1, dz + 0.045)), "madera_osc")
+        m.add(T(caja(0.015, 2.1, 0.11), (dx - 0.4 + i * 0.27, base + 1.1, dz + 0.042)), "madera_osc")
     for p in [(caja(1.4, 0.14, 0.18), (dx, base + 2.27, dz + 0.06)),
               (caja(0.14, 2.3, 0.18), (dx - 0.62, base + 1.15, dz + 0.06)),
               (caja(0.14, 2.3, 0.18), (dx + 0.62, base + 1.15, dz + 0.06))]:
@@ -424,6 +809,14 @@ def casa():
     for i in range(14):
         flor_mini(m, (jx - 1.6 + i * 0.24, 0.47, jz + rng.uniform(-0.12, 0.12)),
                   rng.uniform(0.35, 0.75), cols[i % 4], i)
+    for i in range(8):
+        mata(m, (jx - 1.5 + i * 0.43, 0.47, jz), 6, 0.12, (0.2, 0.45), (0.015, 0.025), rng)
+    # contraventanas
+    for wx in (-0.6, -2.6):
+        for sx in (-1, 1):
+            m.add(T(caja(0.42, 1.1, 0.05), (wx + sx * 0.88, base + 1.7, dz + 0.04)), "madera_osc")
+            for k in range(3):
+                m.add(T(caja(0.34, 0.03, 0.06), (wx + sx * 0.88, base + 1.35 + k * 0.35, dz + 0.045)), "madera")
     # bajante
     m.add(viga((W / 2 + 0.15, 0.1, D / 2 + 0.1), (W / 2 + 0.15, top, D / 2 + 0.1), 0.06), "metal_osc")
     m.add(T(caja(W + 0.6, 0.12, 0.16), (0, top - 0.02, D / 2 + 0.5)), "metal_osc")
@@ -497,350 +890,456 @@ def puerta_jardin():
 # --------------------------------------------------------------------------
 # VEGETACIÓN
 # --------------------------------------------------------------------------
-def arbol(nombre, colores, semilla=1):
+def _unit(v):
+    v = np.asarray(v, float)
+    return v / np.linalg.norm(v)
+
+
+def _desviar(d, grados, rng):
+    """Dirección girada `grados` respecto a d, en un acimut aleatorio."""
+    p = np.cross(d, rng.normal(0, 1, 3))
+    p /= np.linalg.norm(p)
+    a = math.radians(grados)
+    return _unit(d * math.cos(a) + p * math.sin(a))
+
+
+def arbol(nombre, mat_hojas, semilla, alto=7.5, r0=0.55, tam_carta=2.0):
     m = Modelo(nombre)
     rng = np.random.default_rng(semilla)
-    pts = [(0, 0, 0), (0.2, 2.0, 0.1), (-0.1, 4.0, 0.0), (0.15, 6.0, -0.1), (0.0, 7.5, 0.0)]
-    rad = [0.95, 0.75, 0.62, 0.5, 0.38]
-    for i in range(len(pts) - 1):
-        m.add(viga(pts[i], pts[i + 1], rad[i], rad[i + 1], n=7), "tronco")
-    for i in range(6):
-        a = i * 60 + rng.uniform(-15, 15)
-        d = np.array([math.cos(math.radians(a)), 0, math.sin(math.radians(a))])
-        m.add(viga((d[0] * 0.3, 0.6, d[2] * 0.3), tuple(d * 1.7 + np.array([0, -0.1, 0])), 0.42, 0.08, n=5), "tronco_osc")
-    for i in range(10):
-        a = rng.uniform(0, 2 * math.pi)
-        y = rng.uniform(0.5, 6.5)
-        r = np.interp(y, [0, 7.5], [0.95, 0.38])
-        m.add(T(caja(0.12, rng.uniform(0.4, 0.9), 0.05), (math.cos(a) * r, y, math.sin(a) * r),
-                (0, -math.degrees(a) + 90, 0)), "tronco_osc")
-    ramas = []
-    for i in range(4):
-        a = i * 90 + rng.uniform(0, 40)
-        y = rng.uniform(4.5, 6.5)
-        d = np.array([math.cos(math.radians(a)), 0.8, math.sin(math.radians(a))])
-        fin = np.array([0, y, 0]) + d * rng.uniform(2.6, 3.4)
-        m.add(viga((0, y, 0), fin, 0.35, 0.14, n=6), "tronco")
-        ramas.append(fin)
-    copa = ramas + [np.array([0, 9.3, 0])]
-    for i, c in enumerate(copa):
-        r = rng.uniform(2.2, 2.9)
-        m.add(T(bola(r, 1, 0.18, semilla * 10 + i), tuple(c + np.array([0, 0.5, 0]))), colores[i % 2])
-        for k in range(3):
-            off = rng.normal(0, 1, 3)
-            off = off / np.linalg.norm(off) * r * 0.85
-            m.add(T(bola(r * 0.45, 1, 0.2, semilla * 100 + i * 7 + k), tuple(c + off + np.array([0, 0.5, 0]))), colores[(i + k + 1) % 3])
+    # tronco: curva suave con ensanche y contrafuertes en la base
+    nseg = 12
+    pts, p, d = [], np.zeros(3), UP.copy()
+    for i in range(nseg + 1):
+        pts.append(p.copy())
+        d = _unit(d + rng.normal(0, 0.07, 3) * [1, 0.1, 1])
+        p = p + d * alto / nseg
+    pts = np.array(pts)
+    ys = pts[:, 1]
+    radios = r0 * (1 - 0.62 * ys / alto) + r0 * 0.8 * np.exp(-ys / 0.4)
+    fase = rng.uniform(0, 6.28)
+    m.add(tubo(pts, radios, 14, mod=lambda i, a: 1 + 0.3 * math.exp(-ys[i] / 0.45) * math.sin(5 * a + fase)
+               + 0.04 * math.sin(3 * a + i)), "tronco")
+    follaje = [pts[-1] + UP * 0.3]
+
+    def rama(origen, d, largo, radio, nivel):
+        n = 6
+        pr, q = [np.asarray(origen, float)], np.asarray(origen, float)
+        for i in range(n):
+            d = _unit(d + UP * 0.1 + rng.normal(0, 0.12, 3))
+            q = q + d * largo / n
+            pr.append(q.copy())
+        pr = np.array(pr)
+        rr = radio * (1 - 0.7 * np.linspace(0, 1, n + 1))
+        m.add(tubo(pr, rr, 8 if nivel == 0 else 6), "tronco")
+        if nivel < 1:
+            for t in rng.uniform(0.35, 0.95, 3):
+                i = int(t * n)
+                rama(pr[i], _desviar(d, rng.uniform(35, 60), rng), largo * rng.uniform(0.5, 0.7), rr[i] * 0.75, nivel + 1)
+            follaje.extend([pr[-1], pr[-2], pr[-3]])
+        else:
+            follaje.extend([pr[2], pr[3], pr[4], pr[5], pr[6]])
+
+    n_ramas = 9
+    for k in range(n_ramas):
+        f = 0.42 + 0.55 * k / (n_ramas - 1)
+        i = int(f * nseg)
+        ac = k * 2.4 + rng.uniform(-0.3, 0.3)
+        elev = math.radians(rng.uniform(10, 30) + 35 * f)
+        d0 = np.array([math.cos(ac) * math.cos(elev), math.sin(elev), math.sin(ac) * math.cos(elev)])
+        rama(pts[i], d0, alto * (0.7 - 0.3 * f), radios[i] * 0.6, 0)
+    centro = np.mean(follaje, 0) - UP * 1.5
+    mitad = len(follaje) // 2
+    orden = rng.permutation(len(follaje))
+    fol = [follaje[i] for i in orden]
+    m.add(cartas(fol[:mitad], tam_carta, centro, rng, por=3, dispersion=0.55), mat_hojas[0])
+    m.add(cartas(fol[mitad:], tam_carta, centro, rng, por=3, dispersion=0.55), mat_hojas[1])
     return m
+
+
+def mata(m, centro, n, radio, alto, ancho, rng, mats=("hierba", "hierba_clara", "hierba_osc"), segs=4):
+    """Añade n briznas curvas alrededor de `centro`."""
+    centro = np.asarray(centro, float)
+    for i in range(n):
+        a, r = rng.uniform(0, 2 * math.pi), radio * math.sqrt(rng.uniform())
+        base = centro + [math.cos(a) * r, 0, math.sin(a) * r]
+        a0 = rng.uniform(68, 88)
+        m.add(tira(base, math.degrees(a) + rng.uniform(-60, 60), rng.uniform(*alto), rng.uniform(*ancho), a0,
+                   a0 - rng.uniform(15, 65), segs, pliegue=0.18, arriba=0.45, rollo=rng.uniform(-35, 35)), mats[i % len(mats)])
 
 
 def hierbajo():
     m = Modelo("hierbajo")
     rng = np.random.default_rng(11)
-    cols = ["hierba", "hierba_osc", "hierba_clara"]
-    for i in range(16):
-        a, r = rng.uniform(0, 2 * math.pi), rng.uniform(0, 0.28)
-        h = rng.uniform(0.55, 1.1)
-        b = brizna(h, rng.uniform(0.035, 0.06), (math.cos(a) * h * 0.35, math.sin(a) * h * 0.35))
-        m.add([T(x, (math.cos(a) * r, 0, math.sin(a) * r), (0, rng.uniform(0, 360), 0)) for x in b], cols[i % 3])
-    for i in range(3):
+    mata(m, (0, 0, 0), 40, 0.3, (0.35, 1.0), (0.022, 0.045), rng)
+    mata(m, (0, 0, 0), 8, 0.25, (0.5, 0.9), (0.02, 0.035), rng, mats=("seco",))
+    for i in range(4):
         a = rng.uniform(0, 2 * math.pi)
-        top = (math.cos(a) * 0.25, rng.uniform(1.0, 1.3), math.sin(a) * 0.25)
-        m.add(viga((0, 0, 0), top, 0.012, n=4), "hierba_osc")
-        m.add(T(bola(0.05, 0, escala=(1, 2.2, 1)), top), "seco")
+        h = rng.uniform(1.0, 1.35)
+        pts = [(0, 0, 0), (math.cos(a) * 0.08, h * 0.5, math.sin(a) * 0.08), (math.cos(a) * 0.28, h, math.sin(a) * 0.28)]
+        m.add(tubo(pts, [0.009, 0.007, 0.005], 5), "hierba_osc")
+        d = _unit(np.array(pts[2]) - np.array(pts[1]))
+        espiga = torno([(0.0, 0.0), (0.02, 0.03), (0.024, 0.09), (0.014, 0.17), (0.0, 0.21)], 6)
+        espiga.apply_transform(trimesh.geometry.align_vectors([0, 1, 0], d))
+        espiga.apply_translation(np.array(pts[2]) - d * 0.03)
+        m.add(espiga, "seco")
     return m
+
+
+def umbela(m, tallo_fin, direccion, R, rng, n=13):
+    for i in range(n):
+        d = _desviar(direccion, rng.uniform(8, 62), rng)
+        fin = np.asarray(tallo_fin) + d * R * rng.uniform(0.75, 1.0)
+        m.add(viga(tallo_fin, fin, 0.007, n=3), "hierba")
+        for k in range(3):
+            m.add(T(bola(R * 0.14, -1), tuple(fin + rng.normal(0, R * 0.07, 3))), "petalo_blanco")
 
 
 def hierbajo_grande():
     m = Modelo("hierbajo_grande")
     rng = np.random.default_rng(12)
-    cols = ["hierba", "hierba_osc", "hierba_clara", "hoja_osc"]
-    for i in range(18):
-        a, r = rng.uniform(0, 2 * math.pi), rng.uniform(0, 0.55)
-        h = rng.uniform(1.4, 2.7)
-        b = brizna(h, rng.uniform(0.08, 0.14), (math.cos(a) * h * 0.4, math.sin(a) * h * 0.4))
-        m.add([T(x, (math.cos(a) * r, 0, math.sin(a) * r), (0, rng.uniform(0, 360), 0)) for x in b], cols[i % 4])
-    for i in range(7):
-        a = i * 51
-        m.add(T(hoja_plana(0.9, 0.45, 0.04), (0, 0.15, 0), (-20, a, 0)), "hoja")
+    mata(m, (0, 0, 0), 34, 0.5, (1.0, 2.3), (0.05, 0.09), rng, segs=5)
+    for i in range(9):
+        a = i * 40 + rng.uniform(-15, 15)
+        r = rng.uniform(0.05, 0.3)
+        m.add(tira((math.cos(math.radians(a)) * r, 0.02, math.sin(math.radians(a)) * r), a, rng.uniform(0.8, 1.25),
+                   rng.uniform(0.38, 0.55), rng.uniform(45, 70), rng.uniform(-25, 5), 6, "recto", pliegue=0.1, arriba=0.3),
+              "hoja_ancha" if i % 3 else "hoja_ancha_osc")
     for i in range(3):
         a = rng.uniform(0, 2 * math.pi)
-        top = (math.cos(a) * 0.7, rng.uniform(2.6, 3.1), math.sin(a) * 0.7)
-        m.add(viga((0, 0, 0), top, 0.03, 0.02, n=5), "hierba_osc")
-        m.add(T(bola(0.22, 1, 0.12, i), top), "petalo_blanco")
-        m.add(T(bola(0.07, 0), top), "seco")
+        h = rng.uniform(2.3, 3.0)
+        pts = np.array([(0, 0, 0), (math.cos(a) * 0.1, h * 0.4, math.sin(a) * 0.1),
+                        (math.cos(a) * 0.3, h * 0.75, math.sin(a) * 0.3), (math.cos(a) * 0.55, h, math.sin(a) * 0.55)])
+        m.add(tubo(pts, [0.035, 0.03, 0.022, 0.015], 6), "hierba_osc")
+        umbela(m, pts[-1], _unit(pts[-1] - pts[-2]), 0.34, rng)
+        m.add(tira(pts[1], math.degrees(a) + 90, 0.5, 0.26, 30, -20, 4, "recto", pliegue=0.1), "hoja_ancha")
     return m
 
 
 def matorral():
     m = Modelo("matorral")
     rng = np.random.default_rng(13)
-    cols = ["hoja", "hoja_osc", "hoja_clara", "hoja_muy_osc"]
-    centros = [(0, 0.75, 0, 0.9), (0.7, 0.55, 0.2, 0.7), (-0.6, 0.6, 0.3, 0.75),
-               (0.2, 0.5, -0.6, 0.7), (-0.3, 1.35, -0.1, 0.65), (0.4, 1.2, 0.4, 0.55), (-0.8, 0.4, -0.4, 0.5)]
-    for i, (x, y, z, r) in enumerate(centros):
-        m.add(T(bola(r, 1, 0.2, i + 30), (x, y, z)), cols[i % 4])
-    for i in range(24):
-        n = rng.normal(0, 1, 3)
-        n[1] = abs(n[1])
-        n /= np.linalg.norm(n)
-        p = np.array([0, 0.75, 0]) + n * 1.0
-        yaw = math.degrees(math.atan2(n[0], n[2]))
-        m.add(T(hoja_plana(0.35, 0.18, 0.02), tuple(p), (-math.degrees(math.asin(n[1])) + 10, yaw, 0)), cols[i % 3])
+    fol = []
     for i in range(9):
-        n = rng.normal(0, 1, 3)
-        n[1] = abs(n[1]) + 0.3
-        n /= np.linalg.norm(n)
-        p = np.array([0, 0.75, 0]) + n * 1.02
+        a = i * 40 + rng.uniform(-15, 15)
+        d = _unit([math.cos(math.radians(a)) * 0.75, rng.uniform(0.7, 1.4), math.sin(math.radians(a)) * 0.75])
+        L = rng.uniform(1.0, 1.5)
+        pts, q = [np.zeros(3)], np.zeros(3)
         for k in range(5):
-            m.add(T(hoja_plana(0.07, 0.06, 0.01), tuple(p), (-math.degrees(math.asin(n[1])), k * 72, 0)), "petalo_blanco")
-        m.add(T(bola(0.03, 0), tuple(p)), "petalo_amarillo")
+            d = _unit(d + rng.normal(0, 0.12, 3))
+            q = q + d * L / 5
+            pts.append(q.copy())
+        m.add(tubo(pts, np.linspace(0.04, 0.012, 6), 5), "tronco_osc")
+        fol += pts[2:]
+        for t in (2, 4):
+            lado = pts[t] + _desviar(d, 60, rng) * 0.4
+            m.add(viga(pts[t], lado, 0.012, 0.006, n=3), "tronco_osc")
+            fol.append(lado)
+    fol.append(np.array([0, 0.6, 0]))
+    centro = np.array([0, 0.45, 0])
+    orden = rng.permutation(len(fol))
+    fol = [fol[i] for i in orden]
+    k = len(fol) * 2 // 3
+    m.add(cartas(fol[:k], 0.85, centro, rng, por=3, dispersion=0.16, arriba=0.35), "hojas_verde")
+    m.add(cartas(fol[k:], 0.85, centro, rng, por=3, dispersion=0.16, arriba=0.35), "hojas_osc")
     return m
 
 
 def zarza():
     m = Modelo("zarza")
     rng = np.random.default_rng(14)
-    for s in range(8):
-        a = s * 45 + rng.uniform(-15, 15)
+    for s in range(9):
+        a = s * 40 + rng.uniform(-15, 15)
         d = np.array([math.cos(math.radians(a)), 0, math.sin(math.radians(a))])
-        alcance = rng.uniform(1.0, 1.7)
-        alto = rng.uniform(1.2, 2.0)
-        prev = None
-        N = 9
+        alcance, alto = rng.uniform(1.0, 1.7), rng.uniform(1.0, 1.9)
+        N = 10
+        pts = []
         for i in range(N + 1):
             f = i / N
-            p = d * alcance * f + np.array([0, math.sin(f * math.pi * 0.85) * alto, 0])
-            p += np.array([math.sin(f * 7 + s) * 0.08, 0, math.cos(f * 6 + s) * 0.08])
-            if prev is not None:
-                r = 0.075 * (1 - f * 0.55)
-                m.add(viga(prev, p, r, n=5), "zarza")
-                for _ in range(1):
-                    dirr = rng.normal(0, 1, 3)
-                    dirr /= np.linalg.norm(dirr)
-                    q = (prev + p) / 2
-                    m.add(viga(q, q + dirr * 0.11, 0.022, 0.0, n=3), "petalo_blanco" if rng.random() < 0.15 else "zarza")
-                if i % 2 == 0:
-                    m.add(T(hoja_plana(0.3, 0.2, 0.015), tuple(p), (rng.uniform(-40, 10), rng.uniform(0, 360), 0)), "zarza_hoja")
-                if i in (5, 7) and rng.random() < 0.7:
-                    for k in range(4):
-                        m.add(T(bola(0.045, 1), tuple(p + rng.normal(0, 0.04, 3) + np.array([0, -0.06, 0]))), "mora")
-            prev = p
-    for i in range(14):
-        a = rng.uniform(0, 360)
-        m.add(T(hoja_plana(0.45, 0.28, 0.02), (0, 0.1, 0), (-15, a, 0)), "zarza_hoja" if i % 2 else "hoja_muy_osc")
-    for i, (x, z, r) in enumerate([(0.0, 0.0, 0.55), (0.5, 0.3, 0.4), (-0.4, -0.3, 0.45)]):
-        m.add(T(bola(r, 1, 0.2, 40 + i), (x, r * 0.6, z)), "hoja_muy_osc")
+            p = d * alcance * f + UP * math.sin(f * math.pi * 0.85) * alto
+            pts.append(p + [math.sin(f * 7 + s) * 0.08, 0, math.cos(f * 6 + s) * 0.08])
+        pts = np.array(pts)
+        m.add(tubo(pts, 0.05 * (1 - 0.65 * np.linspace(0, 1, N + 1)), 6), "zarza")
+        for i in range(1, N + 1):
+            q = (pts[i - 1] + pts[i]) / 2
+            m.add(viga(q, q + _unit(rng.normal(0, 1, 3)) * 0.09, 0.016, 0.0, n=3), "zarza")
+            for _ in range(2):
+                rumbo = rng.uniform(0, 360)
+                m.add(tira(pts[i], rumbo, rng.uniform(0.2, 0.32), rng.uniform(0.13, 0.2), rng.uniform(-10, 40), rng.uniform(-40, 0),
+                           3, "recto", pliegue=0.12, arriba=0.3), "hoja_ancha_osc" if (i + s) % 3 else "hoja_ancha")
+            if i in (6, 8) and rng.random() < 0.75:
+                for k in range(5):
+                    m.add(T(bola(0.04, -1), tuple(pts[i] + rng.normal(0, 0.04, 3) - UP * 0.06)), "mora")
+    for i in range(16):
+        m.add(tira((0, 0.03, 0), rng.uniform(0, 360), rng.uniform(0.3, 0.5), rng.uniform(0.2, 0.3), rng.uniform(15, 55), rng.uniform(-20, 10),
+                   4, "recto", pliegue=0.12, arriba=0.3), "hoja_ancha_osc" if i % 2 else "hoja_ancha")
     return m
 
 
 def girasol_gigante():
     m = Modelo("girasol_gigante")
-    pts = [(0, 0, 0), (0.12, 1.5, -0.05), (0.05, 2.8, 0.1), (0.0, 3.5, 0.3)]
-    for i in range(3):
-        m.add(viga(pts[i], pts[i + 1], 0.14 - i * 0.025, 0.12 - i * 0.025, n=6), "hoja_osc")
-    for i, (y, a) in enumerate([(0.8, 20), (1.4, 150), (2.0, 260), (2.6, 60)]):
-        m.add(T(hoja_plana(0.9 - i * 0.1, 0.6, 0.03), (0.08, y, 0), (-25, a, 0)), "hoja" if i % 2 else "hoja_clara")
+    rng = np.random.default_rng(15)
+    pts = np.array([(0, 0, 0), (0.06, 0.8, -0.03), (0.1, 1.7, 0.0), (0.06, 2.6, 0.08), (0.0, 3.3, 0.22), (0.0, 3.5, 0.34)])
+    m.add(tubo(pts, [0.085, 0.075, 0.07, 0.062, 0.055, 0.06], 8), "hoja_osc")
+    for i, (y, a) in enumerate([(0.7, 20), (1.15, 160), (1.6, 290), (2.05, 80), (2.5, 215), (2.9, 340)]):
+        base = np.array([np.interp(y, pts[:, 1], pts[:, 0]), y, np.interp(y, pts[:, 1], pts[:, 2])])
+        dirv = np.array([math.cos(math.radians(a)), 0.5, math.sin(math.radians(a))])
+        fin = base + dirv * 0.18
+        m.add(viga(base, fin, 0.018, 0.012, n=5), "hoja_osc")
+        m.add(tira(fin, a, 0.85 - i * 0.07, 0.62 - i * 0.05, 30, -35, 6, "recto", pliegue=0.1, arriba=0.3),
+              "hoja_ancha" if i % 2 else "hoja_ancha_osc")
+    # cabeza (se modela mirando hacia +Y y luego se gira hacia el frente)
     cab = []
-    cab.append(("centro_flor", T(cilindro(0.55, 0.5, 0.18, 14), (0, 0, 0), (90, 0, 0))))
-    cab.append(("tronco_osc", T(cilindro(0.35, 0.3, 0.2, 10), (0, 0, 0.02), (90, 0, 0))))
-    cab.append(("hoja_osc", T(cilindro(0.45, 0.3, 0.2, 10), (0, 0, -0.18), (90, 0, 0))))
-    Mh = M_trs((0.0, 3.55, 0.35), (25, 0, 0))
-    for i in range(18):
-        a = math.radians(i * 20)
-        p = T(hoja_plana(0.6, 0.3, 0.03), (0, 0, 0.42))  # hacia +Z
-        p.apply_transform(rotation_matrix(-math.pi / 2, (1, 0, 0)))  # ahora hacia +Y, plano XY
-        p.apply_transform(rotation_matrix(a, (0, 0, 1)))
-        p.apply_translation((0, 0, 0.09 + 0.015 * (i % 2)))
-        cab.append(("petalo_amarillo" if i % 2 else "petalo_amarillo_osc", p))
-    for col, malla in cab:
-        malla.apply_transform(Mh)
-        m.add(malla, col)
+    cab.append((disco(0.4, 0.05, 20, domo=0.05), "girasol_centro"))
+    cab.append((torno([(0.0, -0.2), (0.07, -0.2), (0.36, -0.1), (0.44, 0.0), (0.4, 0.05)], 20), "hoja_osc"))
+    for anillo, (n, largo, a0, y) in enumerate([(21, 0.5, 6, 0.02), (21, 0.42, 22, 0.035)]):
+        for i in range(n):
+            a = 360 * (i + 0.5 * anillo) / n + rng.uniform(-3, 3)
+            b = (math.cos(math.radians(a)) * 0.37, y, math.sin(math.radians(a)) * 0.37)
+            cab.append((tira(b, a, largo * rng.uniform(0.9, 1.08), 0.17, a0 + rng.uniform(-6, 6), a0 - rng.uniform(5, 25), 4,
+                             "petalo", pliegue=0.12, arriba=0.25), "petalo_amarillo" if anillo else "petalo_amarillo_osc"))
+    for i in range(14):
+        a = i * 360 / 14
+        b = (math.cos(math.radians(a)) * 0.38, -0.04, math.sin(math.radians(a)) * 0.38)
+        cab.append((tira(b, a, 0.24, 0.12, -5, -30, 3, "brizna", arriba=0.1), "hierba_osc"))
+    Mh = M_trs((0.0, 3.56, 0.42), (68, 0, 0))
+    for malla, col in cab:
+        m.add(aplicar(malla, Mh), col)
     return m
 
 
 def amapola_gigante():
     m = Modelo("amapola_gigante")
-    pts = [(0, 0, 0), (-0.15, 1.0, 0.05), (0.05, 2.0, -0.05), (0.2, 2.6, 0.15)]
-    for i in range(3):
-        m.add(viga(pts[i], pts[i + 1], 0.07, 0.06, n=5), "hoja_osc")
-    for i, (y, a) in enumerate([(0.4, 30), (0.8, 200), (1.3, 110)]):
-        m.add(T(hoja_plana(0.7, 0.35, 0.03), (0, y, 0), (-30, a, 0)), "hoja")
-    top = np.array(pts[-1])
-    for i in range(6):
-        a = math.radians(i * 60)
-        p = bola(0.42, 1, 0.12, i, escala=(0.8, 0.12, 1.0))
-        p.apply_translation((0, 0, 0.38))
-        p.apply_transform(rotation_matrix(math.radians(-38 if i % 2 else -52), (1, 0, 0)))
-        p.apply_transform(rotation_matrix(a, (0, 1, 0)))
-        p.apply_translation(top + np.array([0, 0.05, 0]))
-        m.add(p, "petalo_rojo" if i % 2 else "petalo_rojo_osc")
-    m.add(T(bola(0.16, 1, escala=(1, 0.7, 1)), tuple(top + np.array([0, 0.15, 0]))), "negro")
-    m.add(T(bola(0.1, 1, escala=(1, 0.6, 1)), tuple(top + np.array([0, 0.24, 0]))), "hoja_osc")
-    for i in range(12):
-        a = math.radians(i * 30)
-        q = top + np.array([math.cos(a) * 0.22, 0.28, math.sin(a) * 0.22])
-        m.add(viga(top + np.array([0, 0.12, 0]), q, 0.01, n=3), "negro")
-        m.add(T(bola(0.025, 0), tuple(q)), "negro")
+    rng = np.random.default_rng(16)
+    pts = np.array([(0, 0, 0), (-0.1, 0.7, 0.04), (-0.05, 1.4, -0.03), (0.08, 2.1, 0.02), (0.2, 2.55, 0.1)])
+    m.add(tubo(pts, [0.045, 0.04, 0.035, 0.03, 0.03], 7), "hoja_osc")
+    for i, (y, a) in enumerate([(0.15, 30), (0.35, 150), (0.55, 260), (0.9, 80), (1.3, 200)]):
+        base = (np.interp(y, pts[:, 1], pts[:, 0]), y, np.interp(y, pts[:, 1], pts[:, 2]))
+        m.add(tira(base, a, 0.75 - i * 0.08, 0.3, 55, -20, 6, "recto", pliegue=0.12, arriba=0.3), "hoja_ancha" if i % 2 else "hoja_ancha_osc")
+    top = pts[-1]
+    for anillo, (n, a0, a1, largo) in enumerate([(4, 35, 8, 0.6), (3, 68, 50, 0.5)]):
+        for i in range(n):
+            a = 360 * i / n + anillo * 45 + rng.uniform(-8, 8)
+            m.add(tira(top, a, largo, 0.72, a0, a1, 6, "ancho", pliegue=0.22, arriba=0.15),
+                  "petalo_rojo" if (i + anillo) % 2 else "petalo_rojo_osc")
+    m.add(T(bola(0.1, 1, escala=(1, 1.1, 1)), tuple(top + UP * 0.1)), "hoja_osc")
+    m.add(T(cilindro(0.09, 0.07, 0.03, 10), tuple(top + UP * 0.19)), "petalo_amarillo")
+    for i in range(22):
+        a = math.radians(i * 360 / 22)
+        q = top + [math.cos(a) * 0.17, 0.16 + 0.03 * (i % 2), math.sin(a) * 0.17]
+        m.add(viga(top + UP * 0.04, q, 0.006, n=3), "negro")
+        m.add(T(bola(0.016, 0), tuple(q)), "negro")
+    # capullo
+    cap = np.array([(-0.05, 1.4, -0.03), (-0.3, 1.9, -0.2), (-0.42, 1.95, -0.3), (-0.48, 1.85, -0.36)])
+    m.add(tubo(cap, 0.018, 5), "hoja_osc")
+    m.add(T(bola(0.08, 1, escala=(1, 1.5, 1)), tuple(cap[-1] - UP * 0.08)), "hoja")
     return m
+
+
+def _seta(m, base, e, rng, motas=10, lados=18):
+    base = np.asarray(base, float)
+    M = M_trs(base, (rng.uniform(-6, 6), rng.uniform(0, 360), rng.uniform(-6, 6)), e)
+    add = lambda malla, col: m.add(aplicar(malla, M), col)
+    add(torno([(0.0, 0), (0.36, 0), (0.33, 0.12), (0.26, 0.5), (0.23, 1.15), (0.0, 1.2)], lados), "seta_crema")
+    add(torno([(0.25, 0.88), (0.42, 0.78), (0.4, 0.8), (0.25, 0.92)], lados), "petalo_blanco")
+    add(torno([(0.2, 1.12), (0.7, 1.13), (1.16, 1.1), (1.22, 1.16)], lados), "seta_crema")
+    domo = [(1.22, 1.16), (1.2, 1.3), (1.08, 1.5), (0.85, 1.7), (0.5, 1.86), (0.2, 1.93), (0.0, 1.95)]
+    add(torno(domo, lados), "seta_roja")
+    d = np.array(domo)
+    for i in range(motas):
+        j = rng.integers(1, len(d) - 2)
+        f = rng.uniform()
+        r, y = d[j] * (1 - f) + d[j + 1] * f
+        tg = d[j + 1] - d[j]
+        n2 = _unit([-tg[1], tg[0]]) * -1
+        a = rng.uniform(0, 2 * math.pi)
+        n3 = _unit([n2[0] * math.cos(a), n2[1], n2[0] * math.sin(a)])
+        mm = bola(rng.uniform(0.07, 0.14), 0, escala=(1, 0.3, 1))
+        mm.apply_transform(trimesh.geometry.align_vectors([0, 1, 0], n3))
+        mm.apply_translation((r * math.cos(a), y, r * math.sin(a)))
+        add(mm, "petalo_blanco")
 
 
 def seta_gigante():
     m = Modelo("seta_gigante")
-    rng = np.random.default_rng(15)
-    m.add(viga((0, 0, 0), (0.05, 1.4, 0), 0.38, 0.27, n=9), "seta_crema")
-    m.add(T(cilindro(0.42, 0.36, 0.1, 9), (0, 0.85, 0)), "petalo_blanco")
-    R, Hc = 1.25, 0.8
-    pts = []
-    for i in range(16):
-        a = 2 * math.pi * i / 16
-        for k in range(5):
-            e = math.pi / 2 * k / 4
-            pts.append((R * math.cos(e) * math.cos(a), Hc * math.sin(e), R * math.cos(e) * math.sin(a)))
-    cap = hull(pts)
-    m.add(T(cap, (0.05, 1.3, 0)), "seta_roja")
-    m.add(T(cilindro(R * 0.98, 0.3, 0.12, 16), (0.05, 1.18, 0)), "seta_crema")
-    for i in range(11):
-        a = rng.uniform(0, 2 * math.pi)
-        e = rng.uniform(0.25, 1.3)
-        n = np.array([R * math.cos(e) * math.cos(a), Hc * math.sin(e), R * math.cos(e) * math.sin(a)])
-        nn = n / np.array([R, Hc, R]) ** 2
-        nn /= np.linalg.norm(nn)
-        p = n + np.array([0.05, 1.3, 0])
-        s = rng.uniform(0.09, 0.18)
-        mm = bola(s, 1, 0.1, i, escala=(1, 0.35, 1))
-        mm.apply_transform(trimesh.geometry.align_vectors([0, 1, 0], nn))
-        mm.apply_translation(p)
-        m.add(mm, "petalo_blanco")
-    for i in range(3):
-        a = rng.uniform(0, 2 * math.pi)
-        p = (math.cos(a) * 0.7, 0, math.sin(a) * 0.7)
-        m.add(viga(p, (p[0], 0.3, p[2]), 0.06, 0.05, n=6), "seta_crema")
-        m.add(T(hull([(0.17 * math.cos(b), 0, 0.17 * math.sin(b)) for b in np.linspace(0, 6.28, 9)] + [(0, 0.13, 0)]),
-                (p[0], 0.28, p[2])), "seta_roja")
+    rng = np.random.default_rng(17)
+    _seta(m, (0, 0, 0), 1.0, rng, 12)
+    _seta(m, (0.85, 0, 0.5), 0.3, rng, 5, 12)
+    _seta(m, (0.6, 0, 0.85), 0.2, rng, 4, 12)
+    _seta(m, (-0.8, 0, 0.45), 0.25, rng, 4, 12)
+    mata(m, (0.3, 0, 0.6), 14, 0.5, (0.15, 0.35), (0.015, 0.03), rng)
     return m
 
 
 def tocon():
     m = Modelo("tocon")
-    rng = np.random.default_rng(16)
-    m.add(cilindro(0.75, 0.62, 0.75, 9), "tronco")
-    m.add(T(cilindro(0.6, 0.58, 0.04, 9), (0, 0.75, 0)), "corteza_clara")
-    m.add(T(cilindro(0.4, 0.4, 0.045, 9), (0, 0.752, 0)), "madera_clara")
-    m.add(T(cilindro(0.18, 0.18, 0.05, 7), (0, 0.754, 0)), "corteza_clara")
-    for i in range(5):
-        a = math.radians(i * 72 + 20)
+    rng = np.random.default_rng(18)
+    lob = lambda a, j: 1 + 0.07 * math.sin(5 * a + 1) + 0.04 * math.sin(9 * a + 2) + 0.03 * math.sin(14 * a)
+    m.add(torno([(1.0, 0), (0.82, 0.1), (0.7, 0.35), (0.64, 0.78), (0.6, 0.82)], 28, mod=lob), "tronco")
+    m.add(disco(0.61, 0.815, 28, mod=lob), "anillos")
+    for i in range(6):
+        a = math.radians(i * 60 + rng.uniform(-12, 12))
         d = np.array([math.cos(a), 0, math.sin(a)])
-        m.add(viga(tuple(d * 0.4 + np.array([0, 0.35, 0])), tuple(d * 1.15 + np.array([0, -0.05, 0])), 0.25, 0.06, n=5), "tronco_osc")
-    for i in range(8):
-        a = rng.uniform(0, 2 * math.pi)
-        m.add(T(caja(0.1, rng.uniform(0.2, 0.5), 0.05), (math.cos(a) * 0.7, rng.uniform(0.2, 0.5), math.sin(a) * 0.7),
-                (0, -math.degrees(a) + 90, 0)), "tronco_osc")
-    m.add(T(bola(0.35, 1, 0.2, 2, escala=(1, 0.4, 1)), (-0.35, 0.72, 0.2)), "musgo")
-    for i in range(3):
-        y = 0.25 + i * 0.13
-        m.add(T(cilindro(0.12 - i * 0.02, 0.02, 0.05, 7), (0.66, y, 0.15 + i * 0.06)), "seta_crema")
+        pts = [d * 0.45 + UP * 0.32, d * 0.85 + UP * 0.12, d * 1.25 + UP * 0.02, d * 1.6 - UP * 0.05]
+        m.add(tubo(pts, [0.26, 0.19, 0.12, 0.05], 8, tapa=False), "tronco")
+    m.add(T(bola_ruido(0.4, 2, 0.25, 3, escala=(1, 0.3, 0.8)), (-0.3, 0.8, 0.15)), "musgo")
+    m.add(T(bola_ruido(0.3, 2, 0.25, 4, escala=(1, 0.6, 0.4)), (0.55, 0.25, 0.5)), "musgo")
+    for i in range(4):
+        _seta(m, (0.72 * math.cos(0.5 + i * 0.35), 0.0, 0.9 * math.sin(0.5 + i * 0.35) + 0.25), 0.09 + 0.03 * (i % 2), rng, 0, 10)
+    mata(m, (0, 0, 0), 22, 1.1, (0.15, 0.4), (0.015, 0.03), rng)
     return m
 
 
 def roca():
     m = Modelo("roca")
-    m.add(T(bola(0.9, 1, 0.25, 4, escala=(1.2, 0.7, 1.0)), (0, 0.45, 0)), "piedra")
-    m.add(T(bola(0.55, 1, 0.25, 5, escala=(1.0, 0.8, 1.0)), (0.9, 0.3, 0.4)), "piedra_osc")
-    m.add(T(bola(0.35, 1, 0.25, 6), (-0.8, 0.2, 0.5)), "piedra")
-    m.add(T(bola(0.55, 1, 0.2, 7, escala=(1.2, 0.3, 1.0)), (-0.1, 0.95, -0.1)), "musgo")
+    rng = np.random.default_rng(19)
+    m.add(T(bola_ruido(0.9, 3, 0.22, 4, escala=(1.2, 0.72, 1.0), cortes=6), (0, 0.42, 0)), "roca")
+    m.add(T(bola_ruido(0.55, 3, 0.22, 5, escala=(1.0, 0.8, 1.0), cortes=5), (0.95, 0.27, 0.4)), "roca")
+    m.add(T(bola_ruido(0.33, 2, 0.22, 6, cortes=4), (-0.85, 0.16, 0.5)), "roca")
+    m.add(T(bola_ruido(0.5, 2, 0.3, 7, escala=(1.2, 0.2, 1.0)), (-0.15, 0.95, -0.1)), "musgo")
+    mata(m, (0.2, 0, 0.9), 12, 0.4, (0.15, 0.4), (0.015, 0.03), rng)
+    mata(m, (-0.9, 0, -0.3), 10, 0.3, (0.15, 0.35), (0.015, 0.03), rng)
     return m
+
+
+def hojas_sueltas(m, n, radio, rng, altura=lambda r: 0.0, radio_min=0.0):
+    for i in range(n):
+        a = rng.uniform(0, 2 * math.pi)
+        r = radio_min + (radio - radio_min) * rng.uniform() ** 0.7
+        k = int(rng.integers(4))
+        uv = ((k % 2) / 2, (k // 2) / 2, (k % 2) / 2 + 0.5, (k // 2) / 2 + 0.5)
+        inc = rng.uniform(-12, 25)
+        m.add(tira((math.cos(a) * r, altura(r) + 0.02 + rng.uniform(0, 0.03), math.sin(a) * r), rng.uniform(0, 360),
+                   rng.uniform(0.16, 0.26), rng.uniform(0.12, 0.18), inc, inc - rng.uniform(0, 30), 2, "recto", arriba=0.5), "hojas_caidas")
 
 
 def monton_hojas():
     m = Modelo("monton_hojas")
-    rng = np.random.default_rng(17)
-    cols = ["otono_naranja", "otono_amarillo", "otono_rojo", "otono_marron"]
-    m.add(T(bola(1.0, 1, 0.2, 8, escala=(1.2, 0.42, 1.0)), (0, 0.15, 0)), "otono_naranja")
-    m.add(T(bola(0.6, 1, 0.2, 9, escala=(1.0, 0.5, 1.0)), (0.3, 0.35, -0.2)), "otono_amarillo")
-    for i in range(70):
-        a = rng.uniform(0, 2 * math.pi)
-        r = rng.uniform(0, 1.6) ** 0.8
-        y = max(0.01, 0.55 * (1 - (r / 1.3) ** 2)) if r < 1.3 else 0.01
-        m.add(T(hoja_plana(0.2, 0.14, 0.008), (math.cos(a) * r, y + 0.02, math.sin(a) * r),
-                (rng.uniform(-25, 25), rng.uniform(0, 360), rng.uniform(-25, 25))), cols[i % 4])
+    rng = np.random.default_rng(20)
+    b = bola_ruido(1.0, 3, 0.18, 8, escala=(1.25, 0.5, 1.05))
+    v = b.vertices.copy()
+    v[:, 1] = np.maximum(v[:, 1], -0.05)
+    b.vertices = v
+    m.add(T(b, (0, 0.05, 0)), "hojarasca")
+    alt = lambda r: 0.55 * max(0.0, 1 - (r / 1.15) ** 2)
+    hojas_sueltas(m, 90, 1.15, rng, alt)
+    hojas_sueltas(m, 60, 2.0, rng, radio_min=1.0)
     return m
 
 
+def alfombra_hojas():
+    """Mancha de hojarasca en el suelo (para poner bajo los árboles de otoño)."""
+    m = Modelo("alfombra_hojas")
+    rng = np.random.default_rng(21)
+    lob = lambda a, j: 1 + 0.18 * math.sin(3 * a + 1) + 0.12 * math.sin(7 * a + 2) + 0.06 * math.sin(13 * a)
+    d = disco(2.6, 0.03, 28, mod=lob)
+    d.metadata["uv_fijo"] = np.asarray(d.vertices)[:, [0, 2]].copy()
+    m.add(d, "hojarasca")
+    hojas_sueltas(m, 110, 3.6, rng, radio_min=1.8)
+    return m
+
+
+# --------------------------------------------------------------------------
+# ENTORNO NUEVO
+# --------------------------------------------------------------------------
 def suelo_cesped():
     m = Modelo("suelo_cesped")
-    rng = np.random.default_rng(18)
-    N, S = 8, 4.0
-    alt = rng.uniform(-0.03, 0.05, (N + 1, N + 1))
-    alt[0, :] = alt[-1, :] = alt[:, 0] = alt[:, -1] = 0
-    v = [(-S / 2 + i * S / N, alt[i, j], -S / 2 + j * S / N) for i in range(N + 1) for j in range(N + 1)]
-    caras = {"hierba": [], "hierba_osc": []}
-    for i in range(N):
-        for j in range(N):
-            a, b, c, d = i * (N + 1) + j, (i + 1) * (N + 1) + j, (i + 1) * (N + 1) + j + 1, i * (N + 1) + j + 1
-            for tri in ((a, d, b), (b, d, c)):
-                caras["hierba" if rng.random() < 0.7 else "hierba_osc"].append(tri)
-    for col, f in caras.items():
-        m.add(trimesh.Trimesh(vertices=v, faces=f, process=False), col)
-    m.add(T(caja(S, 0.3, S), (0, -0.19, 0)), "tierra")
-    for i in range(14):
+    rng = np.random.default_rng(22)
+    m.add(T(caja(4.0, 0.3, 4.0), (0, -0.15, 0)), "tierra")
+    m.add(T(caja(4.0, 0.02, 4.0), (0, 0.0, 0)), "cesped")
+    for i in range(18):
         x, z = rng.uniform(-1.8, 1.8, 2)
-        for k in range(4):
-            h = rng.uniform(0.12, 0.25)
-            b = brizna(h, 0.02, (rng.uniform(-0.05, 0.05), rng.uniform(-0.05, 0.05)))
-            m.add([T(q, (x + rng.uniform(-0.05, 0.05), 0, z + rng.uniform(-0.05, 0.05)), (0, rng.uniform(0, 360), 0)) for q in b], "hierba_clara")
+        mata(m, (x, 0.01, z), 7, 0.1, (0.1, 0.25), (0.012, 0.022), rng)
     return m
 
 
 def camino_piedra():
     m = Modelo("camino_piedra")
-    rng = np.random.default_rng(19)
+    rng = np.random.default_rng(23)
     for i in range(7):
         cx, cz = rng.uniform(-0.3, 0.3), -1.3 + i * 0.45 + rng.uniform(-0.05, 0.05)
-        r = rng.uniform(0.25, 0.38)
+        r = rng.uniform(0.25, 0.36)
+        n = int(rng.integers(6, 9))
         pts = []
-        n = rng.integers(5, 8)
         for k in range(n):
             a = 2 * math.pi * k / n + rng.uniform(-0.2, 0.2)
             rr = r * rng.uniform(0.8, 1.15)
-            pts.append((cx + math.cos(a) * rr, cz + math.sin(a) * rr))
-        losa = prisma(pts, 0.08)
-        losa.apply_transform(rotation_matrix(math.pi / 2, (1, 0, 0)))
-        m.add(T(losa, (0, 0.03, 0)), "piedra" if i % 2 else "piedra_osc")
+            for y, f in ((0.0, 1.0), (0.05, 1.0), (0.07, 0.9)):
+                pts.append((cx + math.cos(a) * rr * f, y, cz + math.sin(a) * rr * f))
+        m.add(hull(pts, 60.0), "roca")
+    return m
+
+
+PARCELA = dict(x0=-15.0, x1=15.0, z0=-11.0, z1=23.0, puerta_x=1.6, casa_frente=3.0)
+
+
+def parcela():
+    """Terreno de la escena principal: césped, sendero de tierra, acera y calle."""
+    m = Modelo("parcela")
+    rng = np.random.default_rng(24)
+    P = PARCELA
+    x0, x1, z0, z1 = P["x0"] - 9, P["x1"] + 9, P["z0"] - 9, P["z1"]
+    nx, nz = int(x1 - x0), int(z1 - z0)
+    xs, zs = np.linspace(x0, x1, nx + 1), np.linspace(z0, z1, nz + 1)
+    alt = rng.uniform(-0.03, 0.03, (nx + 1, nz + 1))
+    alt[:, -1] = 0
+    V, U = [], []
+    for i in range(nx):
+        for j in range(nz):
+            q = [(xs[i], alt[i, j], zs[j]), (xs[i], alt[i, j + 1], zs[j + 1]),
+                 (xs[i + 1], alt[i + 1, j + 1], zs[j + 1]), (xs[i + 1], alt[i + 1, j], zs[j])]
+            for k in (0, 1, 2, 0, 2, 3):
+                V.append(q[k]), U.append((q[k][0], q[k][2]))
+    cesped = _malla(V, U, 180.0)
+    cesped.metadata["uv_fijo"] = np.array(U)
+    m.add(cesped, "cesped")
+    # sendero de la puerta de casa a la puerta del jardín
+    V, U = [], []
+    za, zb, n = P["casa_frente"] + 2.3, z1, 24
+    borde = lambda t, lado: P["puerta_x"] + 0.5 * math.sin(t * 5.0) * (1 - t) * t * 4 + lado * (0.85 + 0.15 * math.sin(t * 23 + lado))
+    for i in range(n):
+        t0, t1 = i / n, (i + 1) / n
+        q = [(borde(t0, -1), 0.045, za + (zb - za) * t0), (borde(t0, 1), 0.045, za + (zb - za) * t0),
+             (borde(t1, 1), 0.045, za + (zb - za) * t1), (borde(t1, -1), 0.045, za + (zb - za) * t1)]
+        for k in (0, 2, 1, 0, 3, 2):
+            V.append(q[k]), U.append((q[k][0], q[k][2]))
+    senda = _malla(V, U, 180.0)
+    senda.metadata["uv_fijo"] = np.array(U)
+    m.add(senda, "tierra_suelo")
+    # acera, bordillo y calle
+    m.add(T(caja(x1 - x0, 0.16, 2.2), ((x0 + x1) / 2, 0.06, z1 + 1.1)), "piedra")
+    m.add(T(caja(x1 - x0, 0.2, 0.2), ((x0 + x1) / 2, 0.05, z1 + 2.3)), "piedra_osc")
+    m.add(T(caja(x1 - x0, 0.1, 9.0), ((x0 + x1) / 2, -0.03, z1 + 6.9)), "asfalto")
+    for x in np.arange(x0 + 2, x1 - 2, 4.0):
+        m.add(T(caja(1.8, 0.012, 0.14), (x, 0.025, z1 + 6.9)), "blanco")
+    return m
+
+
+def bolsa_basura():
+    m = Modelo("bolsa_basura")
+    rng = np.random.default_rng(25)
+    b = bola_ruido(1.0, 3, 0.1, 21, escala=(0.42, 0.42, 0.38))
+    v = b.vertices.copy()
+    v[:, 1] = (np.maximum(v[:, 1], -0.36) + 0.36) * 1.15
+    estrecha = np.clip((v[:, 1] - 0.62) / 0.3, 0, 1)
+    v[:, 0] *= 1 - 0.55 * estrecha
+    v[:, 2] *= 1 - 0.55 * estrecha
+    b.vertices = v
+    m.add(b, "plastico_negro")
+    m.add(torno([(0.13, 0.84), (0.07, 0.95), (0.06, 1.0)], 10), "plastico_negro")
+    m.add(torno([(0.066, 0.97), (0.08, 0.985), (0.08, 1.005), (0.066, 1.02)], 10), "lazo_amarillo")
+    for i in range(7):
+        m.add(tira((0, 1.0, 0), i * 51 + rng.uniform(-10, 10), rng.uniform(0.13, 0.2), 0.11, rng.uniform(40, 75), rng.uniform(0, 40), 3,
+                   "brizna", pliegue=0.25, arriba=0.2), "plastico_negro_brillo")
+    hoja = T(hoja_plana(0.24, 0.17, 0.01), (0, -0.12, 0))
+    hoja.apply_transform(rotation_matrix(-math.pi / 2, (1, 0, 0)))
+    m.add(T(hoja, (0.0, 0.46, 0.385), (-10, 0, 0)), "otono_naranja")
+    mata(m, (0, 1.0, 0), 6, 0.02, (0.2, 0.35), (0.015, 0.025), rng)
     return m
 
 
 # --------------------------------------------------------------------------
 # JUGABILIDAD
 # --------------------------------------------------------------------------
-def bolsa_basura():
-    m = Modelo("bolsa_basura")
-    b = bola(1.0, 2, 0.07, 21, escala=(0.42, 0.42, 0.38))
-    v = b.vertices.copy()
-    v[:, 1] = np.maximum(v[:, 1], -0.36)
-    v[:, 1] += 0.36 + 0.0
-    v[:, 1] *= 1.15
-    b.vertices = v
-    m.add(b, "plastico_negro")
-    m.add(T(cilindro(0.14, 0.06, 0.12, 7), (0, 0.9, 0)), "plastico_negro")
-    m.add(T(cilindro(0.075, 0.075, 0.05, 8), (0, 1.0, 0)), "lazo_amarillo")
-    for i in range(4):
-        a = i * 90 + 30
-        m.add(T(cilindro(0.06, 0.0, 0.17, 4), (0, 1.02, 0), (35, a, 0)), "plastico_negro_brillo")
-    # pliegues brillantes
-    for i in range(6):
-        a = math.radians(i * 60 + 10)
-        m.add(viga((math.cos(a) * 0.3, 0.3, math.sin(a) * 0.27), (math.cos(a) * 0.12, 0.84, math.sin(a) * 0.1), 0.02, n=3), "plastico_negro_brillo")
-    # hoja impresa
-    hoja = T(hoja_plana(0.24, 0.17, 0.01), (0, -0.12, 0))
-    hoja.apply_transform(rotation_matrix(-math.pi / 2, (1, 0, 0)))
-    m.add(T(hoja, (0.0, 0.48, 0.4), (-12, 0, 0)), "otono_naranja")
-    # hierbajos asomando
-    for i in range(3):
-        bz = brizna(0.3, 0.025, (0.08 * (i - 1), 0.05))
-        m.add([T(q, (0.02 * (i - 1), 1.02, 0), (0, i * 60, 0)) for q in bz], "hierba")
-    return m
-
-
 def cubo_basura():
     m = Modelo("cubo_basura")
     w0, d0, w1, d1, h = 0.5, 0.55, 0.6, 0.68, 1.0
@@ -1348,11 +1847,11 @@ def icono_hoja_malla():
 
 # --------------------------------------------------------------------------
 CATALOGO = {
-    "entorno": [casa, valla, puerta_jardin, suelo_cesped, camino_piedra],
-    "vegetacion": [lambda: arbol("arbol_gigante", ["hoja", "hoja_osc", "hoja_clara"], 1),
-                   lambda: arbol("arbol_otono", ["otono_naranja", "otono_amarillo", "otono_rojo"], 2),
-                   hierbajo, hierbajo_grande, matorral, zarza, girasol_gigante,
-                   amapola_gigante, seta_gigante, tocon, roca, monton_hojas],
+    "entorno": [casa, valla, puerta_jardin, parcela, suelo_cesped, camino_piedra],
+    "vegetacion": [lambda: arbol("arbol_gigante", ("hojas_verde", "hojas_osc"), 1, alto=8.5, r0=0.62, tam_carta=2.2),
+                   lambda: arbol("arbol_otono", ("hojas_otono", "hojas_otono"), 2, alto=7.0, r0=0.5),
+                   hierbajo, hierbajo_grande, matorral, zarza, girasol_gigante, amapola_gigante,
+                   seta_gigante, tocon, roca, monton_hojas, alfombra_hojas],
     "jugabilidad": [bolsa_basura, cubo_basura, contenedor, camion_basura, moneda],
     "herramientas": [guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra],
     "enemigos": [escarabajo, caracol, avispa],
@@ -1362,18 +1861,23 @@ CATALOGO = {
 
 
 def main(filtro):
-    total = 0
-    for carpeta, fns in CATALOGO.items():
+    ruta_indice = os.path.join(SALIDA, "indice.json")
+    indice = json.load(open(ruta_indice)) if os.path.exists(ruta_indice) else {}
+    for categoria, fns in CATALOGO.items():
         for fn in fns:
+            if filtro and getattr(fn, "__name__", "") not in filtro and fn.__name__ != "<lambda>":
+                continue
             mod = fn()
             if filtro and mod.nombre not in filtro:
                 continue
-            ruta = os.path.join(SALIDA, carpeta, mod.nombre + ".glb")
-            esc = mod.exportar(ruta)
-            caras = sum(len(g.faces) for g in esc.geometry.values())
-            print(f"{carpeta:13s} {mod.nombre:18s} {caras:6d} tris")
-            total += 1
-    print(f"{total} modelos generados en {SALIDA}")
+            tris = mod.exportar(os.path.join(SALIDA, mod.nombre + ".gltf"))
+            lo, hi = mod.limites()
+            indice[mod.nombre] = {"categoria": categoria, "min": [round(float(x), 3) for x in lo],
+                                  "max": [round(float(x), 3) for x in hi], "tris": tris}
+            print(f"{categoria:13s} {mod.nombre:18s} {tris:7d} tris")
+    with open(ruta_indice, "w") as f:
+        json.dump(indice, f, indent=1)
+    print(f"{len(indice)} modelos en {SALIDA}")
 
 
 if __name__ == "__main__":

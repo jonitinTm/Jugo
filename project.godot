@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Jugo"
 config/description="Juego incremental: despeja un jardín salvaje y mejora tus herramientas."
-run/main_scene="res://escenas/galeria.tscn"
+run/main_scene="res://escenas/principal.tscn"
 config/features=PackedStringArray("4.3", "Forward Plus")
 
 [rendering]

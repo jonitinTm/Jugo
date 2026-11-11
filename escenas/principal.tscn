@@ -1,0 +1,2016 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/modelos/alfombra_hojas.gltf" id="m_alfombra_hojas"]
+[ext_resource type="PackedScene" path="res://assets/modelos/amapola_gigante.gltf" id="m_amapola_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/arbol_gigante.gltf" id="m_arbol_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/arbol_otono.gltf" id="m_arbol_otono"]
+[ext_resource type="PackedScene" path="res://assets/modelos/avispa.gltf" id="m_avispa"]
+[ext_resource type="PackedScene" path="res://assets/modelos/bolsa_basura.gltf" id="m_bolsa_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/camino_piedra.gltf" id="m_camino_piedra"]
+[ext_resource type="PackedScene" path="res://assets/modelos/camion_basura.gltf" id="m_camion_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/caracol.gltf" id="m_caracol"]
+[ext_resource type="PackedScene" path="res://assets/modelos/cartel_tienda.gltf" id="m_cartel_tienda"]
+[ext_resource type="PackedScene" path="res://assets/modelos/casa.gltf" id="m_casa"]
+[ext_resource type="PackedScene" path="res://assets/modelos/contenedor.gltf" id="m_contenedor"]
+[ext_resource type="PackedScene" path="res://assets/modelos/cubo_basura.gltf" id="m_cubo_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/escarabajo.gltf" id="m_escarabajo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/girasol_gigante.gltf" id="m_girasol_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/guantes.gltf" id="m_guantes"]
+[ext_resource type="PackedScene" path="res://assets/modelos/hierbajo.gltf" id="m_hierbajo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/hierbajo_grande.gltf" id="m_hierbajo_grande"]
+[ext_resource type="PackedScene" path="res://assets/modelos/hoz.gltf" id="m_hoz"]
+[ext_resource type="PackedScene" path="res://assets/modelos/matorral.gltf" id="m_matorral"]
+[ext_resource type="PackedScene" path="res://assets/modelos/monton_hojas.gltf" id="m_monton_hojas"]
+[ext_resource type="PackedScene" path="res://assets/modelos/parcela.gltf" id="m_parcela"]
+[ext_resource type="PackedScene" path="res://assets/modelos/puerta_jardin.gltf" id="m_puerta_jardin"]
+[ext_resource type="PackedScene" path="res://assets/modelos/rastrillo.gltf" id="m_rastrillo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/roca.gltf" id="m_roca"]
+[ext_resource type="PackedScene" path="res://assets/modelos/seta_gigante.gltf" id="m_seta_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/tocon.gltf" id="m_tocon"]
+[ext_resource type="PackedScene" path="res://assets/modelos/valla.gltf" id="m_valla"]
+[ext_resource type="PackedScene" path="res://assets/modelos/zarza.gltf" id="m_zarza"]
+[ext_resource type="Script" path="res://scripts/jugador.gd" id="jugador"]
+
+[sub_resource type="ProceduralSkyMaterial" id="cielo_mat"]
+sky_top_color = Color(0.3, 0.52, 0.82, 1)
+sky_horizon_color = Color(0.86, 0.8, 0.68, 1)
+ground_bottom_color = Color(0.3, 0.26, 0.2, 1)
+ground_horizon_color = Color(0.86, 0.8, 0.68, 1)
+sun_angle_max = 25.0
+
+[sub_resource type="Sky" id="cielo"]
+sky_material = SubResource("cielo_mat")
+
+[sub_resource type="Environment" id="entorno"]
+background_mode = 2
+sky = SubResource("cielo")
+ambient_light_source = 3
+ambient_light_energy = 1.0
+reflected_light_source = 2
+tonemap_mode = 2
+tonemap_white = 6.0
+ssao_enabled = true
+ssao_radius = 1.5
+ssao_intensity = 2.5
+ssil_enabled = true
+glow_enabled = true
+glow_intensity = 0.35
+glow_bloom = 0.05
+fog_enabled = true
+fog_light_color = Color(0.86, 0.8, 0.7, 1)
+fog_density = 0.004
+fog_sky_affect = 0.2
+adjustment_enabled = true
+adjustment_saturation = 1.08
+
+[sub_resource type="WorldBoundaryShape3D" id="col_suelo"]
+
+[sub_resource type="CapsuleShape3D" id="capsula"]
+radius = 0.32
+height = 1.7
+
+[sub_resource type="BoxShape3D" id="col_Casa"]
+size = Vector3(8.3, 7.0, 6.3)
+
+[sub_resource type="BoxShape3D" id="col_Porche"]
+size = Vector3(3.4, 0.45, 1.7)
+
+[sub_resource type="BoxShape3D" id="col_Escalon"]
+size = Vector3(1.5, 0.22, 0.8)
+
+[sub_resource type="BoxShape3D" id="col_VallaFrenteIzq"]
+size = Vector3(15.5, 2.2, 0.2)
+
+[sub_resource type="BoxShape3D" id="col_VallaFrenteDer"]
+size = Vector3(12.3, 2.2, 0.2)
+
+[sub_resource type="BoxShape3D" id="col_VallaFondo"]
+size = Vector3(30.0, 2.2, 0.2)
+
+[sub_resource type="BoxShape3D" id="col_VallaIzq"]
+size = Vector3(0.2, 2.2, 34.0)
+
+[sub_resource type="BoxShape3D" id="col_VallaDer"]
+size = Vector3(0.2, 2.2, 34.0)
+
+[sub_resource type="BoxShape3D" id="col_Contenedor"]
+size = Vector3(2.1, 1.4, 1.4)
+
+[sub_resource type="BoxShape3D" id="col_Camion"]
+size = Vector3(2.6, 3.4, 7.6)
+
+[sub_resource type="BoxShape3D" id="col_Tronco1"]
+size = Vector3(1.15, 5.0, 1.15)
+
+[sub_resource type="BoxShape3D" id="col_Tronco2"]
+size = Vector3(1.0, 5.0, 1.0)
+
+[sub_resource type="BoxShape3D" id="col_Tronco3"]
+size = Vector3(0.9, 5.0, 0.9)
+
+[sub_resource type="BoxShape3D" id="col_Tronco4"]
+size = Vector3(1.15, 5.0, 1.15)
+
+[sub_resource type="BoxShape3D" id="col_Tronco5"]
+size = Vector3(0.85, 5.0, 0.85)
+
+[node name="Principal" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("entorno")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.81915, 0, 0.57358, 0.3838, 0.74314, -0.54812, -0.42625, 0.66913, 0.60875, 0, 30, 0)
+light_color = Color(1, 0.93, 0.8, 1)
+light_energy = 1.5
+shadow_enabled = true
+shadow_blur = 1.5
+directional_shadow_max_distance = 70.0
+
+[node name="Colisiones" type="StaticBody3D" parent="."]
+
+[node name="Suelo" type="CollisionShape3D" parent="Colisiones"]
+shape = SubResource("col_suelo")
+
+[node name="Casa" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.5, 0)
+shape = SubResource("col_Casa")
+
+[node name="Porche" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.8, 0.225, 3.85)
+shape = SubResource("col_Porche")
+
+[node name="Escalon" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.11, 5.05)
+shape = SubResource("col_Escalon")
+
+[node name="VallaFrenteIzq" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.25, 1.1, 23)
+shape = SubResource("col_VallaFrenteIzq")
+
+[node name="VallaFrenteDer" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.85, 1.1, 23)
+shape = SubResource("col_VallaFrenteDer")
+
+[node name="VallaFondo" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, -11)
+shape = SubResource("col_VallaFondo")
+
+[node name="VallaIzq" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 1.1, 6)
+shape = SubResource("col_VallaIzq")
+
+[node name="VallaDer" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 1.1, 6)
+shape = SubResource("col_VallaDer")
+
+[node name="Contenedor" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, 0.8, 24.1)
+shape = SubResource("col_Contenedor")
+
+[node name="Camion" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, -8, 1.7, 27.9)
+shape = SubResource("col_Camion")
+
+[node name="Tronco1" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(-0.32708, 0, -0.945, 0, 1, 0, 0.945, 0, -0.32708, -9.5, 2.5, 12.5)
+shape = SubResource("col_Tronco1")
+
+[node name="Tronco2" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(-0.17766, 0, -0.98409, 0, 1, 0, 0.98409, 0, -0.17766, 9.5, 2.5, -6)
+shape = SubResource("col_Tronco2")
+
+[node name="Tronco3" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(-0.030592, 0, -0.99953, 0, 1, 0, 0.99953, 0, -0.030592, -10.5, 2.5, -5.5)
+shape = SubResource("col_Tronco3")
+
+[node name="Tronco4" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(-0.94104, 0, -0.33829, 0, 1, 0, 0.33829, 0, -0.94104, 9, 2.5, 14)
+shape = SubResource("col_Tronco4")
+
+[node name="Tronco5" type="CollisionShape3D" parent="Colisiones"]
+transform = Transform3D(0.96213, 0, -0.2726, 0, 1, 0, 0.2726, 0, 0.96213, -6, 2.5, 19)
+shape = SubResource("col_Tronco5")
+
+[node name="Jugador" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.05, 19)
+script = ExtResource("jugador")
+
+[node name="Colision" type="CollisionShape3D" parent="Jugador"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("capsula")
+
+[node name="Camara" type="Camera3D" parent="Jugador"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+fov = 70.0
+far = 300.0
+
+[node name="Entorno" type="Node3D" parent="."]
+
+[node name="parcela_1" parent="Entorno" instance=ExtResource("m_parcela")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="casa_1" parent="Entorno" instance=ExtResource("m_casa")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+
+[node name="Vallas" type="Node3D" parent="."]
+
+[node name="valla_1" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -14.04, 0, 23)
+
+[node name="valla_2" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -12.11, 0, 23)
+
+[node name="valla_3" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -10.19, 0, 23)
+
+[node name="valla_4" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -8.262, 0, 23)
+
+[node name="valla_5" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -6.338, 0, 23)
+
+[node name="valla_6" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -4.412, 0, 23)
+
+[node name="valla_7" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -2.487, 0, 23)
+
+[node name="valla_8" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(0.9625, 0, 0, 0, 1, 0, 0, 0, 1, -0.5625, 0, 23)
+
+[node name="valla_9" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 3.817, 0, 23)
+
+[node name="valla_10" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 5.85, 0, 23)
+
+[node name="valla_11" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 7.883, 0, 23)
+
+[node name="valla_12" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 9.917, 0, 23)
+
+[node name="valla_13" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 11.95, 0, 23)
+
+[node name="valla_14" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(1.0167, 0, 0, 0, 1, 0, 0, 0, 1, 13.98, 0, 23)
+
+[node name="valla_15" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 22)
+
+[node name="valla_16" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 20)
+
+[node name="valla_17" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 18)
+
+[node name="valla_18" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 16)
+
+[node name="valla_19" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 14)
+
+[node name="valla_20" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 12)
+
+[node name="valla_21" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 10)
+
+[node name="valla_22" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 8)
+
+[node name="valla_23" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 6)
+
+[node name="valla_24" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 4)
+
+[node name="valla_25" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 2)
+
+[node name="valla_26" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, 0)
+
+[node name="valla_27" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, -2)
+
+[node name="valla_28" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, -4)
+
+[node name="valla_29" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, -6)
+
+[node name="valla_30" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, -8)
+
+[node name="valla_31" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, 15, 0, -10)
+
+[node name="valla_32" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 14, 0, -11)
+
+[node name="valla_33" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 12, 0, -11)
+
+[node name="valla_34" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 10, 0, -11)
+
+[node name="valla_35" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 8, 0, -11)
+
+[node name="valla_36" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 6, 0, -11)
+
+[node name="valla_37" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 4, 0, -11)
+
+[node name="valla_38" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 2, 0, -11)
+
+[node name="valla_39" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, 0, 0, -11)
+
+[node name="valla_40" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -2, 0, -11)
+
+[node name="valla_41" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -4, 0, -11)
+
+[node name="valla_42" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -6, 0, -11)
+
+[node name="valla_43" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -8, 0, -11)
+
+[node name="valla_44" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -10, 0, -11)
+
+[node name="valla_45" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -12, 0, -11)
+
+[node name="valla_46" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(-1, 0, 1.2246e-16, 0, 1, 0, -1.2246e-16, 0, -1, -14, 0, -11)
+
+[node name="valla_47" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, -10)
+
+[node name="valla_48" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, -8)
+
+[node name="valla_49" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, -6)
+
+[node name="valla_50" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, -4)
+
+[node name="valla_51" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, -2)
+
+[node name="valla_52" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 0)
+
+[node name="valla_53" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 2)
+
+[node name="valla_54" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 4)
+
+[node name="valla_55" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 6)
+
+[node name="valla_56" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 8)
+
+[node name="valla_57" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 10)
+
+[node name="valla_58" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 12)
+
+[node name="valla_59" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 14)
+
+[node name="valla_60" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 16)
+
+[node name="valla_61" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 18)
+
+[node name="valla_62" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 20)
+
+[node name="valla_63" parent="Vallas" instance=ExtResource("m_valla")]
+transform = Transform3D(6.1232e-17, 0, 1, 0, 1, 0, -1, 0, 6.1232e-17, -15, 0, 22)
+
+[node name="puerta_jardin_1" parent="Entorno" instance=ExtResource("m_puerta_jardin")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0, 23)
+
+[node name="camino_piedra_1" parent="Entorno" instance=ExtResource("m_camino_piedra")]
+transform = Transform3D(0.99385, 0, -0.1107, 0, 1, 0, 0.1107, 0, 0.99385, 1.638, 0.045, 7.2)
+
+[node name="camino_piedra_2" parent="Entorno" instance=ExtResource("m_camino_piedra")]
+transform = Transform3D(0.99706, 0, 0.076661, 0, 1, 0, -0.076661, 0, 0.99706, 1.683, 0.045, 10.4)
+
+[node name="camino_piedra_3" parent="Entorno" instance=ExtResource("m_camino_piedra")]
+transform = Transform3D(0.99456, 0, -0.10413, 0, 1, 0, 0.10413, 0, 0.99456, 1.54, 0.045, 13.6)
+
+[node name="camino_piedra_4" parent="Entorno" instance=ExtResource("m_camino_piedra")]
+transform = Transform3D(0.99598, 0, -0.089584, 0, 1, 0, 0.089584, 0, 0.99598, 1.452, 0.045, 16.8)
+
+[node name="camino_piedra_5" parent="Entorno" instance=ExtResource("m_camino_piedra")]
+transform = Transform3D(0.99996, 0, 0.0089541, 0, 1, 0, -0.0089541, 0, 0.99996, 1.689, 0.045, 20)
+
+[node name="Arboles" type="Node3D" parent="."]
+
+[node name="arbol_gigante_1" parent="Arboles" instance=ExtResource("m_arbol_gigante")]
+transform = Transform3D(-0.37614, 0, -1.0867, 0, 1.15, 0, 1.0867, 0, -0.37614, -9.5, 0, 12.5)
+
+[node name="arbol_gigante_2" parent="Arboles" instance=ExtResource("m_arbol_gigante")]
+transform = Transform3D(-0.17766, 0, -0.98409, 0, 1, 0, 0.98409, 0, -0.17766, 9.5, 0, -6)
+
+[node name="arbol_gigante_3" parent="Arboles" instance=ExtResource("m_arbol_gigante")]
+transform = Transform3D(-0.027533, 0, -0.89958, 0, 0.9, 0, 0.89958, 0, -0.027533, -10.5, 0, -5.5)
+
+[node name="arbol_otono_1" parent="Arboles" instance=ExtResource("m_arbol_otono")]
+transform = Transform3D(-1.0822, 0, -0.38903, 0, 1.15, 0, 0.38903, 0, -1.0822, 9, 0, 14)
+
+[node name="Hojas" type="Node3D" parent="."]
+
+[node name="alfombra_hojas_1" parent="Hojas" instance=ExtResource("m_alfombra_hojas")]
+transform = Transform3D(-1.3794, 0, 0.039432, 0, 1.38, 0, -0.039432, 0, -1.3794, 9, 0, 14)
+
+[node name="monton_hojas_1" parent="Hojas" instance=ExtResource("m_monton_hojas")]
+transform = Transform3D(-0.67477, 0, 0.65127, 0, 0.9378, 0, -0.65127, 0, -0.67477, 5.421, 0, 12.75)
+
+[node name="monton_hojas_2" parent="Hojas" instance=ExtResource("m_monton_hojas")]
+transform = Transform3D(-0.56871, 0, 0.48597, 0, 0.74806, 0, -0.48597, 0, -0.56871, 11.23, 0, 13.85)
+
+[node name="arbol_otono_2" parent="Arboles" instance=ExtResource("m_arbol_otono")]
+transform = Transform3D(0.81781, 0, -0.23171, 0, 0.85, 0, 0.23171, 0, 0.81781, -6, 0, 19)
+
+[node name="alfombra_hojas_2" parent="Hojas" instance=ExtResource("m_alfombra_hojas")]
+transform = Transform3D(0.99447, 0, -0.22676, 0, 1.02, 0, 0.22676, 0, 0.99447, -6, 0, 19)
+
+[node name="monton_hojas_3" parent="Hojas" instance=ExtResource("m_monton_hojas")]
+transform = Transform3D(-0.67098, 0, 0.7076, 0, 0.97515, 0, -0.7076, 0, -0.67098, -8.72, 0, 18.74)
+
+[node name="monton_hojas_4" parent="Hojas" instance=ExtResource("m_monton_hojas")]
+transform = Transform3D(-0.51876, 0, -0.55566, 0, 0.76018, 0, 0.55566, 0, -0.51876, -4.873, 0, 21.98)
+
+[node name="Vegetacion" type="Node3D" parent="."]
+
+[node name="tocon_1" parent="Vegetacion" instance=ExtResource("m_tocon")]
+transform = Transform3D(-1.0621, 0, 0.065419, 0, 1.0641, 0, -0.065419, 0, -1.0621, -10.37, 0, -1.902)
+
+[node name="tocon_2" parent="Vegetacion" instance=ExtResource("m_tocon")]
+transform = Transform3D(0.85816, 0, -0.55599, 0, 1.0225, 0, 0.55599, 0, 0.85816, 10.41, 0, 10.75)
+
+[node name="tocon_3" parent="Vegetacion" instance=ExtResource("m_tocon")]
+transform = Transform3D(0.91236, 0, -0.35628, 0, 0.97946, 0, 0.35628, 0, 0.91236, 11.14, 0, 1.283)
+
+[node name="roca_1" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(0.72119, 0, 0.096878, 0, 0.72767, 0, -0.096878, 0, 0.72119, -10.49, 0, 16.76)
+
+[node name="roca_2" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(-0.52667, 0, -0.37016, 0, 0.64374, 0, 0.37016, 0, -0.52667, -10.48, 0, 3.971)
+
+[node name="roca_3" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(-0.29689, 0, 0.55453, 0, 0.629, 0, -0.55453, 0, -0.29689, -12.1, 0, 21.91)
+
+[node name="roca_4" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(0.9474, 0, 0.34143, 0, 1.007, 0, -0.34143, 0, 0.9474, 4.866, 0, -6.525)
+
+[node name="roca_5" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(0.20771, 0, -0.54932, 0, 0.58728, 0, 0.54932, 0, 0.20771, 12.12, 0, 8.37)
+
+[node name="roca_6" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(-1.0047, 0, -0.20655, 0, 1.0257, 0, 0.20655, 0, -1.0047, -7.815, 0, -9.706)
+
+[node name="roca_7" parent="Vegetacion" instance=ExtResource("m_roca")]
+transform = Transform3D(0.7102, 0, -0.1371, 0, 0.72331, 0, 0.1371, 0, 0.7102, 7.54, 0, -10.14)
+
+[node name="seta_gigante_1" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(-0.6868, 0, -0.33261, 0, 0.7631, 0, 0.33261, 0, -0.6868, -7.247, 0, 14.69)
+
+[node name="seta_gigante_2" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(-0.53779, 0, 0.34267, 0, 0.63768, 0, -0.34267, 0, -0.53779, -12.45, 0, 12.06)
+
+[node name="seta_gigante_3" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(0.82278, 0, -0.073976, 0, 0.8261, 0, 0.073976, 0, 0.82278, 10.94, 0, -4.325)
+
+[node name="seta_gigante_4" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(-0.39106, 0, -0.61563, 0, 0.72933, 0, 0.61563, 0, -0.39106, 7.734, 0, -3.438)
+
+[node name="seta_gigante_5" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(-0.69997, 0, 0.093643, 0, 0.70621, 0, -0.093643, 0, -0.69997, -13.48, 0, -4.418)
+
+[node name="seta_gigante_6" parent="Vegetacion" instance=ExtResource("m_seta_gigante")]
+transform = Transform3D(-0.65586, 0, -0.32566, 0, 0.73226, 0, 0.32566, 0, -0.65586, -8.301, 0, -7.172)
+
+[node name="zarza_1" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.75494, 0, -0.35527, 0, 0.83436, 0, 0.35527, 0, -0.75494, -2.651, 0, 20.9)
+
+[node name="zarza_2" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.78157, 0, 0.45914, 0, 0.90645, 0, -0.45914, 0, 0.78157, -8.913, 0, 22.03)
+
+[node name="zarza_3" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.451, 0, -1.0226, 0, 1.1176, 0, 1.0226, 0, 0.451, -1.025, 0, -9.283)
+
+[node name="zarza_4" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.73277, 0, 0.44364, 0, 0.8566, 0, -0.44364, 0, 0.73277, -13.15, 0, 16.72)
+
+[node name="zarza_5" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(1.2042, 0, -0.36344, 0, 1.2578, 0, 0.36344, 0, 1.2042, 11.33, 0, -9.42)
+
+[node name="zarza_6" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(1.0512, 0, -0.26277, 0, 1.0835, 0, 0.26277, 0, 1.0512, 13.86, 0, -2.549)
+
+[node name="zarza_7" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-1.2324, 0, 0.30323, 0, 1.2692, 0, -0.30323, 0, -1.2324, -13.7, 0, -10.28)
+
+[node name="zarza_8" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.40168, 0, -0.88218, 0, 0.96933, 0, 0.88218, 0, -0.40168, 14.03, 0, 18.04)
+
+[node name="zarza_9" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.82519, 0, -0.86926, 0, 1.1986, 0, 0.86926, 0, 0.82519, -12.98, 0, -0.3335)
+
+[node name="zarza_10" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.80415, 0, 0.40112, 0, 0.89864, 0, -0.40112, 0, -0.80415, 8.006, 0, 20.95)
+
+[node name="zarza_11" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.39986, 0, 1.1441, 0, 1.2119, 0, -1.1441, 0, 0.39986, 4.836, 0, -9.278)
+
+[node name="zarza_12" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(1.0174, 0, 0.36772, 0, 1.0819, 0, -0.36772, 0, 1.0174, 13.82, 0, 11.13)
+
+[node name="zarza_13" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.56592, 0, 0.85851, 0, 1.0283, 0, -0.85851, 0, -0.56592, -13.77, 0, 1.897)
+
+[node name="zarza_14" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.54841, 0, 0.9894, 0, 1.1312, 0, -0.9894, 0, 0.54841, -3.582, 0, -9.926)
+
+[node name="zarza_15" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.90919, 0, 0.20996, 0, 0.93312, 0, -0.20996, 0, -0.90919, 13.85, 0, 14.75)
+
+[node name="zarza_16" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.27322, 0, 0.84927, 0, 0.89214, 0, -0.84927, 0, 0.27322, -13.94, 0, 19.48)
+
+[node name="zarza_17" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(-0.93923, 0, -0.72836, 0, 1.1886, 0, 0.72836, 0, -0.93923, 13, 0, 20.93)
+
+[node name="zarza_18" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.056985, 0, 1.1784, 0, 1.1797, 0, -1.1784, 0, 0.056985, 4.237, 0, 21.86)
+
+[node name="zarza_19" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.98781, 0, -0.21, 0, 1.0099, 0, 0.21, 0, 0.98781, 13.61, 0, 4.123)
+
+[node name="zarza_20" parent="Vegetacion" instance=ExtResource("m_zarza")]
+transform = Transform3D(0.48078, 0, 0.86626, 0, 0.99073, 0, -0.86626, 0, 0.48078, -13.16, 0, 7.633)
+
+[node name="matorral_1" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.8945, 0, -0.87649, 0, 1.2523, 0, 0.87649, 0, 0.8945, 6.38, 0, 17.06)
+
+[node name="matorral_2" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.59171, 0, -0.59101, 0, 0.83631, 0, 0.59101, 0, 0.59171, -7.603, 0, 2.4)
+
+[node name="matorral_3" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.39093, 0, 0.70967, 0, 0.81022, 0, -0.70967, 0, -0.39093, 10.81, 0, 5.464)
+
+[node name="matorral_4" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.86529, 0, 0.088168, 0, 0.86977, 0, -0.088168, 0, -0.86529, -7.024, 0, 6.916)
+
+[node name="matorral_5" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.52555, 0, -1.1055, 0, 1.2241, 0, 1.1055, 0, 0.52555, -3.132, 0, 15.89)
+
+[node name="matorral_6" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.08453, 0, 1.2256, 0, 1.2285, 0, -1.2256, 0, 0.08453, -7.903, 0, 4.812)
+
+[node name="matorral_7" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.58216, 0, -0.9963, 0, 1.1539, 0, 0.9963, 0, 0.58216, -5.951, 0, -5.3)
+
+[node name="matorral_8" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.73719, 0, 0.1627, 0, 0.75493, 0, -0.1627, 0, 0.73719, -10.35, 0, 6.492)
+
+[node name="matorral_9" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.61187, 0, -1.0335, 0, 1.201, 0, 1.0335, 0, -0.61187, -2.547, 0, 12.53)
+
+[node name="matorral_10" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.98084, 0, -0.57806, 0, 1.1385, 0, 0.57806, 0, 0.98084, 6.613, 0, 6.792)
+
+[node name="matorral_11" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.18353, 0, -1.0399, 0, 1.0559, 0, 1.0399, 0, 0.18353, 1.522, 0, -8.479)
+
+[node name="matorral_12" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.033595, 0, 0.9794, 0, 0.97997, 0, -0.9794, 0, 0.033595, 7.329, 0, 1.935)
+
+[node name="matorral_13" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.95843, 0, 0.0056682, 0, 0.95845, 0, -0.0056682, 0, 0.95843, -6.221, 0, -1.041)
+
+[node name="matorral_14" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.97285, 0, 0.81441, 0, 1.2687, 0, -0.81441, 0, 0.97285, -3.851, 0, 8.769)
+
+[node name="matorral_15" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.88587, 0, 0.26274, 0, 0.92401, 0, -0.26274, 0, -0.88587, 8.037, 0, 4.574)
+
+[node name="matorral_16" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.60286, 0, 0.70284, 0, 0.92597, 0, -0.70284, 0, -0.60286, -7.615, 0, 10.87)
+
+[node name="matorral_17" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.61581, 0, 0.74271, 0, 0.9648, 0, -0.74271, 0, -0.61581, -0.3226, 0, -6.181)
+
+[node name="matorral_18" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.41224, 0, -0.69753, 0, 0.81024, 0, 0.69753, 0, 0.41224, 13.85, 0, -10.12)
+
+[node name="matorral_19" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.82008, 0, -0.46712, 0, 0.94379, 0, 0.46712, 0, -0.82008, -9.478, 0, 9.982)
+
+[node name="matorral_20" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.6121, 0, 0.64289, 0, 0.88768, 0, -0.64289, 0, -0.6121, 7.941, 0, 9.675)
+
+[node name="matorral_21" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.042522, 0, 0.87473, 0, 0.87576, 0, -0.87473, 0, 0.042522, -1.359, 0, 18.32)
+
+[node name="matorral_22" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.10997, 0, -0.8244, 0, 0.8317, 0, 0.8244, 0, -0.10997, -5.835, 0, -8.381)
+
+[node name="matorral_23" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.33121, 0, 0.9271, 0, 0.98449, 0, -0.9271, 0, 0.33121, -11.25, 0, 19.08)
+
+[node name="matorral_24" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.69689, 0, 0.095701, 0, 0.70343, 0, -0.095701, 0, -0.69689, 10.96, 0, 18.48)
+
+[node name="matorral_25" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(-0.68206, 0, 0.30982, 0, 0.74914, 0, -0.30982, 0, -0.68206, -3.234, 0, -5.785)
+
+[node name="matorral_26" parent="Vegetacion" instance=ExtResource("m_matorral")]
+transform = Transform3D(0.39202, 0, -0.75388, 0, 0.84971, 0, 0.75388, 0, 0.39202, 12.72, 0, -7.556)
+
+[node name="girasol_gigante_1" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.38003, 0, -0.66705, 0, 0.76771, 0, 0.66705, 0, -0.38003, 10.47, 0, 19.95)
+
+[node name="girasol_gigante_2" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.4009, 0, -0.9956, 0, 1.0733, 0, 0.9956, 0, -0.4009, 7.522, 0, -7.044)
+
+[node name="girasol_gigante_3" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.48314, 0, -0.82162, 0, 0.95315, 0, 0.82162, 0, 0.48314, -1.327, 0, 11.5)
+
+[node name="girasol_gigante_4" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.70359, 0, -0.48108, 0, 0.85234, 0, 0.48108, 0, -0.70359, -5.067, 0, 14.68)
+
+[node name="girasol_gigante_5" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.076999, 0, 0.87081, 0, 0.87421, 0, -0.87081, 0, -0.076999, 11.61, 0, 20.21)
+
+[node name="girasol_gigante_6" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-1.0227, 0, -0.15892, 0, 1.0349, 0, 0.15892, 0, -1.0227, 13.07, 0, -6.039)
+
+[node name="girasol_gigante_7" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.63577, 0, -0.95695, 0, 1.1489, 0, 0.95695, 0, 0.63577, 7.116, 0, 12.07)
+
+[node name="girasol_gigante_8" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.82683, 0, 0.66859, 0, 1.0633, 0, -0.66859, 0, 0.82683, 9.386, 0, 2.977)
+
+[node name="girasol_gigante_9" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.93489, 0, -0.62773, 0, 1.1261, 0, 0.62773, 0, -0.93489, 13.37, 0, 1.678)
+
+[node name="girasol_gigante_10" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.96642, 0, 0.41461, 0, 1.0516, 0, -0.41461, 0, -0.96642, -10.81, 0, -8.925)
+
+[node name="girasol_gigante_11" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.085704, 0, -0.83767, 0, 0.84204, 0, 0.83767, 0, 0.085704, 5.157, 0, 16.28)
+
+[node name="girasol_gigante_12" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.64705, 0, -0.51121, 0, 0.82463, 0, 0.51121, 0, 0.64705, -5.304, 0, 10.63)
+
+[node name="girasol_gigante_13" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(-0.57011, 0, 0.65525, 0, 0.86855, 0, -0.65525, 0, -0.57011, 5.914, 0, 14.72)
+
+[node name="girasol_gigante_14" parent="Vegetacion" instance=ExtResource("m_girasol_gigante")]
+transform = Transform3D(0.90481, 0, -0.49764, 0, 1.0326, 0, 0.49764, 0, 0.90481, 2.697, 0, -5.758)
+
+[node name="amapola_gigante_1" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(0.24621, 0, -0.76266, 0, 0.80142, 0, 0.76266, 0, 0.24621, 14.09, 0, -4.12)
+
+[node name="amapola_gigante_2" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(0.76966, 0, -0.56247, 0, 0.95329, 0, 0.56247, 0, 0.76966, -14.24, 0, -6.71)
+
+[node name="amapola_gigante_3" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.69561, 0, 0.40341, 0, 0.80412, 0, -0.40341, 0, -0.69561, 3.537, 0, -7.587)
+
+[node name="amapola_gigante_4" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(0.37195, 0, 0.90368, 0, 0.97723, 0, -0.90368, 0, 0.37195, -12.99, 0, -6.611)
+
+[node name="amapola_gigante_5" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(1.0304, 0, 0.14534, 0, 1.0406, 0, -0.14534, 0, 1.0304, -9.688, 0, -9.8)
+
+[node name="amapola_gigante_6" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.98485, 0, 0.015913, 0, 0.98498, 0, -0.015913, 0, -0.98485, -1.719, 0, -4.215)
+
+[node name="amapola_gigante_7" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(0.70812, 0, -0.21001, 0, 0.73861, 0, 0.21001, 0, 0.70812, 13.17, 0, 6.136)
+
+[node name="amapola_gigante_8" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.12001, 0, 0.94189, 0, 0.9495, 0, -0.94189, 0, -0.12001, -2.775, 0, 17.36)
+
+[node name="amapola_gigante_9" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(0.87761, 0, 0.13825, 0, 0.88844, 0, -0.13825, 0, 0.87761, 5.955, 0, -4.392)
+
+[node name="amapola_gigante_10" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.68504, 0, 0.1762, 0, 0.70733, 0, -0.1762, 0, -0.68504, -13.3, 0, -2.41)
+
+[node name="amapola_gigante_11" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.45226, 0, 0.68201, 0, 0.81833, 0, -0.68201, 0, -0.45226, -3.556, 0, 6.125)
+
+[node name="amapola_gigante_12" parent="Vegetacion" instance=ExtResource("m_amapola_gigante")]
+transform = Transform3D(-0.15288, 0, 0.80045, 0, 0.81492, 0, -0.80045, 0, -0.15288, -6.305, 0, 16.31)
+
+[node name="Hierba" type="Node3D" parent="."]
+
+[node name="hierbajo_grande_1" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.5241, 0, -0.71874, 0, 0.88953, 0, 0.71874, 0, -0.5241, 9.218, 0, 7.423)
+
+[node name="hierbajo_grande_2" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.38606, 0, -0.98648, 0, 1.0593, 0, 0.98648, 0, -0.38606, 12.13, 0, -2.624)
+
+[node name="hierbajo_grande_3" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.41464, 0, -0.90583, 0, 0.99622, 0, 0.90583, 0, -0.41464, -12.41, 0, 5.047)
+
+[node name="hierbajo_grande_4" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.19839, 0, 1.0003, 0, 1.0198, 0, -1.0003, 0, -0.19839, 8.38, 0, -5.027)
+
+[node name="hierbajo_grande_5" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.83123, 0, 0.35708, 0, 0.90468, 0, -0.35708, 0, 0.83123, -5.512, 0, 12.64)
+
+[node name="hierbajo_grande_6" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.68254, 0, 0.51053, 0, 0.85235, 0, -0.51053, 0, -0.68254, -9.436, 0, 1.51)
+
+[node name="hierbajo_grande_7" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.78287, 0, 0.36653, 0, 0.86443, 0, -0.36653, 0, -0.78287, 9.671, 0, 20.84)
+
+[node name="hierbajo_grande_8" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(1.0619, 0, -0.3997, 0, 1.1346, 0, 0.3997, 0, 1.0619, 11.65, 0, 15.76)
+
+[node name="hierbajo_grande_9" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.77529, 0, 0.44174, 0, 0.89231, 0, -0.44174, 0, -0.77529, -13.4, 0, 3.963)
+
+[node name="hierbajo_grande_10" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-1.0355, 0, -0.19157, 0, 1.0531, 0, 0.19157, 0, -1.0355, 3.405, 0, 19.14)
+
+[node name="hierbajo_grande_11" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.36417, 0, 1.0989, 0, 1.1577, 0, -1.0989, 0, 0.36417, -2.765, 0, 10.77)
+
+[node name="hierbajo_grande_12" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.25107, 0, 1.1569, 0, 1.1839, 0, -1.1569, 0, -0.25107, 6.077, 0, 20.18)
+
+[node name="hierbajo_grande_13" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.69382, 0, -0.80632, 0, 1.0637, 0, 0.80632, 0, 0.69382, -4.25, 0, -7.633)
+
+[node name="hierbajo_grande_14" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.90294, 0, -0.29502, 0, 0.94992, 0, 0.29502, 0, 0.90294, -13.72, 0, -7.877)
+
+[node name="hierbajo_grande_15" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.97857, 0, 0.40568, 0, 1.0593, 0, -0.40568, 0, 0.97857, -2.699, 0, 7.591)
+
+[node name="hierbajo_grande_16" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.6023, 0, -0.67755, 0, 0.90656, 0, 0.67755, 0, -0.6023, 6.451, 0, 4.869)
+
+[node name="hierbajo_grande_17" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(1.0709, 0, -0.40197, 0, 1.1439, 0, 0.40197, 0, 1.0709, 3.683, 0, 20.34)
+
+[node name="hierbajo_grande_18" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.59323, 0, 0.48067, 0, 0.76352, 0, -0.48067, 0, 0.59323, -11.85, 0, 10.09)
+
+[node name="hierbajo_grande_19" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.69918, 0, -0.6392, 0, 0.94733, 0, 0.6392, 0, 0.69918, -11.33, 0, 1.304)
+
+[node name="hierbajo_grande_20" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.21775, 0, -0.89011, 0, 0.91636, 0, 0.89011, 0, -0.21775, -10.79, 0, 8.717)
+
+[node name="hierbajo_grande_21" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.88886, 0, -0.125, 0, 0.8976, 0, 0.125, 0, 0.88886, 12.79, 0, -0.7372)
+
+[node name="hierbajo_grande_22" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.67079, 0, -0.42594, 0, 0.79459, 0, 0.42594, 0, 0.67079, -2.913, 0, 14.33)
+
+[node name="hierbajo_grande_23" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.62685, 0, 0.99103, 0, 1.1726, 0, -0.99103, 0, 0.62685, 9.017, 0, 16.79)
+
+[node name="hierbajo_grande_24" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.1525, 0, 1.101, 0, 1.1115, 0, -1.101, 0, -0.1525, 4.423, 0, -4.64)
+
+[node name="hierbajo_grande_25" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-1.0301, 0, 0.11241, 0, 1.0362, 0, -0.11241, 0, -1.0301, 9.901, 0, -0.8733)
+
+[node name="hierbajo_grande_26" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.58326, 0, -0.46553, 0, 0.74626, 0, 0.46553, 0, -0.58326, -8.465, 0, 6.268)
+
+[node name="hierbajo_grande_27" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.28129, 0, 0.91208, 0, 0.95447, 0, -0.91208, 0, 0.28129, 7.732, 0, 18.42)
+
+[node name="hierbajo_grande_28" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.29109, 0, -0.80258, 0, 0.85374, 0, 0.80258, 0, -0.29109, 0.1719, 0, -4.379)
+
+[node name="hierbajo_grande_29" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.72991, 0, -0.48177, 0, 0.87457, 0, 0.48177, 0, -0.72991, -11.81, 0, -7.475)
+
+[node name="hierbajo_grande_30" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.6377, 0, -0.47438, 0, 0.79479, 0, 0.47438, 0, 0.6377, 13.31, 0, 0.487)
+
+[node name="hierbajo_grande_31" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.24791, 0, -0.88632, 0, 0.92034, 0, 0.88632, 0, -0.24791, -5.53, 0, 2.298)
+
+[node name="hierbajo_grande_32" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.84571, 0, -0.46974, 0, 0.96741, 0, 0.46974, 0, 0.84571, -1.005, 0, 13.39)
+
+[node name="hierbajo_grande_33" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.3951, 0, -0.8169, 0, 0.90743, 0, 0.8169, 0, -0.3951, -9.277, 0, -4.194)
+
+[node name="hierbajo_grande_34" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.34437, 0, -1.0908, 0, 1.1438, 0, 1.0908, 0, -0.34437, -5.344, 0, -10.17)
+
+[node name="hierbajo_grande_35" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.71387, 0, 0.83582, 0, 1.0992, 0, -0.83582, 0, 0.71387, 4.706, 0, 18.18)
+
+[node name="hierbajo_grande_36" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.39465, 0, -0.66186, 0, 0.77058, 0, 0.66186, 0, 0.39465, 8.014, 0, 17.28)
+
+[node name="hierbajo_grande_37" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.21213, 0, 0.90464, 0, 0.92918, 0, -0.90464, 0, -0.21213, 8.858, 0, 6.448)
+
+[node name="hierbajo_grande_38" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.029395, 0, -1.0492, 0, 1.0496, 0, 1.0492, 0, -0.029395, 6.634, 0, -5.658)
+
+[node name="hierbajo_grande_39" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.75028, 0, -0.78761, 0, 1.0878, 0, 0.78761, 0, 0.75028, 4.709, 0, 14.44)
+
+[node name="hierbajo_grande_40" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.6926, 0, 0.24371, 0, 0.73423, 0, -0.24371, 0, 0.6926, 7.039, 0, 13.55)
+
+[node name="hierbajo_grande_41" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.0123, 0, -0.95881, 0, 0.95888, 0, 0.95881, 0, 0.0123, -1.976, 0, 6.598)
+
+[node name="hierbajo_grande_42" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.60902, 0, -0.75337, 0, 0.96875, 0, 0.75337, 0, -0.60902, 14.31, 0, -1.014)
+
+[node name="hierbajo_grande_43" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.63725, 0, -0.64822, 0, 0.909, 0, 0.64822, 0, -0.63725, 13.07, 0, -4.661)
+
+[node name="hierbajo_grande_44" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.8441, 0, 0.038305, 0, 0.84497, 0, -0.038305, 0, 0.8441, -14.29, 0, -1.868)
+
+[node name="hierbajo_grande_45" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.034783, 0, -1.1188, 0, 1.1193, 0, 1.1188, 0, -0.034783, -8.96, 0, 13.87)
+
+[node name="hierbajo_grande_46" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.94151, 0, -0.12303, 0, 0.94951, 0, 0.12303, 0, -0.94151, -12.22, 0, 8.929)
+
+[node name="hierbajo_grande_47" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.82303, 0, -0.7168, 0, 1.0914, 0, 0.7168, 0, 0.82303, -7.053, 0, -2.562)
+
+[node name="hierbajo_grande_48" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.88662, 0, 0.011261, 0, 0.88669, 0, -0.011261, 0, -0.88662, -5.624, 0, -2.834)
+
+[node name="hierbajo_grande_49" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.799, 0, -0.4677, 0, 0.92582, 0, 0.4677, 0, -0.799, 10.58, 0, 3.62)
+
+[node name="hierbajo_grande_50" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.74425, 0, 0.51441, 0, 0.90473, 0, -0.51441, 0, -0.74425, -6.641, 0, 20.86)
+
+[node name="hierbajo_grande_51" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(1.0752, 0, 0.38715, 0, 1.1428, 0, -0.38715, 0, 1.0752, -11.91, 0, 2.398)
+
+[node name="hierbajo_grande_52" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.80035, 0, -0.16236, 0, 0.81665, 0, 0.16236, 0, 0.80035, 12.12, 0, 17.14)
+
+[node name="hierbajo_grande_53" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.49515, 0, 0.70709, 0, 0.86322, 0, -0.70709, 0, 0.49515, 10.25, 0, 16.09)
+
+[node name="hierbajo_grande_54" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.67228, 0, -0.95932, 0, 1.1714, 0, 0.95932, 0, -0.67228, -4.447, 0, 19.62)
+
+[node name="hierbajo_grande_55" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.18166, 0, -0.92751, 0, 0.94514, 0, 0.92751, 0, -0.18166, -4.2, 0, 12.57)
+
+[node name="hierbajo_grande_56" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(1.0447, 0, 0.15061, 0, 1.0555, 0, -0.15061, 0, 1.0447, 10.12, 0, 22.15)
+
+[node name="hierbajo_grande_57" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.097638, 0, 1.1429, 0, 1.1471, 0, -1.1429, 0, -0.097638, -6.234, 0, 17.3)
+
+[node name="hierbajo_grande_58" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.74383, 0, 0.56542, 0, 0.93434, 0, -0.56542, 0, 0.74383, 9.159, 0, 15.59)
+
+[node name="hierbajo_grande_59" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.67985, 0, -0.6859, 0, 0.96574, 0, 0.6859, 0, 0.67985, -13.88, 0, 21.11)
+
+[node name="hierbajo_grande_60" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.0736, 0, 0.7506, 0, 0.7542, 0, -0.7506, 0, 0.0736, -8.053, 0, 0.2722)
+
+[node name="hierbajo_grande_61" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-1.0574, 0, -0.20296, 0, 1.0767, 0, 0.20296, 0, -1.0574, -6.462, 0, 1.252)
+
+[node name="hierbajo_grande_62" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.83029, 0, -0.17283, 0, 0.84809, 0, 0.17283, 0, -0.83029, -1.092, 0, 14.56)
+
+[node name="hierbajo_grande_63" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.84334, 0, -0.061247, 0, 0.84556, 0, 0.061247, 0, -0.84334, 9.738, 0, -9.804)
+
+[node name="hierbajo_grande_64" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.038094, 0, -1.1109, 0, 1.1115, 0, 1.1109, 0, 0.038094, 10.55, 0, -1.819)
+
+[node name="hierbajo_grande_65" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.73302, 0, 0.43578, 0, 0.85278, 0, -0.43578, 0, -0.73302, -10.01, 0, 14.98)
+
+[node name="hierbajo_grande_66" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(-0.23632, 0, -1.0737, 0, 1.0994, 0, 1.0737, 0, -0.23632, 11.93, 0, 4.111)
+
+[node name="hierbajo_grande_67" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(1.108, 0, -0.12969, 0, 1.1155, 0, 0.12969, 0, 1.108, 8.619, 0, -0.3799)
+
+[node name="hierbajo_grande_68" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.78062, 0, 0.2781, 0, 0.82868, 0, -0.2781, 0, 0.78062, -7.852, 0, -4.974)
+
+[node name="hierbajo_grande_69" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.72492, 0, -0.47769, 0, 0.86816, 0, 0.47769, 0, 0.72492, 5.803, 0, 10.3)
+
+[node name="hierbajo_grande_70" parent="Hierba" instance=ExtResource("m_hierbajo_grande")]
+transform = Transform3D(0.29714, 0, 0.97286, 0, 1.0172, 0, -0.97286, 0, 0.29714, -8.972, 0, 15.61)
+
+[node name="hierbajo_1" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.24781, 0, -0.93578, 0, 0.96804, 0, 0.93578, 0, 0.24781, -5.611, 0, 6.333)
+
+[node name="hierbajo_2" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.481, 0, -0.0303, 0, 1.4813, 0, 0.0303, 0, 1.481, -9.511, 0, -0.006585)
+
+[node name="hierbajo_3" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.73861, 0, -0.345, 0, 0.81521, 0, 0.345, 0, 0.73861, 8.579, 0, 11.69)
+
+[node name="hierbajo_4" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.54363, 0, 0.7072, 0, 0.892, 0, -0.7072, 0, -0.54363, -8.695, 0, 3.515)
+
+[node name="hierbajo_5" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.13382, 0, 1.3227, 0, 1.3295, 0, -1.3227, 0, -0.13382, 7.991, 0, 6.008)
+
+[node name="hierbajo_6" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0139, 0, -0.90458, 0, 1.3588, 0, 0.90458, 0, 1.0139, 3.197, 0, -4.276)
+
+[node name="hierbajo_7" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3637, 0, -0.40581, 0, 1.4228, 0, 0.40581, 0, 1.3637, -14.32, 0, 17.73)
+
+[node name="hierbajo_8" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3084, 0, 0.016388, 0, 1.3085, 0, -0.016388, 0, -1.3084, 0.1169, 0, 22.18)
+
+[node name="hierbajo_9" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2376, 0, 0.24074, 0, 1.2608, 0, -0.24074, 0, -1.2376, 10.05, 0, 8.655)
+
+[node name="hierbajo_10" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1758, 0, -0.22608, 0, 1.1974, 0, 0.22608, 0, -1.1758, 7.052, 0, 0.2272)
+
+[node name="hierbajo_11" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.76402, 0, 0.88903, 0, 1.1722, 0, -0.88903, 0, 0.76402, -1.673, 0, -7.506)
+
+[node name="hierbajo_12" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.11792, 0, 1.3696, 0, 1.3747, 0, -1.3696, 0, -0.11792, -0.6452, 0, 20.54)
+
+[node name="hierbajo_13" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1056, 0, 0.081383, 0, 1.1086, 0, -0.081383, 0, 1.1056, -4.82, 0, 17.57)
+
+[node name="hierbajo_14" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.81053, 0, -1.2869, 0, 1.5209, 0, 1.2869, 0, 0.81053, -3.989, 0, 18.42)
+
+[node name="hierbajo_15" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.30842, 0, -0.89546, 0, 0.94709, 0, 0.89546, 0, 0.30842, 8.165, 0, -1.633)
+
+[node name="hierbajo_16" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2204, 0, -0.39332, 0, 1.2822, 0, 0.39332, 0, 1.2204, -14.35, 0, 5.41)
+
+[node name="hierbajo_17" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0483, 0, 0.55186, 0, 1.1847, 0, -0.55186, 0, 1.0483, -1.474, 0, -5.198)
+
+[node name="hierbajo_18" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3485, 0, -0.15139, 0, 1.357, 0, 0.15139, 0, -1.3485, -8.242, 0, 7.489)
+
+[node name="hierbajo_19" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.11379, 0, 0.79841, 0, 0.80648, 0, -0.79841, 0, -0.11379, -7.348, 0, 21.41)
+
+[node name="hierbajo_20" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.23218, 0, -1.2549, 0, 1.2762, 0, 1.2549, 0, 0.23218, 8.667, 0, 2.76)
+
+[node name="hierbajo_21" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0246, 0, 0.11389, 0, 1.0309, 0, -0.11389, 0, 1.0246, 4.354, 0, 19.43)
+
+[node name="hierbajo_22" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.32813, 0, -0.82556, 0, 0.88838, 0, 0.82556, 0, 0.32813, -11.84, 0, 7.032)
+
+[node name="hierbajo_23" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2863, 0, -0.73238, 0, 1.4802, 0, 0.73238, 0, 1.2863, -3.519, 0, -4.484)
+
+[node name="hierbajo_24" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0827, 0, 0.91612, 0, 1.4182, 0, -0.91612, 0, -1.0827, -12.83, 0, -8.146)
+
+[node name="hierbajo_25" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.96796, 0, -0.70108, 0, 1.1952, 0, 0.70108, 0, 0.96796, 9.224, 0, -7.751)
+
+[node name="hierbajo_26" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.96097, 0, 0.22845, 0, 0.98775, 0, -0.22845, 0, 0.96097, 8.411, 0, 8.039)
+
+[node name="hierbajo_27" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.74693, 0, 0.86006, 0, 1.1391, 0, -0.86006, 0, -0.74693, 7.037, 0, -1.092)
+
+[node name="hierbajo_28" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.97694, 0, -0.010237, 0, 0.97699, 0, 0.010237, 0, -0.97694, -11.88, 0, 14.15)
+
+[node name="hierbajo_29" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.84467, 0, -0.17633, 0, 0.86288, 0, 0.17633, 0, -0.84467, 9.635, 0, -2.051)
+
+[node name="hierbajo_30" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.74053, 0, -0.8555, 0, 1.1315, 0, 0.8555, 0, 0.74053, 12.59, 0, 10.3)
+
+[node name="hierbajo_31" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.68393, 0, 0.61695, 0, 0.92108, 0, -0.61695, 0, -0.68393, -5.986, 0, 11.16)
+
+[node name="hierbajo_32" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.25398, 0, 1.3338, 0, 1.3578, 0, -1.3338, 0, 0.25398, 6.465, 0, 0.6522)
+
+[node name="hierbajo_33" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.092356, 0, -0.8295, 0, 0.83463, 0, 0.8295, 0, -0.092356, 12.82, 0, 19.49)
+
+[node name="hierbajo_34" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.70865, 0, -0.75621, 0, 1.0364, 0, 0.75621, 0, 0.70865, -3.719, 0, 13.48)
+
+[node name="hierbajo_35" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5465, 0, 0.029132, 0, 1.5468, 0, -0.029132, 0, 1.5465, -1.708, 0, 15.38)
+
+[node name="hierbajo_36" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2305, 0, 0.3366, 0, 1.2758, 0, -0.3366, 0, 1.2305, -0.8468, 0, -4.172)
+
+[node name="hierbajo_37" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.88219, 0, -0.32409, 0, 0.93984, 0, 0.32409, 0, -0.88219, -11.98, 0, 15.53)
+
+[node name="hierbajo_38" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3954, 0, 0.45139, 0, 1.4666, 0, -0.45139, 0, -1.3954, 8.55, 0, -6.889)
+
+[node name="hierbajo_39" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.56787, 0, -1.0827, 0, 1.2226, 0, 1.0827, 0, 0.56787, 9.232, 0, 1.918)
+
+[node name="hierbajo_40" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.030645, 0, 0.92817, 0, 0.92868, 0, -0.92817, 0, -0.030645, 7.781, 0, 19.29)
+
+[node name="hierbajo_41" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.99714, 0, -0.19143, 0, 1.0153, 0, 0.19143, 0, 0.99714, 12.51, 0, 5.291)
+
+[node name="hierbajo_42" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.41201, 0, -1.1385, 0, 1.2108, 0, 1.1385, 0, 0.41201, 8.455, 0, 0.485)
+
+[node name="hierbajo_43" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.122, 0, -0.62559, 0, 1.2847, 0, 0.62559, 0, -1.122, 12.65, 0, 13.01)
+
+[node name="hierbajo_44" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.23948, 0, -1.0889, 0, 1.1149, 0, 1.0889, 0, -0.23948, 0.2292, 0, -9.939)
+
+[node name="hierbajo_45" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.6648, 0, 1.1073, 0, 1.2916, 0, -1.1073, 0, -0.6648, 4.025, 0, 16.6)
+
+[node name="hierbajo_46" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.65221, 0, -1.4136, 0, 1.5568, 0, 1.4136, 0, 0.65221, -3.711, 0, 17.7)
+
+[node name="hierbajo_47" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2826, 0, -0.66192, 0, 1.4434, 0, 0.66192, 0, -1.2826, -7.129, 0, 13.14)
+
+[node name="hierbajo_48" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.60077, 0, -1.1956, 0, 1.338, 0, 1.1956, 0, -0.60077, -12.19, 0, -9.331)
+
+[node name="hierbajo_49" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.102, 0, -0.99271, 0, 0.99793, 0, 0.99271, 0, 0.102, 14.05, 0, 2.483)
+
+[node name="hierbajo_50" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.89413, 0, 0.77594, 0, 1.1839, 0, -0.77594, 0, -0.89413, 3.17, 0, 15.57)
+
+[node name="hierbajo_51" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1047, 0, 0.34629, 0, 1.1577, 0, -0.34629, 0, -1.1047, -5.355, 0, 3.936)
+
+[node name="hierbajo_52" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.31579, 0, 1.1381, 0, 1.1811, 0, -1.1381, 0, -0.31579, -14.18, 0, 13.96)
+
+[node name="hierbajo_53" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.71716, 0, 1.0568, 0, 1.2771, 0, -1.0568, 0, 0.71716, -5.588, 0, -6.936)
+
+[node name="hierbajo_54" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.92208, 0, 0.55002, 0, 1.0737, 0, -0.55002, 0, -0.92208, 14.02, 0, 19.95)
+
+[node name="hierbajo_55" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.052035, 0, 0.96805, 0, 0.96945, 0, -0.96805, 0, -0.052035, 7.241, 0, -8.228)
+
+[node name="hierbajo_56" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.78125, 0, 1.2421, 0, 1.4673, 0, -1.2421, 0, -0.78125, -7.191, 0, 3.663)
+
+[node name="hierbajo_57" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0767, 0, 0.78331, 0, 1.3315, 0, -0.78331, 0, 1.0767, 5.774, 0, 22.34)
+
+[node name="hierbajo_58" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.92915, 0, 0.72637, 0, 1.1794, 0, -0.72637, 0, -0.92915, 10.27, 0, -7.924)
+
+[node name="hierbajo_59" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2922, 0, -0.69555, 0, 1.4675, 0, 0.69555, 0, -1.2922, 12.36, 0, 2.991)
+
+[node name="hierbajo_60" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.84362, 0, -0.019816, 0, 0.84386, 0, 0.019816, 0, 0.84362, 14.23, 0, -7.687)
+
+[node name="hierbajo_61" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3585, 0, 0.6165, 0, 1.4919, 0, -0.6165, 0, -1.3585, 5.69, 0, -10.39)
+
+[node name="hierbajo_62" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.91024, 0, 0.96118, 0, 1.3238, 0, -0.96118, 0, -0.91024, -7.932, 0, -3.916)
+
+[node name="hierbajo_63" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.99036, 0, 0.62439, 0, 1.1708, 0, -0.62439, 0, 0.99036, -5.457, 0, 0.3567)
+
+[node name="hierbajo_64" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.17943, 0, 1.1797, 0, 1.1932, 0, -1.1797, 0, -0.17943, -0.3102, 0, 12.14)
+
+[node name="hierbajo_65" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.87061, 0, -0.12283, 0, 0.87923, 0, 0.12283, 0, 0.87061, 3.295, 0, 16.72)
+
+[node name="hierbajo_66" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5028, 0, 0.31378, 0, 1.5352, 0, -0.31378, 0, 1.5028, -1.751, 0, 16.9)
+
+[node name="hierbajo_67" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1508, 0, -0.87221, 0, 1.444, 0, 0.87221, 0, -1.1508, -3.457, 0, 11.46)
+
+[node name="hierbajo_68" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.87099, 0, 0.17616, 0, 0.88862, 0, -0.17616, 0, -0.87099, -1.615, 0, 10.46)
+
+[node name="hierbajo_69" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2786, 0, 0.22594, 0, 1.2984, 0, -0.22594, 0, 1.2786, -12.15, 0, -3.354)
+
+[node name="hierbajo_70" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.90294, 0, 0.86363, 0, 1.2495, 0, -0.86363, 0, -0.90294, 8.054, 0, 13.13)
+
+[node name="hierbajo_71" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.77979, 0, -0.5649, 0, 0.96291, 0, 0.5649, 0, -0.77979, 3.202, 0, -9.122)
+
+[node name="hierbajo_72" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.49646, 0, 1.4055, 0, 1.4906, 0, -1.4055, 0, -0.49646, 9.337, 0, -9.047)
+
+[node name="hierbajo_73" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.4073, 0, 0.42215, 0, 1.4692, 0, -0.42215, 0, -1.4073, 0.1727, 0, 19.48)
+
+[node name="hierbajo_74" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1068, 0, 0.6253, 0, 1.2713, 0, -0.6253, 0, -1.1068, 12.06, 0, 11.95)
+
+[node name="hierbajo_75" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.83797, 0, -0.70541, 0, 1.0954, 0, 0.70541, 0, 0.83797, -5.199, 0, 8.862)
+
+[node name="hierbajo_76" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.4028, 0, -0.68822, 0, 1.5625, 0, 0.68822, 0, -1.4028, 11.32, 0, -6.912)
+
+[node name="hierbajo_77" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2186, 0, 0.97171, 0, 1.5586, 0, -0.97171, 0, -1.2186, -6.826, 0, 9.221)
+
+[node name="hierbajo_78" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.80933, 0, 0.86341, 0, 1.1834, 0, -0.86341, 0, -0.80933, 8.916, 0, -2.395)
+
+[node name="hierbajo_79" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.044759, 0, 0.98615, 0, 0.98717, 0, -0.98615, 0, 0.044759, -4.424, 0, 13.7)
+
+[node name="hierbajo_80" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.7592, 0, -0.2672, 0, 0.80485, 0, 0.2672, 0, 0.7592, -9.45, 0, 20.72)
+
+[node name="hierbajo_81" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.65073, 0, -1.3577, 0, 1.5056, 0, 1.3577, 0, -0.65073, -6.743, 0, 0.2406)
+
+[node name="hierbajo_82" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.8588, 0, 1.217, 0, 1.4895, 0, -1.217, 0, -0.8588, 9.1, 0, 5.639)
+
+[node name="hierbajo_83" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.47506, 0, 1.4544, 0, 1.53, 0, -1.4544, 0, 0.47506, -7.753, 0, -3.257)
+
+[node name="hierbajo_84" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.7064, 0, -1.2232, 0, 1.4125, 0, 1.2232, 0, 0.7064, 9.148, 0, 3.826)
+
+[node name="hierbajo_85" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0778, 0, 1.1225, 0, 1.5561, 0, -1.1225, 0, -1.0778, 7.667, 0, -1.041)
+
+[node name="hierbajo_86" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.43939, 0, -1.3972, 0, 1.4646, 0, 1.3972, 0, 0.43939, -1.022, 0, 16.61)
+
+[node name="hierbajo_87" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1599, 0, -0.23389, 0, 1.1832, 0, 0.23389, 0, -1.1599, -5.96, 0, 3.371)
+
+[node name="hierbajo_88" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0017, 0, -0.33583, 0, 1.0565, 0, 0.33583, 0, -1.0017, -0.308, 0, 21.12)
+
+[node name="hierbajo_89" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.15789, 0, 1.1777, 0, 1.1882, 0, -1.1777, 0, -0.15789, -2.373, 0, -7.722)
+
+[node name="hierbajo_90" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.037114, 0, 0.90729, 0, 0.90804, 0, -0.90729, 0, 0.037114, 6.851, 0, 15.21)
+
+[node name="hierbajo_91" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.64516, 0, 0.87912, 0, 1.0905, 0, -0.87912, 0, 0.64516, 6.902, 0, 8.357)
+
+[node name="hierbajo_92" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0678, 0, -1.0677, 0, 1.51, 0, 1.0677, 0, -1.0678, -1.075, 0, 15.78)
+
+[node name="hierbajo_93" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5385, 0, 0.29357, 0, 1.5663, 0, -0.29357, 0, 1.5385, -10.64, 0, 21.18)
+
+[node name="hierbajo_94" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.68379, 0, -0.6755, 0, 0.96118, 0, 0.6755, 0, 0.68379, 5.132, 0, 18.92)
+
+[node name="hierbajo_95" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1329, 0, -0.086251, 0, 1.1362, 0, 0.086251, 0, -1.1329, -7.555, 0, 20.02)
+
+[node name="hierbajo_96" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.31786, 0, 1.0687, 0, 1.1149, 0, -1.0687, 0, -0.31786, 3.884, 0, -10.38)
+
+[node name="hierbajo_97" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.4116, 0, -0.045948, 0, 1.4123, 0, 0.045948, 0, 1.4116, -0.5456, 0, 19.46)
+
+[node name="hierbajo_98" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3393, 0, -0.85402, 0, 1.5884, 0, 0.85402, 0, 1.3393, -6.844, 0, -4.23)
+
+[node name="hierbajo_99" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1168, 0, -0.12607, 0, 1.1239, 0, 0.12607, 0, 1.1168, -4.697, 0, 10.03)
+
+[node name="hierbajo_100" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.2549, 0, -1.0324, 0, 1.0634, 0, 1.0324, 0, 0.2549, 12.37, 0, -5.366)
+
+[node name="hierbajo_101" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.0033005, 0, 1.5618, 0, 1.5618, 0, -1.5618, 0, 0.0033005, 10.84, 0, -0.7846)
+
+[node name="hierbajo_102" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.17416, 0, -1.2627, 0, 1.2747, 0, 1.2627, 0, -0.17416, -14.21, 0, 12.17)
+
+[node name="hierbajo_103" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.60937, 0, -0.54917, 0, 0.82031, 0, 0.54917, 0, -0.60937, -11.25, 0, 0.1428)
+
+[node name="hierbajo_104" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2783, 0, 0.36103, 0, 1.3283, 0, -0.36103, 0, 1.2783, -1.842, 0, 22.2)
+
+[node name="hierbajo_105" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.3661, 0, -1.0507, 0, 1.1126, 0, 1.0507, 0, -0.3661, -2.685, 0, 18.44)
+
+[node name="hierbajo_106" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.66225, 0, -0.78321, 0, 1.0257, 0, 0.78321, 0, 0.66225, 14.39, 0, 7.8)
+
+[node name="hierbajo_107" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.93674, 0, -0.83645, 0, 1.2558, 0, 0.83645, 0, -0.93674, 9.096, 0, 17.85)
+
+[node name="hierbajo_108" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.58397, 0, 0.67286, 0, 0.89094, 0, -0.67286, 0, -0.58397, 13.89, 0, -5.823)
+
+[node name="hierbajo_109" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.13265, 0, -1.2844, 0, 1.2912, 0, 1.2844, 0, -0.13265, 9.813, 0, -8.403)
+
+[node name="hierbajo_110" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2407, 0, -0.22603, 0, 1.2611, 0, 0.22603, 0, 1.2407, 5.024, 0, 19.64)
+
+[node name="hierbajo_111" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.70816, 0, -1.0843, 0, 1.295, 0, 1.0843, 0, -0.70816, -4.615, 0, 6.901)
+
+[node name="hierbajo_112" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0277, 0, -0.63841, 0, 1.2098, 0, 0.63841, 0, -1.0277, -6.241, 0, 9.424)
+
+[node name="hierbajo_113" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.83538, 0, 0.22841, 0, 0.86605, 0, -0.22841, 0, -0.83538, 0.09464, 0, 15.1)
+
+[node name="hierbajo_114" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.89422, 0, -1.2792, 0, 1.5608, 0, 1.2792, 0, -0.89422, -11.73, 0, -8.797)
+
+[node name="hierbajo_115" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.7868, 0, -0.37592, 0, 0.87199, 0, 0.37592, 0, 0.7868, 4.187, 0, 11.49)
+
+[node name="hierbajo_116" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.34591, 0, -0.97725, 0, 1.0367, 0, 0.97725, 0, 0.34591, -1.748, 0, -6.672)
+
+[node name="hierbajo_117" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.53652, 0, -0.90149, 0, 1.0491, 0, 0.90149, 0, -0.53652, -5.612, 0, 4.502)
+
+[node name="hierbajo_118" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.53356, 0, -0.94975, 0, 1.0894, 0, 0.94975, 0, -0.53356, 5.839, 0, -8.014)
+
+[node name="hierbajo_119" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.44147, 0, -1.097, 0, 1.1825, 0, 1.097, 0, 0.44147, 6.374, 0, 3.142)
+
+[node name="hierbajo_120" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.4228, 0, 0.55434, 0, 1.5269, 0, -0.55434, 0, 1.4228, 0.1349, 0, 12.69)
+
+[node name="hierbajo_121" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1357, 0, 0.74025, 0, 1.3556, 0, -0.74025, 0, 1.1357, -7.58, 0, 12.19)
+
+[node name="hierbajo_122" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.98944, 0, -0.56446, 0, 1.1391, 0, 0.56446, 0, 0.98944, -9.131, 0, 8.559)
+
+[node name="hierbajo_123" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.4822, 0, -1.0819, 0, 1.1845, 0, 1.0819, 0, 0.4822, -7.343, 0, -5.691)
+
+[node name="hierbajo_124" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.49239, 0, 0.86383, 0, 0.99431, 0, -0.86383, 0, -0.49239, 4.464, 0, 17.1)
+
+[node name="hierbajo_125" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.77991, 0, 0.2591, 0, 0.82183, 0, -0.2591, 0, -0.77991, -13.61, 0, 10.83)
+
+[node name="hierbajo_126" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.89713, 0, -0.4565, 0, 1.0066, 0, 0.4565, 0, 0.89713, -4.17, 0, 11.26)
+
+[node name="hierbajo_127" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.65291, 0, 0.50565, 0, 0.82582, 0, -0.50565, 0, -0.65291, -13.9, 0, 4.613)
+
+[node name="hierbajo_128" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.338, 0, 0.50897, 0, 1.4315, 0, -0.50897, 0, 1.338, -13.36, 0, -8.849)
+
+[node name="hierbajo_129" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.75389, 0, -0.98851, 0, 1.2432, 0, 0.98851, 0, -0.75389, 11.1, 0, -2.413)
+
+[node name="hierbajo_130" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3525, 0, 0.13832, 0, 1.3595, 0, -0.13832, 0, 1.3525, -10.11, 0, 0.3856)
+
+[node name="hierbajo_131" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.88764, 0, 0.49538, 0, 1.0165, 0, -0.49538, 0, 0.88764, 6.813, 0, 19.62)
+
+[node name="hierbajo_132" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.16366, 0, -0.94119, 0, 0.95531, 0, 0.94119, 0, -0.16366, 7.451, 0, 10.95)
+
+[node name="hierbajo_133" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.48894, 0, -0.97559, 0, 1.0913, 0, 0.97559, 0, -0.48894, 0.954, 0, -4.198)
+
+[node name="hierbajo_134" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0582, 0, 0.63112, 0, 1.2321, 0, -0.63112, 0, -1.0582, 9.449, 0, -3.04)
+
+[node name="hierbajo_135" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.69254, 0, 0.86853, 0, 1.1108, 0, -0.86853, 0, 0.69254, -10.56, 0, 14.03)
+
+[node name="hierbajo_136" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.48126, 0, -1.5065, 0, 1.5816, 0, 1.5065, 0, -0.48126, 3.313, 0, 14.59)
+
+[node name="hierbajo_137" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.78163, 0, 0.23336, 0, 0.81572, 0, -0.23336, 0, -0.78163, -5.359, 0, 11.61)
+
+[node name="hierbajo_138" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1567, 0, 0.064792, 0, 1.1585, 0, -0.064792, 0, -1.1567, -7.938, 0, -0.8811)
+
+[node name="hierbajo_139" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.29507, 0, -0.86061, 0, 0.90978, 0, 0.86061, 0, -0.29507, -8.64, 0, -0.9448)
+
+[node name="hierbajo_140" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.22224, 0, -0.87619, 0, 0.90394, 0, 0.87619, 0, 0.22224, -3.706, 0, 18.97)
+
+[node name="hierbajo_141" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.6988, 0, -0.56446, 0, 0.8983, 0, 0.56446, 0, -0.6988, -7.942, 0, -1.73)
+
+[node name="hierbajo_142" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.6136, 0, 0.66763, 0, 0.90678, 0, -0.66763, 0, 0.6136, 5.483, 0, 6.088)
+
+[node name="hierbajo_143" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1745, 0, -0.82667, 0, 1.4363, 0, 0.82667, 0, -1.1745, -12.38, 0, 6.463)
+
+[node name="hierbajo_144" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3664, 0, -0.26412, 0, 1.3917, 0, 0.26412, 0, -1.3664, -6.499, 0, -6.836)
+
+[node name="hierbajo_145" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2961, 0, 0.81979, 0, 1.5336, 0, -0.81979, 0, 1.2961, -9.559, 0, -8.944)
+
+[node name="hierbajo_146" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.73616, 0, -0.76115, 0, 1.0589, 0, 0.76115, 0, 0.73616, 10.57, 0, 16.85)
+
+[node name="hierbajo_147" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.58641, 0, -1.1876, 0, 1.3245, 0, 1.1876, 0, -0.58641, 11.77, 0, -5.8)
+
+[node name="hierbajo_148" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.16749, 0, -1.0204, 0, 1.0341, 0, 1.0204, 0, -0.16749, 9.739, 0, 17.75)
+
+[node name="hierbajo_149" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.49755, 0, -0.69027, 0, 0.8509, 0, 0.69027, 0, -0.49755, 2.913, 0, -6.548)
+
+[node name="hierbajo_150" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.50995, 0, -0.8488, 0, 0.99021, 0, 0.8488, 0, -0.50995, -13.6, 0, 5.322)
+
+[node name="hierbajo_151" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1632, 0, -1.0418, 0, 1.5616, 0, 1.0418, 0, 1.1632, -6.923, 0, 12.51)
+
+[node name="hierbajo_152" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.53743, 0, 1.4027, 0, 1.5021, 0, -1.4027, 0, -0.53743, -3.07, 0, -8.244)
+
+[node name="hierbajo_153" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.4472, 0, 0.29291, 0, 1.4766, 0, -0.29291, 0, 1.4472, 1.952, 0, -9.865)
+
+[node name="hierbajo_154" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1848, 0, 0.54698, 0, 1.3049, 0, -0.54698, 0, -1.1848, -13.85, 0, 22.33)
+
+[node name="hierbajo_155" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0279, 0, 0.90683, 0, 1.3707, 0, -0.90683, 0, 1.0279, 10.51, 0, 7.625)
+
+[node name="hierbajo_156" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.66573, 0, 0.73689, 0, 0.99308, 0, -0.73689, 0, -0.66573, 12.69, 0, 22.36)
+
+[node name="hierbajo_157" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.15567, 0, 0.97719, 0, 0.98951, 0, -0.97719, 0, 0.15567, -14.23, 0, -3.074)
+
+[node name="hierbajo_158" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.62804, 0, -0.80486, 0, 1.0209, 0, 0.80486, 0, -0.62804, 8.583, 0, 18.92)
+
+[node name="hierbajo_159" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.9143, 0, 0.80306, 0, 1.2169, 0, -0.80306, 0, -0.9143, -6.093, 0, -9.841)
+
+[node name="hierbajo_160" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.24227, 0, -1.1158, 0, 1.1418, 0, 1.1158, 0, -0.24227, 2.008, 0, -5.351)
+
+[node name="hierbajo_161" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.59885, 0, 0.81843, 0, 1.0141, 0, -0.81843, 0, -0.59885, -8.46, 0, 16.89)
+
+[node name="hierbajo_162" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.98157, 0, 0.58031, 0, 1.1403, 0, -0.58031, 0, 0.98157, -3.911, 0, 10.65)
+
+[node name="hierbajo_163" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.11653, 0, 0.91599, 0, 0.92337, 0, -0.91599, 0, 0.11653, 5.835, 0, 21.01)
+
+[node name="hierbajo_164" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.58052, 0, -0.90189, 0, 1.0726, 0, 0.90189, 0, 0.58052, 6.671, 0, 4.045)
+
+[node name="hierbajo_165" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.053, 0, 0.82396, 0, 1.3371, 0, -0.82396, 0, 1.053, -9.926, 0, -6.764)
+
+[node name="hierbajo_166" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2753, 0, 0.7646, 0, 1.487, 0, -0.7646, 0, 1.2753, 4.215, 0, 15.28)
+
+[node name="hierbajo_167" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.074272, 0, 1.5555, 0, 1.5573, 0, -1.5555, 0, 0.074272, -9.113, 0, 7.493)
+
+[node name="hierbajo_168" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.033442, 0, -0.80179, 0, 0.80249, 0, 0.80179, 0, 0.033442, -2.409, 0, -8.954)
+
+[node name="hierbajo_169" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.17572, 0, 0.93128, 0, 0.94771, 0, -0.93128, 0, -0.17572, 14.29, 0, 22.05)
+
+[node name="hierbajo_170" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.58918, 0, 0.98477, 0, 1.1476, 0, -0.98477, 0, 0.58918, -14.01, 0, 10.1)
+
+[node name="hierbajo_171" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.48874, 0, 1.2036, 0, 1.299, 0, -1.2036, 0, -0.48874, -11, 0, 14.55)
+
+[node name="hierbajo_172" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3657, 0, -0.58987, 0, 1.4876, 0, 0.58987, 0, 1.3657, -0.4891, 0, 22.28)
+
+[node name="hierbajo_173" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.4783, 0, 0.76845, 0, 0.90514, 0, -0.76845, 0, -0.4783, 3.418, 0, 18.26)
+
+[node name="hierbajo_174" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0372, 0, -0.58021, 0, 1.1885, 0, 0.58021, 0, 1.0372, 10.5, 0, 6.85)
+
+[node name="hierbajo_175" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.328, 0, -0.67929, 0, 1.4917, 0, 0.67929, 0, 1.328, 12.21, 0, 6.472)
+
+[node name="hierbajo_176" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.26565, 0, -0.90464, 0, 0.94284, 0, 0.90464, 0, -0.26565, -10.25, 0, -10.27)
+
+[node name="hierbajo_177" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.66192, 0, -0.47577, 0, 0.81517, 0, 0.47577, 0, -0.66192, -9.872, 0, -8.251)
+
+[node name="hierbajo_178" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.085286, 0, -1.2194, 0, 1.2224, 0, 1.2194, 0, 0.085286, 7.497, 0, 12.73)
+
+[node name="hierbajo_179" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.97323, 0, 0.74027, 0, 1.2228, 0, -0.74027, 0, 0.97323, -13.17, 0, 14.65)
+
+[node name="hierbajo_180" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5124, 0, 0.46711, 0, 1.5829, 0, -0.46711, 0, 1.5124, -8.945, 0, -3.396)
+
+[node name="hierbajo_181" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.0073087, 0, 0.95992, 0, 0.95995, 0, -0.95992, 0, -0.0073087, 6.604, 0, -1.558)
+
+[node name="hierbajo_182" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.5643, 0, -0.10697, 0, 1.5679, 0, 0.10697, 0, -1.5643, 10.43, 0, -2.621)
+
+[node name="hierbajo_183" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.54302, 0, -0.67986, 0, 0.87011, 0, 0.67986, 0, -0.54302, 7.981, 0, -8.523)
+
+[node name="hierbajo_184" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.755, 0, 0.36658, 0, 0.83929, 0, -0.36658, 0, 0.755, 6.318, 0, 9.357)
+
+[node name="hierbajo_185" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1633, 0, -0.78784, 0, 1.405, 0, 0.78784, 0, 1.1633, 3.598, 0, 12.22)
+
+[node name="hierbajo_186" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2297, 0, -0.91863, 0, 1.535, 0, 0.91863, 0, 1.2297, 3.851, 0, -5.224)
+
+[node name="hierbajo_187" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.19137, 0, 1.536, 0, 1.5479, 0, -1.536, 0, -0.19137, -13.12, 0, 3.183)
+
+[node name="hierbajo_188" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.6045, 0, 1.0596, 0, 1.2199, 0, -1.0596, 0, 0.6045, 0.1887, 0, 16.27)
+
+[node name="hierbajo_189" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0578, 0, 0.27883, 0, 1.094, 0, -0.27883, 0, 1.0578, -12.28, 0, 3.822)
+
+[node name="hierbajo_190" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1603, 0, -0.5004, 0, 1.2636, 0, 0.5004, 0, 1.1603, -6.726, 0, 22.01)
+
+[node name="hierbajo_191" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.6237, 0, 0.67027, 0, 0.91557, 0, -0.67027, 0, -0.6237, -5.516, 0, -3.986)
+
+[node name="hierbajo_192" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1144, 0, -0.31919, 0, 1.1592, 0, 0.31919, 0, 1.1144, 7.77, 0, -6.074)
+
+[node name="hierbajo_193" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.54846, 0, 1.1973, 0, 1.3169, 0, -1.1973, 0, 0.54846, -12.63, 0, 13.66)
+
+[node name="hierbajo_194" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.053, 0, 0.811, 0, 1.3291, 0, -0.811, 0, -1.053, -3.902, 0, 14.45)
+
+[node name="hierbajo_195" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.95095, 0, 0.82044, 0, 1.256, 0, -0.82044, 0, -0.95095, 13.41, 0, 16.67)
+
+[node name="hierbajo_196" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.23081, 0, -1.2983, 0, 1.3186, 0, 1.2983, 0, -0.23081, -7.755, 0, 16.28)
+
+[node name="hierbajo_197" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0277, 0, -0.066906, 0, 1.0298, 0, 0.066906, 0, -1.0277, -6.308, 0, 4.472)
+
+[node name="hierbajo_198" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.8213, 0, -0.54062, 0, 0.98326, 0, 0.54062, 0, -0.8213, -2.692, 0, -6.993)
+
+[node name="hierbajo_199" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.69952, 0, 0.70294, 0, 0.9917, 0, -0.70294, 0, -0.69952, 7.368, 0, -1.982)
+
+[node name="hierbajo_200" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.79894, 0, -0.46586, 0, 0.92484, 0, 0.46586, 0, 0.79894, 14.02, 0, -7.044)
+
+[node name="hierbajo_201" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.8338, 0, -0.61301, 0, 1.0349, 0, 0.61301, 0, 0.8338, 2.621, 0, -4.54)
+
+[node name="hierbajo_202" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.95371, 0, -0.92238, 0, 1.3268, 0, 0.92238, 0, -0.95371, -1.661, 0, -5.965)
+
+[node name="hierbajo_203" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.65638, 0, 0.79806, 0, 1.0333, 0, -0.79806, 0, 0.65638, 0.02154, 0, 18)
+
+[node name="hierbajo_204" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.89535, 0, 0.49801, 0, 1.0245, 0, -0.49801, 0, 0.89535, 10.97, 0, -5.936)
+
+[node name="hierbajo_205" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.61363, 0, -0.51656, 0, 0.80211, 0, 0.51656, 0, 0.61363, -12.38, 0, -5.736)
+
+[node name="hierbajo_206" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.79439, 0, 0.12686, 0, 0.80445, 0, -0.12686, 0, -0.79439, 11.74, 0, -1.384)
+
+[node name="hierbajo_207" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.5057, 0, 1.2304, 0, 1.3302, 0, -1.2304, 0, -0.5057, 7.782, 0, 16.01)
+
+[node name="hierbajo_208" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.55811, 0, -1.1387, 0, 1.2681, 0, 1.1387, 0, 0.55811, -7.396, 0, 17.5)
+
+[node name="hierbajo_209" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.13819, 0, 1.3329, 0, 1.34, 0, -1.3329, 0, -0.13819, 13.93, 0, 6.382)
+
+[node name="hierbajo_210" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.14814, 0, 1.0352, 0, 1.0458, 0, -1.0352, 0, 0.14814, 6.251, 0, -2.712)
+
+[node name="hierbajo_211" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.97593, 0, -0.61062, 0, 1.1512, 0, 0.61062, 0, -0.97593, -9.034, 0, -5.428)
+
+[node name="hierbajo_212" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5225, 0, -0.29398, 0, 1.5506, 0, 0.29398, 0, 1.5225, -8.756, 0, 20.62)
+
+[node name="hierbajo_213" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.22248, 0, 1.2076, 0, 1.2279, 0, -1.2076, 0, -0.22248, -11.64, 0, -4.666)
+
+[node name="hierbajo_214" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0562, 0, -1.1177, 0, 1.5378, 0, 1.1177, 0, 1.0562, -11.75, 0, 6.187)
+
+[node name="hierbajo_215" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.24911, 0, -1.2621, 0, 1.2864, 0, 1.2621, 0, -0.24911, 7.83, 0, 8.27)
+
+[node name="hierbajo_216" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.5491, 0, -0.17813, 0, 1.5593, 0, 0.17813, 0, -1.5491, -6.814, 0, -3.352)
+
+[node name="hierbajo_217" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.4782, 0, 0.24773, 0, 1.4988, 0, -0.24773, 0, 1.4782, -6.045, 0, 5.54)
+
+[node name="hierbajo_218" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0629, 0, -0.18898, 0, 1.0796, 0, 0.18898, 0, -1.0629, 5.253, 0, 15.3)
+
+[node name="hierbajo_219" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.13462, 0, -1.1443, 0, 1.1521, 0, 1.1443, 0, 0.13462, -4.23, 0, 17.04)
+
+[node name="hierbajo_220" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.68511, 0, -0.82826, 0, 1.0749, 0, 0.82826, 0, 0.68511, 9.46, 0, 8.471)
+
+[node name="hierbajo_221" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2288, 0, 0.44131, 0, 1.3057, 0, -0.44131, 0, -1.2288, 6.27, 0, -9.086)
+
+[node name="hierbajo_222" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.421, 0, 0.5587, 0, 1.5269, 0, -0.5587, 0, 1.421, 6.458, 0, -7.803)
+
+[node name="hierbajo_223" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.35757, 0, -1.2801, 0, 1.3291, 0, 1.2801, 0, 0.35757, 3.427, 0, 13.43)
+
+[node name="hierbajo_224" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.69302, 0, -0.41477, 0, 0.80765, 0, 0.41477, 0, -0.69302, -5.221, 0, 9.662)
+
+[node name="hierbajo_225" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.24354, 0, 1.296, 0, 1.3187, 0, -1.296, 0, -0.24354, 9.356, 0, -4.049)
+
+[node name="hierbajo_226" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.176, 0, -0.19481, 0, 1.192, 0, 0.19481, 0, 1.176, -1.384, 0, 20.07)
+
+[node name="hierbajo_227" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1353, 0, -1.0647, 0, 1.5564, 0, 1.0647, 0, 1.1353, 10.07, 0, -7.064)
+
+[node name="hierbajo_228" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.7217, 0, 0.54512, 0, 0.90444, 0, -0.54512, 0, 0.7217, -1.201, 0, 20.82)
+
+[node name="hierbajo_229" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.69574, 0, -0.4437, 0, 0.82518, 0, 0.4437, 0, -0.69574, 9.408, 0, 0.3095)
+
+[node name="hierbajo_230" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.451, 0, 0.14431, 0, 1.4582, 0, -0.14431, 0, 1.451, 5.632, 0, 9.32)
+
+[node name="hierbajo_231" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3053, 0, 0.54395, 0, 1.4141, 0, -0.54395, 0, -1.3053, -7.874, 0, 20.89)
+
+[node name="hierbajo_232" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3774, 0, 0.097447, 0, 1.3808, 0, -0.097447, 0, 1.3774, -10.97, 0, -9.687)
+
+[node name="hierbajo_233" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.87361, 0, -0.28139, 0, 0.91781, 0, 0.28139, 0, -0.87361, 13.56, 0, 12.75)
+
+[node name="hierbajo_234" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2499, 0, -0.32159, 0, 1.2906, 0, 0.32159, 0, -1.2499, 4.896, 0, 6.817)
+
+[node name="hierbajo_235" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.68885, 0, -1.4196, 0, 1.5779, 0, 1.4196, 0, 0.68885, 14.26, 0, 9.65)
+
+[node name="hierbajo_236" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.76286, 0, -0.99083, 0, 1.2505, 0, 0.99083, 0, -0.76286, 3.555, 0, -8.461)
+
+[node name="hierbajo_237" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.36911, 0, 0.837, 0, 0.91478, 0, -0.837, 0, 0.36911, 0.07635, 0, 13.87)
+
+[node name="hierbajo_238" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.62603, 0, -0.70856, 0, 0.9455, 0, 0.70856, 0, -0.62603, 0.08465, 0, 20.39)
+
+[node name="hierbajo_239" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.22665, 0, -1.2263, 0, 1.2471, 0, 1.2263, 0, 0.22665, -12.6, 0, 15.13)
+
+[node name="hierbajo_240" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.79431, 0, 0.14689, 0, 0.80777, 0, -0.14689, 0, 0.79431, -12.4, 0, 20)
+
+[node name="hierbajo_241" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.19055, 0, 0.82973, 0, 0.85133, 0, -0.82973, 0, -0.19055, 6.602, 0, 20.97)
+
+[node name="hierbajo_242" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0395, 0, -0.42834, 0, 1.1243, 0, 0.42834, 0, -1.0395, 8.87, 0, 22.07)
+
+[node name="hierbajo_243" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.22884, 0, 1.0701, 0, 1.0943, 0, -1.0701, 0, 0.22884, -6.409, 0, 12.12)
+
+[node name="hierbajo_244" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3141, 0, -0.65848, 0, 1.4699, 0, 0.65848, 0, -1.3141, -8.947, 0, 5.601)
+
+[node name="hierbajo_245" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.74128, 0, 0.49836, 0, 0.89323, 0, -0.49836, 0, -0.74128, -6.868, 0, 16.73)
+
+[node name="hierbajo_246" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3734, 0, 0.68955, 0, 1.5368, 0, -0.68955, 0, 1.3734, -7.769, 0, 7.982)
+
+[node name="hierbajo_247" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.96366, 0, -0.069123, 0, 0.96614, 0, 0.069123, 0, 0.96366, -4.448, 0, 15.57)
+
+[node name="hierbajo_248" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.47281, 0, 1.4184, 0, 1.4951, 0, -1.4184, 0, 0.47281, 11.37, 0, 22.04)
+
+[node name="hierbajo_249" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.80357, 0, -0.4447, 0, 0.91841, 0, 0.4447, 0, 0.80357, 13.67, 0, 9.146)
+
+[node name="hierbajo_250" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0732, 0, -0.31482, 0, 1.1184, 0, 0.31482, 0, 1.0732, -5.704, 0, 7.042)
+
+[node name="hierbajo_251" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.49447, 0, -0.91418, 0, 1.0393, 0, 0.91418, 0, 0.49447, 14.15, 0, -8.722)
+
+[node name="hierbajo_252" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.1811, 0, -1.0247, 0, 1.0406, 0, 1.0247, 0, -0.1811, -8.497, 0, 8.343)
+
+[node name="hierbajo_253" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0817, 0, -1.0715, 0, 1.5226, 0, 1.0715, 0, 1.0817, 0.1498, 0, -7.642)
+
+[node name="hierbajo_254" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.64337, 0, 1.1816, 0, 1.3454, 0, -1.1816, 0, -0.64337, 5.843, 0, 18.75)
+
+[node name="hierbajo_255" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.58735, 0, 0.73861, 0, 0.94368, 0, -0.73861, 0, -0.58735, 6.914, 0, 22.19)
+
+[node name="hierbajo_256" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2736, 0, -0.86823, 0, 1.5414, 0, 0.86823, 0, -1.2736, -11.27, 0, -3.994)
+
+[node name="hierbajo_257" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.15747, 0, 1.572, 0, 1.5799, 0, -1.572, 0, -0.15747, -4.903, 0, 7.614)
+
+[node name="hierbajo_258" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1548, 0, 0.33904, 0, 1.2035, 0, -0.33904, 0, 1.1548, -6.731, 0, 9.884)
+
+[node name="hierbajo_259" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.71413, 0, -0.51846, 0, 0.88249, 0, 0.51846, 0, 0.71413, -9.945, 0, 2.231)
+
+[node name="hierbajo_260" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.58323, 0, -0.94458, 0, 1.1101, 0, 0.94458, 0, -0.58323, 11.62, 0, 21.35)
+
+[node name="hierbajo_261" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.57974, 0, 0.99842, 0, 1.1545, 0, -0.99842, 0, -0.57974, 13.72, 0, 8.149)
+
+[node name="hierbajo_262" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.77176, 0, -0.55467, 0, 0.9504, 0, 0.55467, 0, 0.77176, -2.352, 0, 8.382)
+
+[node name="hierbajo_263" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0359, 0, -0.87667, 0, 1.3571, 0, 0.87667, 0, -1.0359, -10.44, 0, 21.81)
+
+[node name="hierbajo_264" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.98301, 0, -0.20412, 0, 1.004, 0, 0.20412, 0, 0.98301, -11.76, 0, 7.918)
+
+[node name="hierbajo_265" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.2314, 0, 0.48828, 0, 1.3246, 0, -0.48828, 0, -1.2314, -13.94, 0, -5.865)
+
+[node name="hierbajo_266" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.47295, 0, -0.8644, 0, 0.98533, 0, 0.8644, 0, -0.47295, 4.858, 0, 20.42)
+
+[node name="hierbajo_267" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0346, 0, -0.27871, 0, 1.0715, 0, 0.27871, 0, -1.0346, -12.44, 0, 1.283)
+
+[node name="hierbajo_268" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.86429, 0, -1.0404, 0, 1.3525, 0, 1.0404, 0, -0.86429, -10.66, 0, 12.94)
+
+[node name="hierbajo_269" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.44317, 0, -1.2141, 0, 1.2924, 0, 1.2141, 0, -0.44317, 9.555, 0, 19.44)
+
+[node name="hierbajo_270" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5503, 0, -0.25457, 0, 1.571, 0, 0.25457, 0, 1.5503, 2.154, 0, -6.289)
+
+[node name="hierbajo_271" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.24733, 0, 1.4141, 0, 1.4356, 0, -1.4141, 0, 0.24733, 2.866, 0, -7.311)
+
+[node name="hierbajo_272" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.80826, 0, 0.32718, 0, 0.87197, 0, -0.32718, 0, -0.80826, -2.833, 0, 19.19)
+
+[node name="hierbajo_273" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.16534, 0, -1.3178, 0, 1.3282, 0, 1.3178, 0, 0.16534, 7.463, 0, 14.61)
+
+[node name="hierbajo_274" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.0807, 0, 0.53605, 0, 1.2063, 0, -0.53605, 0, -1.0807, -13.83, 0, 12.83)
+
+[node name="hierbajo_275" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.19577, 0, -1.1616, 0, 1.178, 0, 1.1616, 0, -0.19577, 12.1, 0, 22.15)
+
+[node name="hierbajo_276" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.8532, 0, -1.2467, 0, 1.5107, 0, 1.2467, 0, -0.8532, -12.2, 0, 18.11)
+
+[node name="hierbajo_277" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.61092, 0, 0.66224, 0, 0.90099, 0, -0.66224, 0, -0.61092, -13.06, 0, -7.369)
+
+[node name="hierbajo_278" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.58707, 0, -0.61886, 0, 0.85302, 0, 0.61886, 0, -0.58707, -4.873, 0, 6.344)
+
+[node name="hierbajo_279" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.30308, 0, -0.8676, 0, 0.91902, 0, 0.8676, 0, -0.30308, 8.107, 0, 15.13)
+
+[node name="hierbajo_280" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.24882, 0, 1.1992, 0, 1.2248, 0, -1.1992, 0, 0.24882, -2.371, 0, 9.637)
+
+[node name="hierbajo_281" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.072, 0, 0.54824, 0, 1.2041, 0, -0.54824, 0, 1.072, -8.385, 0, 13)
+
+[node name="hierbajo_282" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.1806, 0, 1.0812, 0, 1.0962, 0, -1.0812, 0, 0.1806, 1.381, 0, -5.61)
+
+[node name="hierbajo_283" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.47539, 0, -0.97017, 0, 1.0804, 0, 0.97017, 0, -0.47539, -5.326, 0, 20.2)
+
+[node name="hierbajo_284" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3816, 0, 0.1791, 0, 1.3931, 0, -0.1791, 0, -1.3816, 13.58, 0, 7.373)
+
+[node name="hierbajo_285" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.29319, 0, 1.4527, 0, 1.482, 0, -1.4527, 0, 0.29319, 6.161, 0, 11.28)
+
+[node name="hierbajo_286" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.99215, 0, 0.25577, 0, 1.0246, 0, -0.25577, 0, -0.99215, 14.27, 0, 12.82)
+
+[node name="hierbajo_287" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0066, 0, -0.40275, 0, 1.0841, 0, 0.40275, 0, 1.0066, 13.15, 0, 9.694)
+
+[node name="hierbajo_288" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3982, 0, 0.25368, 0, 1.421, 0, -0.25368, 0, -1.3982, 10.66, 0, -7.301)
+
+[node name="hierbajo_289" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.75827, 0, 0.57244, 0, 0.95008, 0, -0.57244, 0, 0.75827, 8.834, 0, 1.289)
+
+[node name="hierbajo_290" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.73797, 0, -0.90142, 0, 1.165, 0, 0.90142, 0, -0.73797, 9.165, 0, 18.62)
+
+[node name="hierbajo_291" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.37381, 0, 1.141, 0, 1.2006, 0, -1.141, 0, -0.37381, -9.954, 0, 20.19)
+
+[node name="hierbajo_292" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.474, 0, 0.57934, 0, 1.5838, 0, -0.57934, 0, -1.474, 9.72, 0, 4.711)
+
+[node name="hierbajo_293" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.2673, 0, -1.4414, 0, 1.466, 0, 1.4414, 0, -0.2673, -4.391, 0, -6.77)
+
+[node name="hierbajo_294" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.026817, 0, 0.81912, 0, 0.81956, 0, -0.81912, 0, 0.026817, -11.08, 0, -7.074)
+
+[node name="hierbajo_295" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.52268, 0, 0.65258, 0, 0.8361, 0, -0.65258, 0, 0.52268, -6.071, 0, 13.51)
+
+[node name="hierbajo_296" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.95675, 0, -1.1237, 0, 1.4758, 0, 1.1237, 0, -0.95675, 8.523, 0, 16.14)
+
+[node name="hierbajo_297" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.63704, 0, 1.0214, 0, 1.2038, 0, -1.0214, 0, -0.63704, 13.58, 0, 19.52)
+
+[node name="hierbajo_298" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.96581, 0, -0.46638, 0, 1.0725, 0, 0.46638, 0, -0.96581, 4.444, 0, 15.83)
+
+[node name="hierbajo_299" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.21683, 0, -0.86255, 0, 0.88939, 0, 0.86255, 0, -0.21683, 0.09232, 0, 17.33)
+
+[node name="hierbajo_300" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1138, 0, 0.93973, 0, 1.4572, 0, -0.93973, 0, -1.1138, 12.51, 0, -1.589)
+
+[node name="hierbajo_301" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.25172, 0, 0.90204, 0, 0.93651, 0, -0.90204, 0, -0.25172, -12.22, 0, -2.558)
+
+[node name="hierbajo_302" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2477, 0, -0.17787, 0, 1.2604, 0, 0.17787, 0, 1.2477, -13.16, 0, 10.34)
+
+[node name="hierbajo_303" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.3677, 0, 0.39563, 0, 1.4238, 0, -0.39563, 0, 1.3677, 0.8944, 0, -5.011)
+
+[node name="hierbajo_304" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.80787, 0, 0.55673, 0, 0.98112, 0, -0.55673, 0, 0.80787, -13.2, 0, 6.132)
+
+[node name="hierbajo_305" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.67133, 0, 1.1896, 0, 1.366, 0, -1.1896, 0, -0.67133, 12.79, 0, 6.741)
+
+[node name="hierbajo_306" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.5739, 0, -0.11639, 0, 1.5782, 0, 0.11639, 0, -1.5739, -3.246, 0, 6.909)
+
+[node name="hierbajo_307" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1498, 0, -0.65248, 0, 1.322, 0, 0.65248, 0, -1.1498, 7.398, 0, -5.321)
+
+[node name="hierbajo_308" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.5361, 0, -0.0011579, 0, 1.5361, 0, 0.0011579, 0, 1.5361, -11.04, 0, 10.7)
+
+[node name="hierbajo_309" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.52388, 0, 0.68029, 0, 0.85863, 0, -0.68029, 0, -0.52388, -5.352, 0, 5.263)
+
+[node name="hierbajo_310" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.1497, 0, 0.023751, 0, 1.1499, 0, -0.023751, 0, -1.1497, 12.3, 0, 18.85)
+
+[node name="hierbajo_311" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.88335, 0, 0.19351, 0, 0.9043, 0, -0.19351, 0, 0.88335, -6.22, 0, 8.276)
+
+[node name="hierbajo_312" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.99601, 0, 0.0092696, 0, 0.99606, 0, -0.0092696, 0, 0.99601, -13.91, 0, 15.12)
+
+[node name="hierbajo_313" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.86038, 0, 0.77983, 0, 1.1612, 0, -0.77983, 0, 0.86038, -12.26, 0, -10.12)
+
+[node name="hierbajo_314" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.11941, 0, -0.89307, 0, 0.90101, 0, 0.89307, 0, 0.11941, -3.435, 0, -7.231)
+
+[node name="hierbajo_315" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2585, 0, 0.65695, 0, 1.4197, 0, -0.65695, 0, 1.2585, 10.78, 0, 21.04)
+
+[node name="hierbajo_316" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0436, 0, -0.49787, 0, 1.1563, 0, 0.49787, 0, 1.0436, -11.07, 0, 9.606)
+
+[node name="hierbajo_317" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.98042, 0, 0.63961, 0, 1.1706, 0, -0.63961, 0, 0.98042, -5.52, 0, 15.56)
+
+[node name="hierbajo_318" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.75001, 0, 0.78281, 0, 1.0841, 0, -0.78281, 0, 0.75001, -4.678, 0, -6.118)
+
+[node name="hierbajo_319" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0001, 0, -0.71636, 0, 1.2302, 0, 0.71636, 0, 1.0001, -3.232, 0, 18.09)
+
+[node name="hierbajo_320" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.68877, 0, 0.50196, 0, 0.85227, 0, -0.50196, 0, 0.68877, -4.863, 0, -4.302)
+
+[node name="hierbajo_321" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.64138, 0, -1.1435, 0, 1.3111, 0, 1.1435, 0, 0.64138, 11.43, 0, -7.868)
+
+[node name="hierbajo_322" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.1001, 0, -0.14934, 0, 1.1101, 0, 0.14934, 0, 1.1001, -5.171, 0, 16.22)
+
+[node name="hierbajo_323" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-1.3262, 0, 0.5107, 0, 1.4211, 0, -0.5107, 0, -1.3262, 0.8988, 0, -6.936)
+
+[node name="hierbajo_324" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.90668, 0, -0.46296, 0, 1.018, 0, 0.46296, 0, -0.90668, -13.43, 0, 13.61)
+
+[node name="hierbajo_325" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.59406, 0, -1.2494, 0, 1.3834, 0, 1.2494, 0, 0.59406, 12.32, 0, -3.626)
+
+[node name="hierbajo_326" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.2287, 0, 0.33233, 0, 1.2729, 0, -0.33233, 0, 1.2287, -4.045, 0, 7.091)
+
+[node name="hierbajo_327" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(1.0805, 0, -0.07963, 0, 1.0834, 0, 0.07963, 0, 1.0805, 3.301, 0, 17.35)
+
+[node name="hierbajo_328" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.21936, 0, -1.1339, 0, 1.1549, 0, 1.1339, 0, -0.21936, 9.095, 0, 12.66)
+
+[node name="hierbajo_329" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(0.68719, 0, -0.63138, 0, 0.93321, 0, 0.63138, 0, 0.68719, 11.84, 0, -6.44)
+
+[node name="hierbajo_330" parent="Hierba" instance=ExtResource("m_hierbajo")]
+transform = Transform3D(-0.39839, 0, 1.2934, 0, 1.3534, 0, -1.2934, 0, -0.39839, 5.679, 0, 8.162)
+
+[node name="Jugabilidad" type="Node3D" parent="."]
+
+[node name="bolsa_basura_1" parent="Jugabilidad" instance=ExtResource("m_bolsa_basura")]
+transform = Transform3D(0.22548, 0, 0.97425, 0, 1, 0, -0.97425, 0, 0.22548, 3.6, 0, 6.9)
+
+[node name="bolsa_basura_2" parent="Jugabilidad" instance=ExtResource("m_bolsa_basura")]
+transform = Transform3D(-0.89212, 0, -0.11887, 0, 0.9, 0, 0.11887, 0, -0.89212, 4.2, 0, 7.3)
+
+[node name="bolsa_basura_3" parent="Jugabilidad" instance=ExtResource("m_bolsa_basura")]
+transform = Transform3D(-0.90343, 0, 0.42873, 0, 1, 0, -0.42873, 0, -0.90343, -0.6, 0, 9.1)
+
+[node name="monton_hojas_5" parent="Hojas" instance=ExtResource("m_monton_hojas")]
+transform = Transform3D(-0.0024725, 0, -0.54999, 0, 0.55, 0, 0.54999, 0, -0.0024725, -0.2, 0, 6.9)
+
+[node name="rastrillo_1" parent="Jugabilidad" instance=ExtResource("m_rastrillo")]
+transform = Transform3D(0.81915, 0, -0.57358, 0.57358, 6.1232e-17, 0.81915, 3.5121e-17, -1, 5.0159e-17, 0.4, 0.06, 7.9)
+
+[node name="guantes_1" parent="Jugabilidad" instance=ExtResource("m_guantes")]
+transform = Transform3D(0.93969, 0, -0.34202, -0.34202, 6.1232e-17, -0.93969, 2.0943e-17, 1, 5.754e-17, 2.4, 0.47, 4.9)
+
+[node name="hoz_1" parent="Jugabilidad" instance=ExtResource("m_hoz")]
+transform = Transform3D(-0.5, 0, -0.86603, 0.86603, 6.1232e-17, -0.5, 5.3029e-17, -1, -3.0616e-17, 2.9, 0.04, 9.4)
+
+[node name="cartel_tienda_1" parent="Jugabilidad" instance=ExtResource("m_cartel_tienda")]
+transform = Transform3D(0.90631, 0, 0.42262, 0, 1, 0, -0.42262, 0, 0.90631, 5.3, 0, 7)
+
+[node name="cubo_basura_1" parent="Jugabilidad" instance=ExtResource("m_cubo_basura")]
+transform = Transform3D(-0.99619, 0, 0.087156, 0, 1, 0, -0.087156, 0, -0.99619, 3.9, 0, 22)
+
+[node name="bolsa_basura_4" parent="Jugabilidad" instance=ExtResource("m_bolsa_basura")]
+transform = Transform3D(-0.94998, 0, 0.0066176, 0, 0.95, 0, -0.0066176, 0, -0.94998, 4.8, 0, 22.1)
+
+[node name="contenedor_1" parent="Jugabilidad" instance=ExtResource("m_contenedor")]
+transform = Transform3D(-1, 0, -1.2246e-16, 0, 1, 0, 1.2246e-16, 0, -1, 6.2, 0.14, 24.1)
+
+[node name="bolsa_basura_5" parent="Jugabilidad" instance=ExtResource("m_bolsa_basura")]
+transform = Transform3D(0.84591, 0, -0.53333, 0, 1, 0, 0.53333, 0, 0.84591, 7.8, 0.14, 24)
+
+[node name="camion_basura_1" parent="Jugabilidad" instance=ExtResource("m_camion_basura")]
+transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, -8, 0.02, 27.9)
+
+[node name="Bichos" type="Node3D" parent="."]
+
+[node name="escarabajo_1" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(0.83485, 0, -0.056927, 0, 0.83679, 0, 0.056927, 0, 0.83485, 12.73, 0, 19.73)
+
+[node name="escarabajo_2" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(-0.543, 0, -0.88651, 0, 1.0396, 0, 0.88651, 0, -0.543, -2.938, 0, 6.857)
+
+[node name="escarabajo_3" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(0.9508, 0, -0.54646, 0, 1.0966, 0, 0.54646, 0, 0.9508, -2.632, 0, -8.965)
+
+[node name="escarabajo_4" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(-0.5178, 0, 0.82882, 0, 0.97727, 0, -0.82882, 0, -0.5178, 10.03, 0, 5.277)
+
+[node name="escarabajo_5" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(0.39483, 0, 0.89816, 0, 0.98111, 0, -0.89816, 0, 0.39483, 10.19, 0, 2.514)
+
+[node name="escarabajo_6" parent="Bichos" instance=ExtResource("m_escarabajo")]
+transform = Transform3D(-0.98697, 0, 0.45198, 0, 1.0855, 0, -0.45198, 0, -0.98697, -11.64, 0, -6.201)
+
+[node name="caracol_1" parent="Bichos" instance=ExtResource("m_caracol")]
+transform = Transform3D(-0.77032, 0, -0.56027, 0, 0.95252, 0, 0.56027, 0, -0.77032, 1.942, 0, 14.48)
+
+[node name="caracol_2" parent="Bichos" instance=ExtResource("m_caracol")]
+transform = Transform3D(0.49384, 0, 0.49317, 0, 0.69792, 0, -0.49317, 0, 0.49384, -4.876, 0, 17.19)
+
+[node name="caracol_3" parent="Bichos" instance=ExtResource("m_caracol")]
+transform = Transform3D(-0.88565, 0, -0.021199, 0, 0.8859, 0, 0.021199, 0, -0.88565, 3.839, 0, -6.603)
+
+[node name="caracol_4" parent="Bichos" instance=ExtResource("m_caracol")]
+transform = Transform3D(0.36281, 0, 0.54445, 0, 0.65426, 0, -0.54445, 0, 0.36281, -6.638, 0, -5.987)
+
+[node name="caracol_5" parent="Bichos" instance=ExtResource("m_caracol")]
+transform = Transform3D(-0.7539, 0, 0.332, 0, 0.82376, 0, -0.332, 0, -0.7539, 12.62, 0, 21.83)
+
+[node name="avispa_1" parent="Bichos" instance=ExtResource("m_avispa")]
+transform = Transform3D(-0.85058, 0, 0.37883, 0, 0.93112, 0, -0.37883, 0, -0.85058, -12.33, 0.8138, -6.207)
+
+[node name="avispa_2" parent="Bichos" instance=ExtResource("m_avispa")]
+transform = Transform3D(-0.87855, 0, 0.24868, 0, 0.91307, 0, -0.24868, 0, -0.87855, 7.092, 0.3097, 16.02)
+
+[node name="avispa_3" parent="Bichos" instance=ExtResource("m_avispa")]
+transform = Transform3D(-0.97509, 0, 0.13701, 0, 0.98467, 0, -0.13701, 0, -0.97509, 9.394, 0.7675, 16.23)
+
+[node name="avispa_4" parent="Bichos" instance=ExtResource("m_avispa")]
+transform = Transform3D(0.6516, 0, 0.57522, 0, 0.86917, 0, -0.57522, 0, 0.6516, -13.31, 1.126, 6.408)

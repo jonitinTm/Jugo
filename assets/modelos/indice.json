@@ -1,0 +1,590 @@
+{
+ "casa": {
+  "categoria": "entorno",
+  "min": [
+   -4.611,
+   0.0,
+   -3.58
+  ],
+  "max": [
+   4.611,
+   6.98,
+   5.43
+  ],
+  "tris": 7036
+ },
+ "valla": {
+  "categoria": "entorno",
+  "min": [
+   -1.08,
+   0.0,
+   -0.1
+  ],
+  "max": [
+   1.08,
+   2.2,
+   0.08
+  ],
+  "tris": 516
+ },
+ "puerta_jardin": {
+  "categoria": "entorno",
+  "min": [
+   -1.2,
+   0.0,
+   -0.1
+  ],
+  "max": [
+   1.2,
+   2.79,
+   0.125
+  ],
+  "tris": 504
+ },
+ "parcela": {
+  "categoria": "entorno",
+  "min": [
+   -24.0,
+   -0.08,
+   -20.0
+  ],
+  "max": [
+   24.0,
+   0.15,
+   34.4
+  ],
+  "tris": 4344
+ },
+ "suelo_cesped": {
+  "categoria": "entorno",
+  "min": [
+   -2.0,
+   -0.3,
+   -2.0
+  ],
+  "max": [
+   2.0,
+   0.251,
+   2.0
+  ],
+  "tris": 3552
+ },
+ "camino_piedra": {
+  "categoria": "entorno",
+  "min": [
+   -0.507,
+   0.0,
+   -1.522
+  ],
+  "max": [
+   0.508,
+   0.07,
+   1.643
+  ],
+  "tris": 260
+ },
+ "arbol_gigante": {
+  "categoria": "vegetacion",
+  "min": [
+   -6.396,
+   -0.046,
+   -5.403
+  ],
+  "max": [
+   6.237,
+   13.574,
+   5.152
+  ],
+  "tris": 5348
+ },
+ "arbol_otono": {
+  "categoria": "vegetacion",
+  "min": [
+   -6.713,
+   -0.035,
+   -4.856
+  ],
+  "max": [
+   3.525,
+   12.075,
+   5.084
+  ],
+  "tris": 5348
+ },
+ "hierbajo": {
+  "categoria": "vegetacion",
+  "min": [
+   -0.591,
+   -0.003,
+   -0.722
+  ],
+  "max": [
+   0.723,
+   1.422,
+   0.656
+  ],
+  "tris": 1568
+ },
+ "hierbajo_grande": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.603,
+   -0.012,
+   -1.551
+  ],
+  "max": [
+   1.439,
+   3.263,
+   1.165
+  ],
+  "tris": 4512
+ },
+ "matorral": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.594,
+   -0.342,
+   -1.716
+  ],
+  "max": [
+   1.751,
+   1.819,
+   1.477
+  ],
+  "tris": 1254
+ },
+ "zarza": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.924,
+   -0.025,
+   -1.781
+  ],
+  "max": [
+   1.37,
+   1.806,
+   1.345
+  ],
+  "tris": 7726
+ },
+ "girasol_gigante": {
+  "categoria": "vegetacion",
+  "min": [
+   -0.885,
+   -0.007,
+   -0.894
+  ],
+  "max": [
+   1.084,
+   4.403,
+   0.858
+  ],
+  "tris": 2296
+ },
+ "amapola_gigante": {
+  "categoria": "vegetacion",
+  "min": [
+   -0.62,
+   -0.007,
+   -0.49
+  ],
+  "max": [
+   0.756,
+   2.983,
+   0.656
+  ],
+  "tris": 3294
+ },
+ "seta_gigante": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.161,
+   -0.022,
+   -1.163
+  ],
+  "max": [
+   1.275,
+   1.946,
+   1.252
+  ],
+  "tris": 4066
+ },
+ "tocon": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.589,
+   -0.099,
+   -1.534
+  ],
+  "max": [
+   1.608,
+   0.933,
+   1.476
+  ],
+  "tris": 3092
+ },
+ "roca": {
+  "categoria": "vegetacion",
+  "min": [
+   -1.197,
+   -0.179,
+   -1.008
+  ],
+  "max": [
+   1.487,
+   1.062,
+   1.351
+  ],
+  "tris": 3816
+ },
+ "monton_hojas": {
+  "categoria": "vegetacion",
+  "min": [
+   -2.031,
+   -0.043,
+   -2.046
+  ],
+  "max": [
+   2.037,
+   0.618,
+   1.881
+  ],
+  "tris": 3680
+ },
+ "alfombra_hojas": {
+  "categoria": "vegetacion",
+  "min": [
+   -3.621,
+   -0.031,
+   -3.528
+  ],
+  "max": [
+   3.456,
+   0.127,
+   3.652
+  ],
+  "tris": 1844
+ },
+ "bolsa_basura": {
+  "categoria": "jugabilidad",
+  "min": [
+   -0.421,
+   0.0,
+   -0.397
+  ],
+  "max": [
+   0.414,
+   1.274,
+   0.503
+  ],
+  "tris": 1696
+ },
+ "cubo_basura": {
+  "categoria": "jugabilidad",
+  "min": [
+   -0.33,
+   0.0,
+   -0.405
+  ],
+  "max": [
+   0.33,
+   1.075,
+   0.38
+  ],
+  "tris": 368
+ },
+ "contenedor": {
+  "categoria": "jugabilidad",
+  "min": [
+   -1.25,
+   0.01,
+   -0.69
+  ],
+  "max": [
+   1.25,
+   1.405,
+   0.71
+  ],
+  "tris": 452
+ },
+ "camion_basura": {
+  "categoria": "jugabilidad",
+  "min": [
+   -1.52,
+   0.0,
+   -4.95
+  ],
+  "max": [
+   1.52,
+   3.4,
+   3.445
+  ],
+  "tris": 1452
+ },
+ "moneda": {
+  "categoria": "jugabilidad",
+  "min": [
+   -0.5,
+   0.0,
+   -0.114
+  ],
+  "max": [
+   0.5,
+   1.0,
+   0.114
+  ],
+  "tris": 192
+ },
+ "guantes": {
+  "categoria": "herramientas",
+  "min": [
+   -0.212,
+   -0.126,
+   -0.034
+  ],
+  "max": [
+   0.212,
+   0.139,
+   0.034
+  ],
+  "tris": 1500
+ },
+ "hoz": {
+  "categoria": "herramientas",
+  "min": [
+   -0.027,
+   -0.28,
+   -0.027
+  ],
+  "max": [
+   0.358,
+   0.307,
+   0.027
+  ],
+  "tris": 512
+ },
+ "tijeras_podar": {
+  "categoria": "herramientas",
+  "min": [
+   -0.132,
+   -0.04,
+   -0.026
+  ],
+  "max": [
+   0.132,
+   0.75,
+   0.026
+  ],
+  "tris": 328
+ },
+ "rastrillo": {
+  "categoria": "herramientas",
+  "min": [
+   -0.303,
+   -0.817,
+   -0.025
+  ],
+  "max": [
+   0.303,
+   1.25,
+   0.051
+  ],
+  "tris": 588
+ },
+ "machete": {
+  "categoria": "herramientas",
+  "min": [
+   -0.03,
+   -0.06,
+   -0.016
+  ],
+  "max": [
+   0.05,
+   0.55,
+   0.016
+  ],
+  "tris": 144
+ },
+ "desbrozadora": {
+  "categoria": "herramientas",
+  "min": [
+   -0.353,
+   -1.13,
+   -0.17
+  ],
+  "max": [
+   0.353,
+   0.74,
+   0.166
+  ],
+  "tris": 570
+ },
+ "motosierra": {
+  "categoria": "herramientas",
+  "min": [
+   -0.085,
+   0.0,
+   -0.38
+  ],
+  "max": [
+   0.16,
+   0.358,
+   0.665
+  ],
+  "tris": 564
+ },
+ "escarabajo": {
+  "categoria": "enemigos",
+  "min": [
+   -0.258,
+   -0.023,
+   -0.29
+  ],
+  "max": [
+   0.258,
+   0.49,
+   0.42
+  ],
+  "tris": 5120
+ },
+ "caracol": {
+  "categoria": "enemigos",
+  "min": [
+   -0.15,
+   -0.006,
+   -0.454
+  ],
+  "max": [
+   0.15,
+   0.623,
+   0.423
+  ],
+  "tris": 11312
+ },
+ "avispa": {
+  "categoria": "enemigos",
+  "min": [
+   -0.439,
+   0.297,
+   -0.563
+  ],
+  "max": [
+   0.439,
+   0.848,
+   0.363
+  ],
+  "tris": 5170
+ },
+ "cartel_tienda": {
+  "categoria": "ui",
+  "min": [
+   -1.4,
+   0.0,
+   -0.21
+  ],
+  "max": [
+   1.4,
+   2.68,
+   0.15
+  ],
+  "tris": 380
+ },
+ "panel_madera": {
+  "categoria": "ui",
+  "min": [
+   -1.5,
+   -1.0,
+   -0.06
+  ],
+  "max": [
+   1.5,
+   1.0,
+   0.13
+  ],
+  "tris": 332
+ },
+ "boton_madera": {
+  "categoria": "ui",
+  "min": [
+   -0.8,
+   -0.275,
+   -0.07
+  ],
+  "max": [
+   0.8,
+   0.275,
+   0.13
+  ],
+  "tris": 412
+ },
+ "boton_verde": {
+  "categoria": "ui",
+  "min": [
+   -0.8,
+   -0.275,
+   -0.07
+  ],
+  "max": [
+   0.8,
+   0.275,
+   0.125
+  ],
+  "tris": 316
+ },
+ "flecha_mejora": {
+  "categoria": "ui",
+  "min": [
+   -0.504,
+   -0.566,
+   -0.09
+  ],
+  "max": [
+   0.504,
+   0.554,
+   0.11
+  ],
+  "tris": 52
+ },
+ "icono_hoja": {
+  "categoria": "ui",
+  "min": [
+   -0.392,
+   -0.7,
+   -0.05
+  ],
+  "max": [
+   0.392,
+   0.594,
+   0.062
+  ],
+  "tris": 116
+ },
+ "etiqueta_precio": {
+  "categoria": "ui",
+  "min": [
+   -0.3,
+   -0.4,
+   -0.027
+  ],
+  "max": [
+   0.3,
+   0.654,
+   0.04
+  ],
+  "tris": 128
+ },
+ "barra_progreso": {
+  "categoria": "ui",
+  "min": [
+   -1.725,
+   -0.25,
+   -0.06
+  ],
+  "max": [
+   1.5,
+   0.275,
+   0.125
+  ],
+  "tris": 268
+ }
+}

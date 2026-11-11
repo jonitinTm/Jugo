@@ -1,0 +1,6 @@
+# Godot
+.godot/
+*.tmp
+
+# Python
+__pycache__/

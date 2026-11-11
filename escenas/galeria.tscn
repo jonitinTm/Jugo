@@ -1,0 +1,497 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/modelos/entorno/camino_piedra.glb" id="1_camino_piedra"]
+[ext_resource type="PackedScene" path="res://assets/modelos/entorno/casa.glb" id="2_casa"]
+[ext_resource type="PackedScene" path="res://assets/modelos/entorno/puerta_jardin.glb" id="3_puerta_jardin"]
+[ext_resource type="PackedScene" path="res://assets/modelos/entorno/suelo_cesped.glb" id="4_suelo_cesped"]
+[ext_resource type="PackedScene" path="res://assets/modelos/entorno/valla.glb" id="5_valla"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/amapola_gigante.glb" id="6_amapola_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/arbol_gigante.glb" id="7_arbol_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/arbol_otono.glb" id="8_arbol_otono"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/girasol_gigante.glb" id="9_girasol_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/hierbajo.glb" id="10_hierbajo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/hierbajo_grande.glb" id="11_hierbajo_grande"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/matorral.glb" id="12_matorral"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/monton_hojas.glb" id="13_monton_hojas"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/roca.glb" id="14_roca"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/seta_gigante.glb" id="15_seta_gigante"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/tocon.glb" id="16_tocon"]
+[ext_resource type="PackedScene" path="res://assets/modelos/vegetacion/zarza.glb" id="17_zarza"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jugabilidad/bolsa_basura.glb" id="18_bolsa_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jugabilidad/camion_basura.glb" id="19_camion_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jugabilidad/contenedor.glb" id="20_contenedor"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jugabilidad/cubo_basura.glb" id="21_cubo_basura"]
+[ext_resource type="PackedScene" path="res://assets/modelos/jugabilidad/moneda.glb" id="22_moneda"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/desbrozadora.glb" id="23_desbrozadora"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/guantes.glb" id="24_guantes"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/hoz.glb" id="25_hoz"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/machete.glb" id="26_machete"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/motosierra.glb" id="27_motosierra"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/rastrillo.glb" id="28_rastrillo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/herramientas/tijeras_podar.glb" id="29_tijeras_podar"]
+[ext_resource type="PackedScene" path="res://assets/modelos/enemigos/avispa.glb" id="30_avispa"]
+[ext_resource type="PackedScene" path="res://assets/modelos/enemigos/caracol.glb" id="31_caracol"]
+[ext_resource type="PackedScene" path="res://assets/modelos/enemigos/escarabajo.glb" id="32_escarabajo"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/barra_progreso.glb" id="33_barra_progreso"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/boton_madera.glb" id="34_boton_madera"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/boton_verde.glb" id="35_boton_verde"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/cartel_tienda.glb" id="36_cartel_tienda"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/etiqueta_precio.glb" id="37_etiqueta_precio"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/flecha_mejora.glb" id="38_flecha_mejora"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/icono_hoja.glb" id="39_icono_hoja"]
+[ext_resource type="PackedScene" path="res://assets/modelos/ui/panel_madera.glb" id="40_panel_madera"]
+[ext_resource type="Script" path="res://scripts/camara_orbital.gd" id="camara"]
+
+[sub_resource type="ProceduralSkyMaterial" id="cielo_mat"]
+sky_top_color = Color(0.38, 0.6, 0.85, 1)
+sky_horizon_color = Color(0.85, 0.82, 0.74, 1)
+ground_bottom_color = Color(0.36, 0.3, 0.22, 1)
+ground_horizon_color = Color(0.85, 0.82, 0.74, 1)
+sun_angle_max = 20.0
+
+[sub_resource type="Sky" id="cielo"]
+sky_material = SubResource("cielo_mat")
+
+[sub_resource type="Environment" id="entorno"]
+background_mode = 2
+sky = SubResource("cielo")
+ambient_light_source = 3
+ambient_light_energy = 0.9
+reflected_light_source = 2
+tonemap_mode = 2
+ssao_enabled = true
+glow_enabled = true
+glow_intensity = 0.3
+
+[sub_resource type="StandardMaterial3D" id="suelo_mat"]
+albedo_color = Color(0.55, 0.68, 0.33, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="suelo"]
+material = SubResource("suelo_mat")
+size = Vector2(200, 200)
+
+[node name="Galeria" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("entorno")
+
+[node name="Sol" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8192, 0.0000, 0.5736, 0.4394, 0.6428, -0.6275, -0.3687, 0.7660, 0.5265, 0.000, 20.000, 0.000)
+light_color = Color(1, 0.95, 0.85, 1)
+light_energy = 1.3
+shadow_enabled = true
+directional_shadow_max_distance = 150.0
+
+[node name="Suelo" type="MeshInstance3D" parent="."]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 30.000, -0.010, -30.000)
+mesh = SubResource("suelo")
+
+[node name="Camara" type="Camera3D" parent="."]
+script = ExtResource("camara")
+objetivo = Vector3(10, 1, -6)
+distancia = 22.0
+
+[node name="Modelos" type="Node3D" parent="."]
+
+[node name="Etiquetas" type="Node3D" parent="."]
+
+[node name="camino_piedra" parent="Modelos" instance=ExtResource("1_camino_piedra")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.554, 0.000, -6.505)
+
+[node name="Etiqueta_camino_piedra" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.554, 0.480, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "camino_piedra"
+
+[node name="casa" parent="Modelos" instance=ExtResource("2_casa")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 7.218, 0.000, -6.505)
+
+[node name="Etiqueta_casa" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 7.218, 7.380, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "casa"
+
+[node name="puerta_jardin" parent="Modelos" instance=ExtResource("3_puerta_jardin")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 14.528, 0.000, -6.505)
+
+[node name="Etiqueta_puerta_jardin" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 14.528, 3.190, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "puerta_jardin"
+
+[node name="suelo_cesped" parent="Modelos" instance=ExtResource("4_suelo_cesped")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 19.228, 0.000, -6.505)
+
+[node name="Etiqueta_suelo_cesped" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 19.228, 0.989, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "suelo_cesped"
+
+[node name="valla" parent="Modelos" instance=ExtResource("5_valla")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.808, 0.000, -6.505)
+
+[node name="Etiqueta_valla" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.808, 2.600, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "valla"
+
+[node name="amapola_gigante" parent="Modelos" instance=ExtResource("6_amapola_gigante")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.592, 0.000, -21.138)
+
+[node name="Etiqueta_amapola_gigante" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.592, 3.687, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "amapola_gigante"
+
+[node name="arbol_gigante" parent="Modelos" instance=ExtResource("7_arbol_gigante")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.606, 0.000, -21.138)
+
+[node name="Etiqueta_arbol_gigante" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.606, 12.964, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "arbol_gigante"
+
+[node name="arbol_otono" parent="Modelos" instance=ExtResource("8_arbol_otono")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 21.505, 0.000, -21.138)
+
+[node name="Etiqueta_arbol_otono" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 21.505, 13.719, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "arbol_otono"
+
+[node name="girasol_gigante" parent="Modelos" instance=ExtResource("9_girasol_gigante")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 29.485, 0.000, -21.138)
+
+[node name="Etiqueta_girasol_gigante" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 29.485, 4.848, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "girasol_gigante"
+
+[node name="hierbajo" parent="Modelos" instance=ExtResource("10_hierbajo")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 32.387, 0.000, -21.138)
+
+[node name="Etiqueta_hierbajo" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 32.387, 1.774, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "hierbajo"
+
+[node name="hierbajo_grande" parent="Modelos" instance=ExtResource("11_hierbajo_grande")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 35.393, 0.000, -21.138)
+
+[node name="Etiqueta_hierbajo_grande" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 35.393, 3.697, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "hierbajo_grande"
+
+[node name="matorral" parent="Modelos" instance=ExtResource("12_matorral")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.415, 0.000, -21.138)
+
+[node name="Etiqueta_matorral" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.415, 2.742, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "matorral"
+
+[node name="monton_hojas" parent="Modelos" instance=ExtResource("13_monton_hojas")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.714, 0.000, -21.138)
+
+[node name="Etiqueta_monton_hojas" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.714, 1.291, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "monton_hojas"
+
+[node name="roca" parent="Modelos" instance=ExtResource("14_roca")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 47.957, 0.000, -21.138)
+
+[node name="Etiqueta_roca" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 47.957, 1.784, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "roca"
+
+[node name="seta_gigante" parent="Modelos" instance=ExtResource("15_seta_gigante")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 52.062, 0.000, -21.138)
+
+[node name="Etiqueta_seta_gigante" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 52.062, 2.519, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "seta_gigante"
+
+[node name="tocon" parent="Modelos" instance=ExtResource("16_tocon")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 55.937, 0.000, -21.138)
+
+[node name="Etiqueta_tocon" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 55.937, 1.359, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "tocon"
+
+[node name="zarza" parent="Modelos" instance=ExtResource("17_zarza")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 59.815, 0.000, -21.138)
+
+[node name="Etiqueta_zarza" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 59.815, 2.522, -21.138)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "zarza"
+
+[node name="bolsa_basura" parent="Modelos" instance=ExtResource("18_bolsa_basura")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.432, 0.000, -35.463)
+
+[node name="Etiqueta_bolsa_basura" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.432, 1.720, -35.463)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "bolsa_basura"
+
+[node name="camion_basura" parent="Modelos" instance=ExtResource("19_camion_basura")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 3.884, 0.000, -35.463)
+
+[node name="Etiqueta_camion_basura" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 3.884, 3.800, -35.463)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "camion_basura"
+
+[node name="contenedor" parent="Modelos" instance=ExtResource("20_contenedor")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.154, 0.000, -35.463)
+
+[node name="Etiqueta_contenedor" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.154, 1.795, -35.463)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "contenedor"
+
+[node name="cubo_basura" parent="Modelos" instance=ExtResource("21_cubo_basura")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 11.234, 0.000, -35.463)
+
+[node name="Etiqueta_cubo_basura" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 11.234, 1.475, -35.463)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "cubo_basura"
+
+[node name="moneda" parent="Modelos" instance=ExtResource("22_moneda")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 13.564, 0.000, -35.463)
+
+[node name="Etiqueta_moneda" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 13.564, 1.400, -35.463)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "moneda"
+
+[node name="desbrozadora" parent="Modelos" instance=ExtResource("23_desbrozadora")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 1.410, 0.000, -45.741)
+
+[node name="Etiqueta_desbrozadora" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.410, 7.880, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "desbrozadora"
+
+[node name="guantes" parent="Modelos" instance=ExtResource("24_guantes")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 5.159, 0.000, -45.741)
+
+[node name="Etiqueta_guantes" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.159, 1.460, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "guantes"
+
+[node name="hoz" parent="Modelos" instance=ExtResource("25_hoz")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 8.268, 0.000, -45.741)
+
+[node name="Etiqueta_hoz" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.268, 2.749, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "hoz"
+
+[node name="machete" parent="Modelos" instance=ExtResource("26_machete")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 10.697, 0.000, -45.741)
+
+[node name="Etiqueta_machete" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 10.697, 2.840, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "machete"
+
+[node name="motosierra" parent="Modelos" instance=ExtResource("27_motosierra")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 12.847, 0.000, -45.741)
+
+[node name="Etiqueta_motosierra" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.847, 1.830, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "motosierra"
+
+[node name="rastrillo" parent="Modelos" instance=ExtResource("28_rastrillo")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 16.047, 0.000, -45.741)
+
+[node name="Etiqueta_rastrillo" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 16.047, 8.668, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "rastrillo"
+
+[node name="tijeras_podar" parent="Modelos" instance=ExtResource("29_tijeras_podar")]
+transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 19.285, 0.000, -45.741)
+
+[node name="Etiqueta_tijeras_podar" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 19.285, 3.560, -45.741)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "tijeras_podar"
+
+[node name="avispa" parent="Modelos" instance=ExtResource("30_avispa")]
+transform = Transform3D(3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 1.317, 0.000, -53.210)
+
+[node name="Etiqueta_avispa" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.317, 2.052, -53.210)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "avispa"
+
+[node name="caracol" parent="Modelos" instance=ExtResource("31_caracol")]
+transform = Transform3D(3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 4.584, 0.000, -53.210)
+
+[node name="Etiqueta_caracol" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 4.584, 2.287, -53.210)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "caracol"
+
+[node name="escarabajo" parent="Modelos" instance=ExtResource("32_escarabajo")]
+transform = Transform3D(3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 0.0000, 0.0000, 0.0000, 3.0000, 7.300, 0.000, -53.210)
+
+[node name="Etiqueta_escarabajo" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 7.300, 1.922, -53.210)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "escarabajo"
+
+[node name="barra_progreso" parent="Modelos" instance=ExtResource("33_barra_progreso")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.613, 0.800, -58.779)
+
+[node name="Etiqueta_barra_progreso" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.613, 1.725, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "barra_progreso"
+
+[node name="boton_madera" parent="Modelos" instance=ExtResource("34_boton_madera")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.525, 0.800, -58.779)
+
+[node name="Etiqueta_boton_madera" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.525, 1.750, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "boton_madera"
+
+[node name="boton_verde" parent="Modelos" instance=ExtResource("35_boton_verde")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.625, 0.800, -58.779)
+
+[node name="Etiqueta_boton_verde" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 8.625, 1.750, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "boton_verde"
+
+[node name="cartel_tienda" parent="Modelos" instance=ExtResource("36_cartel_tienda")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.325, 0.800, -58.779)
+
+[node name="Etiqueta_cartel_tienda" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.325, 3.880, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "cartel_tienda"
+
+[node name="etiqueta_precio" parent="Modelos" instance=ExtResource("37_etiqueta_precio")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.525, 0.800, -58.779)
+
+[node name="Etiqueta_etiqueta_precio" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.525, 2.254, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "etiqueta_precio"
+
+[node name="flecha_mejora" parent="Modelos" instance=ExtResource("38_flecha_mejora")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.829, 0.800, -58.779)
+
+[node name="Etiqueta_flecha_mejora" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.829, 2.320, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "flecha_mejora"
+
+[node name="icono_hoja" parent="Modelos" instance=ExtResource("39_icono_hoja")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.225, 0.800, -58.779)
+
+[node name="Etiqueta_icono_hoja" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.225, 2.494, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "icono_hoja"
+
+[node name="panel_madera" parent="Modelos" instance=ExtResource("40_panel_madera")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.617, 0.800, -58.779)
+
+[node name="Etiqueta_panel_madera" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.617, 3.200, -58.779)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "panel_madera"

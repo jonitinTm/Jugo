@@ -263,7 +263,9 @@ def brizna():
     col *= (0.9 + 0.2 * np.repeat(ruido(64, 1.5, 34)[:1, :], h, 0))[..., None]
     punta = np.clip((t - 0.85) / 0.15, 0, 1) * 0.5
     col = col * (1 - punta[..., None]) + np.array([0.75, 0.7, 0.35]) * punta[..., None]
-    guardar("brizna", col)
+    # 4 columnas: verde medio, claro, oscuro y seco (un único material para todas las briznas)
+    tonos = [(0.85, 0.92, 0.78), (1.0, 1.0, 1.0), (0.66, 0.8, 0.6), (1.35, 1.0, 0.75)]
+    guardar("brizna", np.hstack([col * np.array(t) for t in tonos]))
 
 
 def petalo():

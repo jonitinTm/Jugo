@@ -31,14 +31,27 @@ de Godot serán algo distintos.
 | **Bichos** | **UI en 3D** |
 | ![](docs/previews/enemigos.jpg) | ![](docs/previews/ui.jpg) |
 
-## Cómo abrirlo
+## Cómo abrirlo y jugar
 
 1. Abre Godot 4.3 o superior → *Importar* → elige `project.godot` (la primera importación
    tarda un poco).
 2. Dale a ▶. Se abre la escena principal.
-   - WASD: moverse · Ratón: mirar · Shift: correr · Espacio: saltar · Esc: soltar el ratón.
-3. Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6.
-   - Clic derecho + arrastrar: girar · Rueda: zoom · WASD / Q E: moverse.
+
+| Control | Acción |
+|---|---|
+| WASD / flechas, ratón | moverse y mirar |
+| Shift / Espacio | correr / saltar |
+| Clic izquierdo (mantener) | usar la herramienta sobre la planta a la que apuntas |
+| E | vaciar la bolsa (junto al contenedor) · comprar (junto al cartel de la tienda) |
+| Esc | soltar el ratón |
+
+**El bucle:** cortas plantas → llenan tu bolsa (15) → la vacías en el contenedor de la calle
+→ cuando el contenedor llega a 40 viene el camión, lo vuelca y te paga → en el cartel de
+madera junto al porche compras la siguiente herramienta, que te deja cortar plantas más duras.
+Todos los números (precios, daño, vida, capacidad) están en `scripts/datos.gd`.
+
+Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6
+(clic derecho + arrastrar: girar · rueda: zoom · WASD / Q E: moverse).
 
 ## Estructura
 
@@ -56,7 +69,10 @@ assets/modelos/*.gltf      los modelos (indice.json dice la categoría y el tama
 assets/modelos/texturas/   texturas compartidas por todos los modelos
 escenas/principal.tscn     escena principal del juego
 escenas/galeria.tscn       escena de prueba con todos los modelos
-scripts/jugador.gd         jugador en primera persona
+scripts/juego.gd           lógica: cortar, bolsa, contenedor, camión, tienda
+scripts/datos.gd           herramientas y plantas (precios, daño, vida...)
+scripts/hud.gd             contadores, mira, pistas y mensajes
+scripts/jugador.gd         jugador en primera persona y herramienta en la mano
 scripts/camara_orbital.gd  cámara de la galería
 herramientas_dev/          scripts en Python que generan texturas, modelos y escenas
 docs/previews/             capturas

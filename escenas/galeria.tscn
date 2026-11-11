@@ -166,110 +166,110 @@ outline_size = 12
 text = "arbol_otono"
 
 [node name="hierbajo" parent="Modelos" instance=ExtResource("m_hierbajo")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 26.528, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 26.483, 0.000, -20.288)
 
 [node name="Etiqueta_hierbajo" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 26.528, 1.825, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 26.483, 1.895, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "hierbajo"
 
 [node name="hierbajo_grande" parent="Modelos" instance=ExtResource("m_hierbajo_grande")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 30.206, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 29.984, 0.000, -20.288)
 
 [node name="Etiqueta_hierbajo_grande" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 30.206, 3.675, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 29.984, 3.431, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "hierbajo_grande"
 
 [node name="matorral" parent="Modelos" instance=ExtResource("m_matorral")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 34.899, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 34.545, 0.000, -20.288)
 
 [node name="Etiqueta_matorral" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 34.899, 2.561, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 34.545, 2.561, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "matorral"
 
 [node name="zarza" parent="Modelos" instance=ExtResource("m_zarza")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.719, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.365, 0.000, -20.288)
 
 [node name="Etiqueta_zarza" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.719, 2.231, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 39.365, 2.247, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "zarza"
 
 [node name="girasol_gigante" parent="Modelos" instance=ExtResource("m_girasol_gigante")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.850, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.497, 0.000, -20.288)
 
 [node name="Etiqueta_girasol_gigante" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.850, 4.810, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 43.497, 4.810, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "girasol_gigante"
 
 [node name="amapola_gigante" parent="Modelos" instance=ExtResource("m_amapola_gigante")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 47.023, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 46.670, 0.000, -20.288)
 
 [node name="Etiqueta_amapola_gigante" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 47.023, 3.390, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 46.670, 3.390, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "amapola_gigante"
 
 [node name="seta_gigante" parent="Modelos" instance=ExtResource("m_seta_gigante")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 50.429, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 50.076, 0.000, -20.288)
 
 [node name="Etiqueta_seta_gigante" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 50.429, 2.368, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 50.076, 2.368, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "seta_gigante"
 
 [node name="tocon" parent="Modelos" instance=ExtResource("m_tocon")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 54.745, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 54.392, 0.000, -20.288)
 
 [node name="Etiqueta_tocon" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 54.745, 1.432, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 54.392, 1.432, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "tocon"
 
 [node name="roca" parent="Modelos" instance=ExtResource("m_roca")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 59.186, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 58.833, 0.000, -20.288)
 
 [node name="Etiqueta_roca" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 59.186, 1.641, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 58.833, 1.641, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "roca"
 
 [node name="monton_hojas" parent="Modelos" instance=ExtResource("m_monton_hojas")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 64.062, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 63.709, 0.000, -20.288)
 
 [node name="Etiqueta_monton_hojas" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 64.062, 1.061, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 63.709, 1.061, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "monton_hojas"
 
 [node name="alfombra_hojas" parent="Modelos" instance=ExtResource("m_alfombra_hojas")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 71.135, 0.000, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 70.781, 0.000, -20.288)
 
 [node name="Etiqueta_alfombra_hojas" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 71.135, 0.558, -20.288)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 70.781, 0.558, -20.288)
 billboard = 1
 font_size = 48
 outline_size = 12

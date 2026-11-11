@@ -30,6 +30,8 @@
 [ext_resource type="PackedScene" path="res://assets/modelos/valla.gltf" id="m_valla"]
 [ext_resource type="PackedScene" path="res://assets/modelos/zarza.gltf" id="m_zarza"]
 [ext_resource type="Script" path="res://scripts/jugador.gd" id="jugador"]
+[ext_resource type="Script" path="res://scripts/juego.gd" id="juego"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="hud"]
 
 [sub_resource type="ProceduralSkyMaterial" id="cielo_mat"]
 sky_top_color = Color(0.3, 0.52, 0.82, 1)
@@ -52,7 +54,6 @@ tonemap_white = 6.0
 ssao_enabled = true
 ssao_radius = 1.5
 ssao_intensity = 2.5
-ssil_enabled = true
 glow_enabled = true
 glow_intensity = 0.35
 glow_bloom = 0.05
@@ -96,9 +97,6 @@ size = Vector3(0.2, 2.2, 34.0)
 [sub_resource type="BoxShape3D" id="col_Contenedor"]
 size = Vector3(2.1, 1.4, 1.4)
 
-[sub_resource type="BoxShape3D" id="col_Camion"]
-size = Vector3(2.6, 3.4, 7.6)
-
 [sub_resource type="BoxShape3D" id="col_Tronco1"]
 size = Vector3(1.15, 5.0, 1.15)
 
@@ -114,7 +112,23 @@ size = Vector3(1.15, 5.0, 1.15)
 [sub_resource type="BoxShape3D" id="col_Tronco5"]
 size = Vector3(0.85, 5.0, 0.85)
 
+[sub_resource type="StandardMaterial3D" id="lejos_mat"]
+albedo_color = Color(0.3, 0.42, 0.17, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="lejos"]
+material = SubResource("lejos_mat")
+size = Vector2(900, 900)
+
 [node name="Principal" type="Node3D"]
+script = ExtResource("juego")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("hud")
+
+[node name="SueloLejano" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0)
+mesh = SubResource("lejos")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("entorno")
@@ -125,7 +139,7 @@ light_color = Color(1, 0.93, 0.8, 1)
 light_energy = 1.5
 shadow_enabled = true
 shadow_blur = 1.5
-directional_shadow_max_distance = 70.0
+directional_shadow_max_distance = 55.0
 
 [node name="Colisiones" type="StaticBody3D" parent="."]
 
@@ -167,10 +181,6 @@ shape = SubResource("col_VallaDer")
 [node name="Contenedor" type="CollisionShape3D" parent="Colisiones"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2, 0.8, 24.1)
 shape = SubResource("col_Contenedor")
-
-[node name="Camion" type="CollisionShape3D" parent="Colisiones"]
-transform = Transform3D(6.1232e-17, 0, -1, 0, 1, 0, 1, 0, 6.1232e-17, -8, 1.7, 27.9)
-shape = SubResource("col_Camion")
 
 [node name="Tronco1" type="CollisionShape3D" parent="Colisiones"]
 transform = Transform3D(-0.32708, 0, -0.945, 0, 1, 0, 0.945, 0, -0.32708, -9.5, 2.5, 12.5)

@@ -93,7 +93,7 @@ _MADERA = dict(tex="madera", normal="madera_n", esc=1.1, rug=0.7)
 _PIEDRA = dict(tex="piedra_muro", normal="piedra_muro_n", esc=0.8, fijo=True, tinte=None, rug=0.9)
 _TEJA = dict(tex="tejas", normal="tejas_n", esc=0.62, fijo=True, tinte=None, rug=0.8)
 _CORTEZA = dict(tex="corteza", normal="corteza_n", esc=0.6, rug=0.95)
-_BRIZNA = dict(tex="brizna", rug=0.6, esc=1.0)
+_BRIZNA = dict(tex="brizna", rug=0.6, esc=1.0, tinte=None, alias="brizna")
 _PETALO = dict(tex="petalo", rug=0.55, tinte="color")
 _HOJAS = dict(alfa="MASK", tinte=None, rug=0.6)
 MATS = {
@@ -105,8 +105,10 @@ MATS = {
     "roca": dict(tex="roca", normal="roca_n", esc=0.6, tinte=None, rug=0.95, fijo=True),
     "tronco": dict(_CORTEZA, tinte=None), "tronco_osc": dict(_CORTEZA, tinte=(0.6, 0.58, 0.55)),
     "zarza": dict(_CORTEZA, tinte=(0.75, 0.6, 0.72), esc=2.0),
-    "hierba": dict(_BRIZNA, tinte=(0.85, 0.92, 0.78)), "hierba_clara": dict(_BRIZNA, tinte=None),
-    "hierba_osc": dict(_BRIZNA, tinte=(0.66, 0.8, 0.6)), "seco": dict(_BRIZNA, tinte=(1.0, 0.8, 0.45)),
+    # los 4 tonos de brizna comparten material (menos llamadas de dibujado): la textura
+    # tiene 4 columnas y "col" elige cuál
+    "hierba": dict(_BRIZNA, col=0), "hierba_clara": dict(_BRIZNA, col=1),
+    "hierba_osc": dict(_BRIZNA, col=2), "seco": dict(_BRIZNA, col=3),
     "petalo_amarillo": _PETALO, "petalo_amarillo_osc": _PETALO, "petalo_rojo": _PETALO,
     "petalo_rojo_osc": _PETALO, "petalo_blanco": dict(rug=0.6),
     "hojas_verde": dict(_HOJAS, tex="hojas_verde"),
@@ -568,9 +570,10 @@ class Modelo:
         if not np.allclose(self.matriz, np.eye(4)):
             nodo["matrix"] = [float(x) for x in self.matriz.T.flatten()]
         prims = []
+        grupos = {}
         for color, lista in sorted(self.mallas.items()):
             d = def_material(color)
-            Vs, Ns, Us = [], [], []
+            _, Vs, Ns, Us = grupos.setdefault(d.get("alias", color), (d, [], [], []))
             for m in lista:
                 V = np.asarray(m.vertices)
                 uv = np.array(m.metadata["uv_fijo"] if d["fijo"] and "uv_fijo" in m.metadata else m.visual.uv, float)
@@ -579,9 +582,15 @@ class Modelo:
                     uv = uv * [max(1.0, round(c)) / c * d["esc"], d["esc"]]
                 elif "N" not in m.metadata:
                     uv = uv * d["esc"]
+                if "col" in d:
+                    if "N" in m.metadata and "circ" not in m.metadata:
+                        uv[:, 0] = (d["col"] + 0.06 + 0.88 * uv[:, 0]) / 4
+                    else:
+                        uv = np.tile([(d["col"] + 0.5) / 4, 0.5], (len(V), 1))
                 Vs.append(V), Us.append(uv)
                 Ns.append(m.metadata["N"] if "N" in m.metadata else normales(V, m.metadata.get("suave", 40.0)))
-            prims.append(g.primitiva(np.vstack(Vs), np.vstack(Ns), np.vstack(Us), color, d))
+        for nombre, (d, Vs, Ns, Us) in grupos.items():
+            prims.append(g.primitiva(np.vstack(Vs), np.vstack(Ns), np.vstack(Us), nombre, d))
         if prims:
             g.j["meshes"].append({"name": self.nombre, "primitives": prims})
             nodo["mesh"] = len(g.j["meshes"]) - 1
@@ -970,8 +979,8 @@ def mata(m, centro, n, radio, alto, ancho, rng, mats=("hierba", "hierba_clara", 
 def hierbajo():
     m = Modelo("hierbajo")
     rng = np.random.default_rng(11)
-    mata(m, (0, 0, 0), 40, 0.3, (0.35, 1.0), (0.022, 0.045), rng)
-    mata(m, (0, 0, 0), 8, 0.25, (0.5, 0.9), (0.02, 0.035), rng, mats=("seco",))
+    mata(m, (0, 0, 0), 30, 0.3, (0.35, 1.0), (0.026, 0.05), rng, segs=3)
+    mata(m, (0, 0, 0), 6, 0.25, (0.5, 0.9), (0.022, 0.038), rng, mats=("seco",), segs=3)
     for i in range(4):
         a = rng.uniform(0, 2 * math.pi)
         h = rng.uniform(1.0, 1.35)
@@ -985,19 +994,19 @@ def hierbajo():
     return m
 
 
-def umbela(m, tallo_fin, direccion, R, rng, n=13):
+def umbela(m, tallo_fin, direccion, R, rng, n=9):
     for i in range(n):
         d = _desviar(direccion, rng.uniform(8, 62), rng)
         fin = np.asarray(tallo_fin) + d * R * rng.uniform(0.75, 1.0)
         m.add(viga(tallo_fin, fin, 0.007, n=3), "hierba")
-        for k in range(3):
-            m.add(T(bola(R * 0.14, -1), tuple(fin + rng.normal(0, R * 0.07, 3))), "petalo_blanco")
+        for k in range(2):
+            m.add(T(bola(R * 0.17, -1), tuple(fin + rng.normal(0, R * 0.07, 3))), "petalo_blanco")
 
 
 def hierbajo_grande():
     m = Modelo("hierbajo_grande")
     rng = np.random.default_rng(12)
-    mata(m, (0, 0, 0), 34, 0.5, (1.0, 2.3), (0.05, 0.09), rng, segs=5)
+    mata(m, (0, 0, 0), 26, 0.5, (1.0, 2.3), (0.055, 0.1), rng, segs=4)
     for i in range(9):
         a = i * 40 + rng.uniform(-15, 15)
         r = rng.uniform(0.05, 0.3)
@@ -1065,7 +1074,7 @@ def zarza():
             for _ in range(2):
                 rumbo = rng.uniform(0, 360)
                 m.add(tira(pts[i], rumbo, rng.uniform(0.2, 0.32), rng.uniform(0.13, 0.2), rng.uniform(-10, 40), rng.uniform(-40, 0),
-                           3, "recto", pliegue=0.12, arriba=0.3), "hoja_ancha_osc" if (i + s) % 3 else "hoja_ancha")
+                           2, "recto", pliegue=0.12, arriba=0.3), "hoja_ancha_osc" if (i + s) % 3 else "hoja_ancha")
             if i in (6, 8) and rng.random() < 0.75:
                 for k in range(5):
                     m.add(T(bola(0.04, -1), tuple(pts[i] + rng.normal(0, 0.04, 3) - UP * 0.06)), "mora")
@@ -1306,10 +1315,10 @@ def parcela():
     senda.metadata["uv_fijo"] = np.array(U)
     m.add(senda, "tierra_suelo")
     # acera, bordillo y calle
-    m.add(T(caja(x1 - x0, 0.16, 2.2), ((x0 + x1) / 2, 0.06, z1 + 1.1)), "piedra")
-    m.add(T(caja(x1 - x0, 0.2, 0.2), ((x0 + x1) / 2, 0.05, z1 + 2.3)), "piedra_osc")
-    m.add(T(caja(x1 - x0, 0.1, 9.0), ((x0 + x1) / 2, -0.03, z1 + 6.9)), "asfalto")
-    for x in np.arange(x0 + 2, x1 - 2, 4.0):
+    m.add(T(caja(180, 0.16, 2.2), (0, 0.06, z1 + 1.1)), "piedra")
+    m.add(T(caja(180, 0.2, 0.2), (0, 0.05, z1 + 2.3)), "piedra_osc")
+    m.add(T(caja(180, 0.1, 9.0), (0, -0.03, z1 + 6.9)), "asfalto")
+    for x in np.arange(-88, 88, 4.0):
         m.add(T(caja(1.8, 0.012, 0.14), (x, 0.025, z1 + 6.9)), "blanco")
     return m
 

@@ -161,6 +161,8 @@ def escribir_tscn():
     modelos = sorted({i[0] for i in items})
     ext = [f'[ext_resource type="PackedScene" path="res://assets/modelos/{m}.gltf" id="m_{m}"]' for m in modelos]
     ext.append('[ext_resource type="Script" path="res://scripts/jugador.gd" id="jugador"]')
+    ext.append('[ext_resource type="Script" path="res://scripts/juego.gd" id="juego"]')
+    ext.append('[ext_resource type="Script" path="res://scripts/hud.gd" id="hud"]')
     cols = [caja_col("Casa", (8.3, 7.0, 6.3), (0, 3.5, 0)),
             caja_col("Porche", (3.4, 0.45, 1.7), (1.8, 0.225, 3.85)),
             caja_col("Escalon", (1.5, 0.22, 0.8), (1.6, 0.11, 5.05)),
@@ -169,8 +171,7 @@ def escribir_tscn():
             caja_col("VallaFondo", (X1 - X0, 2.2, 0.2), (0, 1.1, Z0)),
             caja_col("VallaIzq", (0.2, 2.2, Z1 - Z0), (X0, 1.1, (Z0 + Z1) / 2)),
             caja_col("VallaDer", (0.2, 2.2, Z1 - Z0), (X1, 1.1, (Z0 + Z1) / 2)),
-            caja_col("Contenedor", (2.1, 1.4, 1.4), (PUERTA_X + 4.6, 0.8, Z1 + 1.1)),
-            caja_col("Camion", (2.6, 3.4, 7.6), (-8.0, 1.7, Z1 + 4.9), 90)]
+            caja_col("Contenedor", (2.1, 1.4, 1.4), (PUERTA_X + 4.6, 0.8, Z1 + 1.1))]
     for k, (m, g, x, y, z, rx, ry, s) in enumerate(i for i in items if i[0].startswith("arbol")):
         cols.append(caja_col(f"Tronco{k + 1}", (1.0 * s[0], 5.0, 1.0 * s[0]), (x, 2.5, z), ry))
     cab = f"""[gd_scene format=3]
@@ -198,7 +199,6 @@ tonemap_white = 6.0
 ssao_enabled = true
 ssao_radius = 1.5
 ssao_intensity = 2.5
-ssil_enabled = true
 glow_enabled = true
 glow_intensity = 0.35
 glow_bloom = 0.05
@@ -216,7 +216,23 @@ radius = 0.32
 height = 1.7
 
 {chr(10).join(c[0] for c in cols)}
+[sub_resource type="StandardMaterial3D" id="lejos_mat"]
+albedo_color = Color(0.3, 0.42, 0.17, 1)
+roughness = 1.0
+
+[sub_resource type="PlaneMesh" id="lejos"]
+material = SubResource("lejos_mat")
+size = Vector2(900, 900)
+
 [node name="Principal" type="Node3D"]
+script = ExtResource("juego")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("hud")
+
+[node name="SueloLejano" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.08, 0)
+mesh = SubResource("lejos")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("entorno")
@@ -227,7 +243,7 @@ light_color = Color(1, 0.93, 0.8, 1)
 light_energy = 1.5
 shadow_enabled = true
 shadow_blur = 1.5
-directional_shadow_max_distance = 70.0
+directional_shadow_max_distance = 55.0
 
 [node name="Colisiones" type="StaticBody3D" parent="."]
 

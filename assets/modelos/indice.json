@@ -44,16 +44,16 @@
  "parcela": {
   "categoria": "entorno",
   "min": [
-   -24.0,
+   -90.0,
    -0.08,
    -20.0
   ],
   "max": [
-   24.0,
+   90.0,
    0.15,
    34.4
   ],
-  "tris": 4344
+  "tris": 4740
  },
  "suelo_cesped": {
   "categoria": "entorno",
@@ -114,30 +114,30 @@
  "hierbajo": {
   "categoria": "vegetacion",
   "min": [
-   -0.591,
-   -0.003,
-   -0.722
+   -0.571,
+   -0.004,
+   -0.696
   ],
   "max": [
-   0.723,
-   1.422,
-   0.656
+   0.653,
+   1.491,
+   0.579
   ],
-  "tris": 1568
+  "tris": 944
  },
  "hierbajo_grande": {
   "categoria": "vegetacion",
   "min": [
-   -1.603,
-   -0.012,
-   -1.551
+   -1.574,
+   -0.009,
+   -1.513
   ],
   "max": [
-   1.439,
-   3.263,
-   1.165
+   1.204,
+   3.022,
+   1.146
   ],
-  "tris": 4512
+  "tris": 2660
  },
  "matorral": {
   "categoria": "vegetacion",
@@ -156,16 +156,16 @@
  "zarza": {
   "categoria": "vegetacion",
   "min": [
-   -1.924,
+   -1.926,
    -0.025,
    -1.781
   ],
   "max": [
-   1.37,
-   1.806,
+   1.369,
+   1.822,
    1.345
   ],
-  "tris": 7726
+  "tris": 6286
  },
  "girasol_gigante": {
   "categoria": "vegetacion",

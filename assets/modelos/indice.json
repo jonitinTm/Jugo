@@ -586,5 +586,33 @@
    0.125
   ],
   "tris": 268
+ },
+ "calva_tierra": {
+  "categoria": "entorno",
+  "min": [
+   -1.0,
+   0.0,
+   -1.0
+  ],
+  "max": [
+   1.0,
+   0.0,
+   1.0
+  ],
+  "tris": 2
+ },
+ "cesped_nuevo": {
+  "categoria": "entorno",
+  "min": [
+   -1.0,
+   -0.002,
+   -1.0
+  ],
+  "max": [
+   1.0,
+   0.139,
+   1.0
+  ],
+  "tris": 194
  }
 }

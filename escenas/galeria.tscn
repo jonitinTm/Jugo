@@ -5,6 +5,8 @@
 [ext_resource type="PackedScene" path="res://assets/modelos/puerta_jardin.gltf" id="m_puerta_jardin"]
 [ext_resource type="PackedScene" path="res://assets/modelos/suelo_cesped.gltf" id="m_suelo_cesped"]
 [ext_resource type="PackedScene" path="res://assets/modelos/camino_piedra.gltf" id="m_camino_piedra"]
+[ext_resource type="PackedScene" path="res://assets/modelos/calva_tierra.gltf" id="m_calva_tierra"]
+[ext_resource type="PackedScene" path="res://assets/modelos/cesped_nuevo.gltf" id="m_cesped_nuevo"]
 [ext_resource type="PackedScene" path="res://assets/modelos/arbol_gigante.gltf" id="m_arbol_gigante"]
 [ext_resource type="PackedScene" path="res://assets/modelos/arbol_otono.gltf" id="m_arbol_otono"]
 [ext_resource type="PackedScene" path="res://assets/modelos/hierbajo.gltf" id="m_hierbajo"]
@@ -144,6 +146,26 @@ billboard = 1
 font_size = 48
 outline_size = 12
 text = "camino_piedra"
+
+[node name="calva_tierra" parent="Modelos" instance=ExtResource("m_calva_tierra")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 27.297, 0.000, -6.505)
+
+[node name="Etiqueta_calva_tierra" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 27.297, 0.400, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "calva_tierra"
+
+[node name="cesped_nuevo" parent="Modelos" instance=ExtResource("m_cesped_nuevo")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 30.797, 0.000, -6.505)
+
+[node name="Etiqueta_cesped_nuevo" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 30.797, 0.541, -6.505)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "cesped_nuevo"
 
 [node name="arbol_gigante" parent="Modelos" instance=ExtResource("m_arbol_gigante")]
 transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 6.316, 0.000, -20.288)

@@ -18,7 +18,7 @@ func _ready() -> void:
 	contadores.position = Vector2(24, 20)
 	contadores.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	raiz.add_child(contadores)
-	for clave in ["monedas", "bolsa", "contenedor", "herramienta", "jardin"]:
+	for clave in ["monedas", "bolsa", "contenedor", "semillas", "jardin"]:
 		var e := _etiqueta(26 if clave == "monedas" else 20)
 		if clave == "monedas":
 			e.add_theme_color_override("font_color", Color(1.0, 0.85, 0.35))
@@ -80,7 +80,7 @@ func _process(delta: float) -> void:
 			_mensaje.visible = false
 
 
-## textos: diccionario clave → texto (monedas, bolsa, contenedor, herramienta, jardin)
+## textos: diccionario clave → texto (monedas, bolsa, contenedor, semillas, jardin)
 func actualizar(textos: Dictionary) -> void:
 	for clave in textos:
 		if _etiquetas.has(clave):

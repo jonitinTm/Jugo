@@ -41,14 +41,27 @@ de Godot serán algo distintos.
 |---|---|
 | WASD / flechas, ratón | moverse y mirar |
 | Shift / Espacio | correr / saltar |
-| Clic izquierdo (mantener) | usar la herramienta sobre la planta a la que apuntas |
-| E | vaciar la bolsa (junto al contenedor) · comprar (junto al cartel de la tienda) |
+| Clic izquierdo (mantener) | quitar la planta a la que apuntas |
+| Clic derecho (mantener) | sembrar césped en las calvas de tierra cercanas |
+| E | vaciar la bolsa (cubo o contenedor) · comprar la siguiente herramienta (tienda) |
+| R / T | en la tienda: bolsa más grande / paquete de semillas |
 | Esc | soltar el ratón |
 
-**El bucle:** cortas plantas → llenan tu bolsa (15) → la vacías en el contenedor de la calle
-→ cuando el contenedor llega a 40 viene el camión, lo vuelca y te paga → en el cartel de
-madera junto al porche compras la siguiente herramienta, que te deja cortar plantas más duras.
-Todos los números (precios, daño, vida, capacidad) están en `scripts/datos.gd`.
+**El bucle:**
+
+1. Empiezas con las **manos**, arrancando hierbajos de uno en uno. Lo que quitas va a la bolsa.
+2. Vacías la bolsa en el **cubo** (junto a la puerta del jardín) o en el **contenedor** de la
+   calle. Cuando se junta bastante viene el **camión**, lo vuelca y te paga.
+3. En la **tienda** (cartel de madera junto al porche) compras herramientas, bolsas más
+   grandes y semillas. Cada herramienta cambia *cómo* limpias: el rastrillo arrastra varios
+   hierbajos y barre hojas, la hoz siega un arco, las tijeras y el machete abren matorrales y
+   zarzas, la desbrozadora limpia mientras andas y la motosierra tala tocones y árboles.
+   **La herramienta se elige sola** según la planta a la que apuntas.
+4. Cada planta quitada deja una **calva de tierra**. Con clic derecho siembras césped en todas
+   las calvas cercanas a la vez; crece solo y da una moneda. Una calva sin sembrar acaba
+   echando otro hierbajo al cabo de unos minutos.
+
+Todos los números (precios, daño, áreas, tiempos, rebrote) están en `scripts/datos.gd`.
 
 Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6
 (clic derecho + arrastrar: girar · rueda: zoom · WASD / Q E: moverse).
@@ -57,7 +70,8 @@ Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6
 
 ```
 assets/modelos/*.gltf      los modelos (indice.json dice la categoría y el tamaño de cada uno)
-  entorno:       casa, valla, puerta_jardin, parcela, suelo_cesped, camino_piedra
+  entorno:       casa, valla, puerta_jardin, parcela, suelo_cesped, camino_piedra,
+                 calva_tierra, cesped_nuevo
   vegetación:    arbol_gigante, arbol_otono, hierbajo, hierbajo_grande, matorral, zarza,
                  girasol_gigante, amapola_gigante, seta_gigante, tocon, roca,
                  monton_hojas, alfombra_hojas

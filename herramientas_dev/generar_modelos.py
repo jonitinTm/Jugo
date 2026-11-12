@@ -62,6 +62,7 @@ PALETA = {
     "hojas_verde": "#5E9E3A", "hojas_osc": "#3F7A2E", "hojas_otono": "#E8822E",
     "hoja_ancha": "#4F8A34", "hoja_ancha_osc": "#3A6A2A", "hojas_caidas": "#E8822E",
     "hojarasca": "#C98A3A", "girasol_centro": "#4A2E14", "anillos": "#C9A070",
+    "calva": "#6E4E34", "cesped_parche": "#6FA03A",
     "cesped": "#5E8A30", "tierra_suelo": "#6E4E34", "asfalto": "#3A3A3E",
     # jugabilidad
     "plastico_negro": "#25252B", "plastico_negro_brillo": "#3A3A44", "lazo_amarillo": "#F2C230",
@@ -121,6 +122,8 @@ MATS = {
     "girasol_centro": dict(tex="girasol_centro", tinte=None, rug=0.9),
     "anillos": dict(tex="anillos", tinte=None, rug=0.8),
     "cesped": dict(tex="cesped", normal="cesped_n", esc=0.3, tinte=None, fijo=True, rug=1.0),
+    "calva": dict(tex="calva", alfa="BLEND", tinte=None, rug=1.0),
+    "cesped_parche": dict(tex="cesped_parche", alfa="BLEND", tinte=None, rug=1.0),
     "tierra": dict(tex="tierra", normal="tierra_n", esc=0.6, tinte=None, fijo=True, rug=1.0),
     "tierra_suelo": dict(tex="tierra", normal="tierra_n", esc=0.4, tinte=None, fijo=True, rug=1.0),
     "asfalto": dict(tex="asfalto", normal="asfalto_n", esc=0.3, tinte=None, fijo=True, rug=0.9),
@@ -1278,6 +1281,29 @@ def camino_piedra():
     return m
 
 
+def _parche(mat):
+    q = [(-1, 0, -1), (-1, 0, 1), (1, 0, 1), (1, 0, -1)]
+    uv = [(0, 0), (0, 1), (1, 1), (1, 0)]
+    orden = (0, 1, 2, 0, 2, 3)
+    return _malla([q[k] for k in orden], [uv[k] for k in orden], N=[UP] * 6)
+
+
+def calva_tierra():
+    """Calva de tierra (radio 1, se escala en el juego) que queda al quitar una planta."""
+    m = Modelo("calva_tierra")
+    m.add(_parche("calva"), "calva")
+    return m
+
+
+def cesped_nuevo():
+    """Césped recién sembrado (radio 1, se escala en el juego)."""
+    m = Modelo("cesped_nuevo")
+    rng = np.random.default_rng(26)
+    m.add(T(_parche("cesped_parche"), (0, 0.01, 0)), "cesped_parche")
+    mata(m, (0, 0, 0), 16, 0.75, (0.07, 0.15), (0.02, 0.03), rng, mats=("hierba_clara", "hierba"), segs=2)
+    return m
+
+
 PARCELA = dict(x0=-15.0, x1=15.0, z0=-11.0, z1=23.0, puerta_x=1.6, casa_frente=3.0)
 
 
@@ -1856,7 +1882,7 @@ def icono_hoja_malla():
 
 # --------------------------------------------------------------------------
 CATALOGO = {
-    "entorno": [casa, valla, puerta_jardin, parcela, suelo_cesped, camino_piedra],
+    "entorno": [casa, valla, puerta_jardin, parcela, suelo_cesped, camino_piedra, calva_tierra, cesped_nuevo],
     "vegetacion": [lambda: arbol("arbol_gigante", ("hojas_verde", "hojas_osc"), 1, alto=8.5, r0=0.62, tam_carta=2.2),
                    lambda: arbol("arbol_otono", ("hojas_otono", "hojas_otono"), 2, alto=7.0, r0=0.5),
                    hierbajo, hierbajo_grande, matorral, zarza, girasol_gigante, amapola_gigante,

@@ -408,10 +408,22 @@ def hojarasca():
     guardar_normal("hojarasca_n", h, 6.0)
 
 
+def parches():
+    """Parches con borde difuso (alfa): calva de tierra y césped recién sembrado."""
+    n = 256
+    y, x = np.mgrid[0:n, 0:n] / n - 0.5
+    r = np.sqrt(x ** 2 + y ** 2) * 2 + 0.3 * (ruido(n, 2.2, 60) - 0.5)
+    alfa = np.clip((0.88 - r) / 0.3, 0, 1)
+    val = 0.6 * ruido(n, 2.4, 61) + 0.4 * ruido(n, 1.0, 62)
+    guardar("calva", mezcla((0.27, 0.18, 0.115), (0.52, 0.39, 0.27), val), alfa)
+    val = 0.5 * ruido(n, 2.4, 63) + 0.5 * ruido(n, 1.0, 64)
+    guardar("cesped_parche", mezcla((0.27, 0.45, 0.13), (0.5, 0.68, 0.26), val), alfa)
+
+
 def main():
     os.makedirs(SALIDA, exist_ok=True)
     for f in (liso, estuco, madera, tejas, piedra_muro, roca, corteza, cesped, tierra, asfalto,
-              arrugas, anillos, girasol_centro, brizna, petalo, hoja_ancha, hojas_caidas, hojarasca):
+              arrugas, anillos, girasol_centro, brizna, petalo, hoja_ancha, hojas_caidas, hojarasca, parches):
         f()
     racimo_hojas("hojas_verde", [(74, 128, 44), (96, 150, 52), (58, 108, 40), (118, 160, 60)], 50)
     racimo_hojas("hojas_otono", [(226, 124, 40), (240, 178, 56), (200, 76, 40), (214, 150, 48)], 51)

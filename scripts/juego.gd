@@ -1,44 +1,77 @@
 extends Node3D
-## Lógica principal: cortar plantas, llenar la bolsa, vaciarla en el contenedor,
-## camión que paga y tienda de herramientas.
+## Lógica principal del juego.
 ##
-## Controles: clic izquierdo (mantener) = usar la herramienta · E = interactuar
+## Bucle: quitar plantas (la herramienta se elige sola según la planta) → la bolsa se llena →
+## se vacía en el contenedor o en el cubo → el camión paga → tienda (herramientas, bolsa, semillas).
+## Cada planta quitada deja una calva de tierra: con clic derecho se siembra césped en todas
+## las calvas cercanas. Las calvas sin sembrar acaban echando malas hierbas otra vez.
+##
+## Controles: clic izquierdo (mantener) = quitar · clic derecho (mantener) = sembrar
+##            E = vaciar bolsa / comprar herramienta · R = mejorar bolsa · T = comprar semillas
 
 const Datos = preload("res://scripts/datos.gd")
 
 var monedas: int = 0
-var nivel: int = 0                 # herramienta actual (índice en Datos.HERRAMIENTAS)
+var nivel: int = 0                 # mejor herramienta comprada (índice en Datos.HERRAMIENTAS)
+var nivel_bolsa: int = 0
+var semillas: int = Datos.SEMILLAS_INICIALES
 var bolsa_volumen: int = 0
 var bolsa_valor: int = 0
 var contenedor_volumen: int = 0
 var contenedor_valor: int = 0
 
-var _plantas: Array = []           # diccionarios {nodo, tipo, vida, centro, radio}
+var _plantas: Array = []           # {nodo, tipo, vida, centro, radio, escala}
+var _calvas: Array = []            # {nodo, pos, radio, rebrote}  (tierra sin sembrar)
 var _total_plantas: int = 0
+var _total_calvas: int = 0         # calvas que puede llegar a haber (plantas que dejan tierra)
+var _cesped_hecho: int = 0
 var _objetivo = null               # planta a la que se apunta (diccionario) o null
+var _en_mano: int = -1             # herramienta que se ve en la mano
 var _enfriamiento: float = 0.0
+var _enfriamiento_siembra: float = 0.0
+var _tiempo: float = 0.0
+var _proximo_rebrote: float = 5.0
 var _camion_ocupado: bool = false
 var _camion_x_previa: float = 0.0
 var _ruedas: Array = []
+var _aviso_semillas: bool = false
+var _escena_calva: PackedScene
+var _escena_cesped: PackedScene
+var _escena_hierbajo: PackedScene
+var _nodo_calvas: Node3D
 
 @onready var jugador = $Jugador   # jugador.gd
 @onready var camara: Camera3D = $Jugador/Camara
 @onready var hud = $HUD           # hud.gd
 @onready var contenedor: Node3D = get_node_or_null("Jugabilidad/contenedor_1")
+@onready var cubo: Node3D = get_node_or_null("Jugabilidad/cubo_basura_1")
 @onready var camion: Node3D = get_node_or_null("Jugabilidad/camion_basura_1")
 @onready var tienda: Node3D = get_node_or_null("Jugabilidad/cartel_tienda_1")
 
 
 func _ready() -> void:
+	_escena_calva = _cargar("calva_tierra")
+	_escena_cesped = _cargar("cesped_nuevo")
+	_escena_hierbajo = _cargar("hierbajo")
+	_nodo_calvas = Node3D.new()
+	_nodo_calvas.name = "Calvas"
+	add_child(_nodo_calvas)
 	_registrar_plantas()
 	_optimizar()
 	_abrir_puerta()
 	if camion != null:
 		camion.visible = false
 		_ruedas = camion.find_children("rueda_*", "", true, false)
-	jugador.equipar(Datos.HERRAMIENTAS[nivel])
+	_equipar(0)
 	_refrescar_hud()
-	hud.mensaje("Despeja el jardín: mantén el clic izquierdo sobre los hierbajos", 6.0)
+	hud.mensaje("Arranca los hierbajos: mantén el clic izquierdo sobre ellos", 6.0)
+
+
+func _cargar(modelo: String) -> PackedScene:
+	var recurso = load("res://assets/modelos/%s.gltf" % modelo)
+	if recurso is PackedScene:
+		return recurso
+	return null
 
 
 # ---------------------------------------------------------------- preparación
@@ -55,33 +88,34 @@ func _registrar_plantas() -> void:
 			continue
 		for hijo in padre.get_children():
 			var tipo := _tipo_de(hijo)
-			if not Datos.PLANTAS.has(tipo) or not (hijo is Node3D):
-				continue
-			var d: Dictionary = Datos.PLANTAS[tipo]
-			var nodo: Node3D = hijo
-			var escala: float = nodo.scale.y
-			var altura: float = minf(float(d["alto"]) * escala * 0.5, 1.2)
-			_plantas.append({
-				"nodo": nodo, "tipo": tipo, "vida": float(d["vida"]),
-				"centro": nodo.global_position + Vector3.UP * altura,
-				"radio": float(d["radio"]) * escala, "escala": nodo.scale,
-			})
+			if Datos.PLANTAS.has(tipo) and hijo is Node3D:
+				_registrar(hijo as Node3D, tipo)
+				if float(Datos.PLANTAS[tipo]["calva"]) > 0.0:
+					_total_calvas += 1
 	_total_plantas = _plantas.size()
+
+
+func _registrar(nodo: Node3D, tipo: String, escala_final: Vector3 = Vector3.ZERO) -> void:
+	var d: Dictionary = Datos.PLANTAS[tipo]
+	var escala: Vector3 = nodo.scale if escala_final == Vector3.ZERO else escala_final
+	var altura: float = minf(float(d["alto"]) * escala.y * 0.5, 1.2)
+	_plantas.append({
+		"nodo": nodo, "tipo": tipo, "vida": float(d["vida"]),
+		"centro": nodo.global_position + Vector3.UP * altura,
+		"radio": float(d["radio"]) * escala.y, "escala": escala,
+	})
 
 
 ## Rendimiento: lo pequeño no proyecta sombra y deja de dibujarse a lo lejos.
 func _optimizar() -> void:
-	_ajustar_grupo("Hierba", 45.0, false)
-	_ajustar_grupo("Hojas", 60.0, false)
-	_ajustar_grupo("Bichos", 45.0, true)
-	_ajustar_grupo("Vegetacion", 90.0, true)
+	for ajuste in [["Hierba", 45.0, false], ["Hojas", 60.0, false], ["Bichos", 45.0, true], ["Vegetacion", 90.0, true]]:
+		var padre := get_node_or_null(ajuste[0])
+		if padre != null:
+			_ajustar_mallas(padre, ajuste[1], ajuste[2])
 
 
-func _ajustar_grupo(grupo: String, distancia: float, sombras: bool) -> void:
-	var padre := get_node_or_null(grupo)
-	if padre == null:
-		return
-	for malla in padre.find_children("*", "MeshInstance3D", true, false):
+func _ajustar_mallas(raiz: Node, distancia: float, sombras: bool) -> void:
+	for malla in raiz.find_children("*", "MeshInstance3D", true, false):
 		var m: MeshInstance3D = malla
 		m.visibility_range_end = distancia
 		m.visibility_range_end_margin = 6.0
@@ -104,14 +138,24 @@ func _abrir_puerta() -> void:
 
 # ---------------------------------------------------------------- bucle
 func _physics_process(delta: float) -> void:
+	_tiempo += delta
 	_enfriamiento = maxf(0.0, _enfriamiento - delta)
+	_enfriamiento_siembra = maxf(0.0, _enfriamiento_siembra - delta)
 	_objetivo = _buscar_objetivo()
+	if _objetivo != null:
+		var mejor: int = _mejor_herramienta(String(Datos.PLANTAS[_objetivo["tipo"]]["clase"]))
+		if mejor >= 0:
+			_equipar(mejor)
 	_actualizar_pista()
-	var capturado := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
-	if capturado and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _enfriamiento <= 0.0:
-		_enfriamiento = Datos.TIEMPO_GOLPE
-		jugador.golpe()
-		_golpear()
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) and _enfriamiento <= 0.0:
+			_golpear()
+		elif Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT) and _enfriamiento_siembra <= 0.0:
+			_enfriamiento_siembra = 0.15
+			_sembrar()
+	if _tiempo >= _proximo_rebrote:
+		_proximo_rebrote = _tiempo + 2.0
+		_rebrotar()
 
 
 func _process(_delta: float) -> void:
@@ -124,8 +168,19 @@ func _process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_E:
-		_interactuar()
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.physical_keycode:
+			KEY_E:
+				if _junto_a_deposito():
+					_vaciar_bolsa()
+				elif _cerca_de(tienda, 3.2):
+					_comprar_herramienta()
+			KEY_R:
+				if _cerca_de(tienda, 3.2):
+					_comprar_bolsa()
+			KEY_T:
+				if _cerca_de(tienda, 3.2):
+					_comprar_semillas()
 
 
 func _cerca_de(nodo: Node3D, distancia: float) -> bool:
@@ -136,7 +191,15 @@ func _cerca_de(nodo: Node3D, distancia: float) -> bool:
 	return d.length() < distancia
 
 
-# ---------------------------------------------------------------- cortar
+func _junto_a_deposito() -> bool:
+	return _cerca_de(contenedor, 3.2) or _cerca_de(cubo, 2.4)
+
+
+func _capacidad_bolsa() -> int:
+	return int(Datos.BOLSAS[nivel_bolsa]["capacidad"])
+
+
+# ---------------------------------------------------------------- quitar plantas
 func _buscar_objetivo():
 	var origen: Vector3 = camara.global_position
 	var mira: Vector3 = -camara.global_transform.basis.z
@@ -144,8 +207,7 @@ func _buscar_objetivo():
 	var mejor_puntos: float = -1.0
 	for p in _plantas:
 		var hacia: Vector3 = p["centro"] - origen
-		var plano := Vector2(hacia.x, hacia.z).length()
-		if plano > Datos.ALCANCE + float(p["radio"]):
+		if Vector2(hacia.x, hacia.z).length() > Datos.ALCANCE + float(p["radio"]):
 			continue
 		var distancia: float = hacia.length()
 		if distancia < 0.01:
@@ -162,54 +224,88 @@ func _buscar_objetivo():
 	return mejor
 
 
+## Mejor herramienta comprada para una clase de planta (-1 si ninguna sirve).
+func _mejor_herramienta(clase: String) -> int:
+	var mejor: int = -1
+	var mejor_potencia: float = 0.0
+	for i in range(nivel + 1):
+		var h: Dictionary = Datos.HERRAMIENTAS[i]
+		var usos: Dictionary = h["usos"]
+		if usos.has(clase):
+			var u: Vector2 = usos[clase]
+			var potencia: float = u.x * (1.0 + u.y) / float(h["cadencia"])
+			if potencia >= mejor_potencia:
+				mejor_potencia = potencia
+				mejor = i
+	return mejor
+
+
+func _equipar(indice: int) -> void:
+	if indice == _en_mano:
+		return
+	_en_mano = indice
+	jugador.equipar(Datos.HERRAMIENTAS[indice])
+
+
 func _golpear() -> void:
+	_enfriamiento = 0.35
 	if _objetivo == null:
+		jugador.golpe()
 		return
 	var p: Dictionary = _objetivo
 	var d: Dictionary = Datos.PLANTAS[p["tipo"]]
-	if nivel < int(d["nivel"]):
+	var indice: int = _mejor_herramienta(String(d["clase"]))
+	if nivel < int(d["nivel"]) or indice < 0:
 		hud.mensaje("Necesitas: %s" % Datos.HERRAMIENTAS[int(d["nivel"])]["nombre"])
 		return
-	if bolsa_volumen >= Datos.CAPACIDAD_BOLSA:
-		hud.mensaje("Bolsa llena: vacíala en el contenedor de la calle (E)")
+	if bolsa_volumen >= _capacidad_bolsa():
+		hud.mensaje("Bolsa llena: vacíala en el cubo o en el contenedor (E)")
 		return
-	var herramienta: Dictionary = Datos.HERRAMIENTAS[nivel]
-	var area: float = float(herramienta["area"])
-	if area > 0.0:
+	var herramienta: Dictionary = Datos.HERRAMIENTAS[indice]
+	var usos: Dictionary = herramienta["usos"]
+	var uso: Vector2 = usos[d["clase"]]
+	_enfriamiento = float(herramienta["cadencia"])
+	jugador.golpe()
+	if uso.y > 0.0:
+		# golpe en área: todo lo que esta herramienta pueda cortar alrededor de la planta apuntada
 		var centro: Vector3 = p["centro"]
 		for otra in _plantas.duplicate():
+			var datos_otra: Dictionary = Datos.PLANTAS[otra["tipo"]]
+			if nivel < int(datos_otra["nivel"]) or not usos.has(datos_otra["clase"]):
+				continue
 			var hacia: Vector3 = otra["centro"] - centro
 			hacia.y = 0.0
-			if hacia.length() <= area and nivel >= int(Datos.PLANTAS[otra["tipo"]]["nivel"]):
-				_danar(otra, float(herramienta["dano"]))
+			if hacia.length() <= uso.y + float(otra["radio"]) * 0.5:
+				var uso_otra: Vector2 = usos[datos_otra["clase"]]
+				_danar(otra, uso_otra.x)
 	else:
-		_danar(p, float(herramienta["dano"]))
+		_danar(p, uso.x)
 	_refrescar_hud()
 
 
 func _danar(p: Dictionary, dano: float) -> void:
 	var d: Dictionary = Datos.PLANTAS[p["tipo"]]
-	if d.get("hojas", false) and Datos.HERRAMIENTAS[nivel]["modelo"] == "rastrillo":
-		dano *= 3.0
 	p["vida"] = float(p["vida"]) - dano
 	var nodo: Node3D = p["nodo"]
-	if float(p["vida"]) <= 0.0:
-		_plantas.erase(p)
-		bolsa_volumen += int(d["volumen"])
-		bolsa_valor += int(d["valor"])
-		var t := nodo.create_tween()
-		t.tween_property(nodo, "scale", nodo.scale * 0.05, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
-		t.tween_callback(nodo.queue_free)
-		if String(p["tipo"]).begins_with("arbol"):
-			_quitar_colision_tronco(nodo.global_position)
-		if _plantas.is_empty():
-			hud.mensaje("¡Jardín despejado!", 10.0)
-	else:
+	var base: Vector3 = p["escala"]
+	if float(p["vida"]) > 0.0:
 		# pequeño temblor al recibir el golpe
-		var base: Vector3 = p["escala"]
-		var t := nodo.create_tween()
-		t.tween_property(nodo, "scale", base * Vector3(1.06, 0.9, 1.06), 0.06)
-		t.tween_property(nodo, "scale", base, 0.12)
+		var temblor := nodo.create_tween()
+		temblor.tween_property(nodo, "scale", base * Vector3(1.06, 0.9, 1.06), 0.06)
+		temblor.tween_property(nodo, "scale", base, 0.12)
+		return
+	_plantas.erase(p)
+	bolsa_volumen += int(d["volumen"])
+	bolsa_valor += int(d["valor"])
+	var t := nodo.create_tween()
+	t.tween_property(nodo, "scale", base * 0.05, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	t.tween_callback(nodo.queue_free)
+	if float(d["calva"]) > 0.0:
+		_crear_calva(nodo.global_position, float(d["calva"]) * base.y)
+	if String(p["tipo"]).begins_with("arbol"):
+		_quitar_colision_tronco(nodo.global_position)
+	if _plantas.is_empty():
+		hud.mensaje("¡Jardín despejado!", 10.0)
 
 
 func _quitar_colision_tronco(posicion: Vector3) -> void:
@@ -224,38 +320,177 @@ func _quitar_colision_tronco(posicion: Vector3) -> void:
 				c.queue_free()
 
 
+# ---------------------------------------------------------------- tierra y césped
+func _crear_calva(posicion: Vector3, radio: float) -> void:
+	if _escena_calva == null:
+		return
+	var nodo: Node3D = _escena_calva.instantiate()
+	_nodo_calvas.add_child(nodo)
+	nodo.position = Vector3(posicion.x, 0.04 + randf() * 0.015, posicion.z)
+	nodo.rotation.y = randf() * TAU
+	nodo.scale = Vector3(0.05, 1.0, 0.05)
+	_ajustar_mallas(nodo, 70.0, false)
+	nodo.create_tween().tween_property(nodo, "scale", Vector3(radio, 1.0, radio), 0.3)
+	_calvas.append({
+		"nodo": nodo, "pos": nodo.position, "radio": radio,
+		"rebrote": _tiempo + randf_range(Datos.REBROTE_MIN, Datos.REBROTE_MAX),
+	})
+	if not _aviso_semillas:
+		_aviso_semillas = true
+		hud.mensaje("Queda tierra al descubierto: clic derecho para sembrar césped", 6.0)
+
+
+## Punto del suelo al que mira el jugador (como mucho a 4,5 m).
+func _punto_suelo() -> Vector3:
+	var origen: Vector3 = camara.global_position
+	var mira: Vector3 = -camara.global_transform.basis.z
+	var distancia: float = 4.5
+	if mira.y < -0.05:
+		distancia = minf(distancia, -origen.y / mira.y)
+	var punto: Vector3 = origen + mira * distancia
+	punto.y = 0.0
+	return punto
+
+
+func _calvas_en(punto: Vector3, radio: float) -> Array:
+	var cerca: Array = []
+	for c in _calvas:
+		var d: Vector3 = c["pos"] - punto
+		d.y = 0.0
+		if d.length() <= radio + float(c["radio"]) * 0.5:
+			cerca.append(c)
+	return cerca
+
+
+func _sembrar() -> void:
+	var cerca := _calvas_en(_punto_suelo(), Datos.RADIO_SIEMBRA)
+	if cerca.is_empty():
+		return
+	if semillas <= 0:
+		hud.mensaje("Sin semillas: cómpralas en la tienda (T)")
+		return
+	for c in cerca:
+		if semillas <= 0:
+			break
+		semillas -= 1
+		_calvas.erase(c)
+		_plantar_cesped(c)
+	_refrescar_hud()
+
+
+func _plantar_cesped(c: Dictionary) -> void:
+	if _escena_cesped == null:
+		_cesped_listo(c)
+		return
+	var radio: float = c["radio"]
+	var alto: float = clampf(radio, 0.7, 1.3)
+	var nodo: Node3D = _escena_cesped.instantiate()
+	_nodo_calvas.add_child(nodo)
+	var pos: Vector3 = c["pos"]
+	nodo.position = pos + Vector3.UP * 0.012
+	nodo.rotation.y = randf() * TAU
+	nodo.scale = Vector3(radio * 0.15, 0.05, radio * 0.15)
+	_ajustar_mallas(nodo, 70.0, false)
+	var t := nodo.create_tween()
+	t.tween_property(nodo, "scale", Vector3(radio, alto, radio), Datos.TIEMPO_CRECER).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	t.tween_callback(_cesped_listo.bind(c))
+
+
+func _cesped_listo(c: Dictionary) -> void:
+	var tierra = c["nodo"]
+	if is_instance_valid(tierra):
+		tierra.queue_free()
+	_cesped_hecho += 1
+	monedas += Datos.PREMIO_CESPED
+	_refrescar_hud()
+	if _total_calvas > 0 and _cesped_hecho >= _total_calvas:
+		hud.mensaje("¡Todo el jardín tiene césped nuevo!", 10.0)
+
+
+## Las calvas sin sembrar acaban echando un hierbajo (nunca delante de las narices del jugador).
+func _rebrotar() -> void:
+	if Datos.REBROTE_MAX <= 0.0 or _escena_hierbajo == null:
+		return
+	var padre := get_node_or_null("Hierba")
+	if padre == null:
+		return
+	for c in _calvas.duplicate():
+		if _tiempo < float(c["rebrote"]):
+			continue
+		var pos: Vector3 = c["pos"]
+		var lejos: Vector3 = pos - jugador.global_position
+		lejos.y = 0.0
+		if lejos.length() < 6.0:
+			continue
+		_calvas.erase(c)
+		var tierra = c["nodo"]
+		if is_instance_valid(tierra):
+			tierra.queue_free()
+		var nodo: Node3D = _escena_hierbajo.instantiate()
+		nodo.name = "hierbajo_rebrote"
+		padre.add_child(nodo, true)
+		nodo.position = Vector3(pos.x, 0.0, pos.z)
+		nodo.rotation.y = randf() * TAU
+		var final := Vector3.ONE * randf_range(0.9, 1.4)
+		nodo.scale = final * 0.1
+		_ajustar_mallas(nodo, 45.0, false)
+		nodo.create_tween().tween_property(nodo, "scale", final, 3.0)
+		_registrar(nodo, "hierbajo", final)
+		_total_plantas = maxi(_total_plantas, _plantas.size())
+	_refrescar_hud()
+
+
 # ---------------------------------------------------------------- contenedor, camión y tienda
-func _interactuar() -> void:
-	if _cerca_de(contenedor, 3.2):
-		if bolsa_volumen <= 0:
-			hud.mensaje("La bolsa está vacía")
-			return
-		contenedor_volumen += bolsa_volumen
-		contenedor_valor += bolsa_valor
-		bolsa_volumen = 0
-		bolsa_valor = 0
-		hud.mensaje("Bolsa vaciada en el contenedor")
-		_refrescar_hud()
-		if contenedor_volumen >= Datos.CAPACIDAD_CONTENEDOR and not _camion_ocupado:
-			_llamar_camion()
-	elif _cerca_de(tienda, 3.2):
-		_comprar()
+func _vaciar_bolsa() -> void:
+	if bolsa_volumen <= 0:
+		hud.mensaje("La bolsa está vacía")
+		return
+	contenedor_volumen += bolsa_volumen
+	contenedor_valor += bolsa_valor
+	bolsa_volumen = 0
+	bolsa_valor = 0
+	hud.mensaje("Bolsa vaciada")
+	_refrescar_hud()
+	if contenedor_volumen >= Datos.CAPACIDAD_CONTENEDOR and not _camion_ocupado:
+		_llamar_camion()
 
 
-func _comprar() -> void:
+func _pagar(precio: int, que: String) -> bool:
+	if monedas < precio:
+		hud.mensaje("Te faltan %d monedas para: %s" % [precio - monedas, que])
+		return false
+	monedas -= precio
+	return true
+
+
+func _comprar_herramienta() -> void:
 	if nivel + 1 >= Datos.HERRAMIENTAS.size():
-		hud.mensaje("Ya tienes la mejor herramienta")
+		hud.mensaje("Ya tienes todas las herramientas")
 		return
 	var siguiente: Dictionary = Datos.HERRAMIENTAS[nivel + 1]
-	var precio: int = int(siguiente["precio"])
-	if monedas < precio:
-		hud.mensaje("Te faltan %d monedas para: %s" % [precio - monedas, siguiente["nombre"]])
+	if _pagar(int(siguiente["precio"]), String(siguiente["nombre"])):
+		nivel += 1
+		_equipar(nivel)
+		hud.mensaje("¡Nueva herramienta: %s!" % siguiente["nombre"], 4.0)
+		_refrescar_hud()
+
+
+func _comprar_bolsa() -> void:
+	if nivel_bolsa + 1 >= Datos.BOLSAS.size():
+		hud.mensaje("Ya tienes la bolsa más grande")
 		return
-	monedas -= precio
-	nivel += 1
-	jugador.equipar(siguiente)
-	hud.mensaje("¡Nueva herramienta: %s!" % siguiente["nombre"], 4.0)
-	_refrescar_hud()
+	var siguiente: Dictionary = Datos.BOLSAS[nivel_bolsa + 1]
+	if _pagar(int(siguiente["precio"]), "bolsa más grande"):
+		nivel_bolsa += 1
+		hud.mensaje("¡Bolsa más grande: caben %d!" % int(siguiente["capacidad"]), 4.0)
+		_refrescar_hud()
+
+
+func _comprar_semillas() -> void:
+	if _pagar(Datos.PRECIO_SEMILLAS, "semillas"):
+		semillas += Datos.PAQUETE_SEMILLAS
+		hud.mensaje("+%d semillas de césped" % Datos.PAQUETE_SEMILLAS)
+		_refrescar_hud()
 
 
 func _llamar_camion() -> void:
@@ -300,33 +535,48 @@ func _cobrar() -> void:
 
 
 # ---------------------------------------------------------------- HUD
+func _porcentaje(parte: int, total: int) -> int:
+	return 0 if total <= 0 else int(round(100.0 * parte / total))
+
+
 func _refrescar_hud() -> void:
-	var hechas: int = _total_plantas - _plantas.size()
-	var porcentaje: int = 0 if _total_plantas == 0 else int(round(100.0 * hechas / _total_plantas))
 	hud.actualizar({
 		"monedas": "Monedas: %d" % monedas,
-		"bolsa": "Bolsa: %d / %d" % [bolsa_volumen, Datos.CAPACIDAD_BOLSA],
+		"bolsa": "Bolsa: %d / %d" % [bolsa_volumen, _capacidad_bolsa()],
 		"contenedor": "Contenedor: %d / %d" % [contenedor_volumen, Datos.CAPACIDAD_CONTENEDOR],
-		"herramienta": "Herramienta: %s" % Datos.HERRAMIENTAS[nivel]["nombre"],
-		"jardin": "Jardín despejado: %d %%" % porcentaje,
+		"semillas": "Semillas: %d" % semillas,
+		"jardin": "Despejado: %d %%  ·  Césped: %d %%" % [
+			_porcentaje(_total_plantas - _plantas.size(), _total_plantas),
+			_porcentaje(_cesped_hecho, _total_calvas)],
 	})
 
 
+func _texto_tienda() -> String:
+	var lineas: PackedStringArray = []
+	if nivel + 1 < Datos.HERRAMIENTAS.size():
+		var h: Dictionary = Datos.HERRAMIENTAS[nivel + 1]
+		lineas.append("E: %s (%d)" % [h["nombre"], int(h["precio"])])
+	if nivel_bolsa + 1 < Datos.BOLSAS.size():
+		var b: Dictionary = Datos.BOLSAS[nivel_bolsa + 1]
+		lineas.append("R: bolsa de %d (%d)" % [int(b["capacidad"]), int(b["precio"])])
+	lineas.append("T: %d semillas (%d)" % [Datos.PAQUETE_SEMILLAS, Datos.PRECIO_SEMILLAS])
+	return "Tienda  ·  " + "  ·  ".join(lineas)
+
+
 func _actualizar_pista() -> void:
-	if _cerca_de(contenedor, 3.2):
-		hud.pista("E: vaciar la bolsa en el contenedor", -1.0)
+	if _junto_a_deposito():
+		hud.pista("E: vaciar la bolsa", -1.0)
 	elif _cerca_de(tienda, 3.2):
-		if nivel + 1 >= Datos.HERRAMIENTAS.size():
-			hud.pista("Tienda: ya tienes todas las herramientas", -1.0)
-		else:
-			var s: Dictionary = Datos.HERRAMIENTAS[nivel + 1]
-			hud.pista("E: comprar %s (%d monedas)" % [s["nombre"], int(s["precio"])], -1.0)
+		hud.pista(_texto_tienda(), -1.0)
 	elif _objetivo != null:
 		var p: Dictionary = _objetivo
 		var d: Dictionary = Datos.PLANTAS[p["tipo"]]
 		if nivel < int(d["nivel"]):
 			hud.pista("%s · necesitas: %s" % [d["nombre"], Datos.HERRAMIENTAS[int(d["nivel"])]["nombre"]], -1.0)
 		else:
-			hud.pista(String(d["nombre"]), float(p["vida"]) / float(d["vida"]))
+			var h: Dictionary = Datos.HERRAMIENTAS[maxi(_en_mano, 0)]
+			hud.pista("%s  (%s)" % [d["nombre"], h["nombre"]], float(p["vida"]) / float(d["vida"]))
+	elif not _calvas.is_empty() and not _calvas_en(_punto_suelo(), Datos.RADIO_SIEMBRA).is_empty():
+		hud.pista("Clic derecho: sembrar césped", -1.0)
 	else:
 		hud.pista("", -1.0)

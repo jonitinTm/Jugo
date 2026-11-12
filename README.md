@@ -44,7 +44,7 @@ de Godot serán algo distintos.
 | Clic izquierdo (mantener) | quitar la planta a la que apuntas |
 | Clic derecho (mantener) | sembrar césped en las calvas de tierra cercanas |
 | E | vaciar la bolsa (cubo o contenedor) · comprar la siguiente herramienta (tienda) |
-| R / T | en la tienda: bolsa más grande / paquete de semillas |
+| R / F / T | en la tienda: bolsa más grande / reciclaje / semillas |
 | Esc | soltar el ratón |
 
 **El bucle:**
@@ -61,7 +61,26 @@ de Godot serán algo distintos.
    las calvas cercanas a la vez; crece solo y da una moneda. Una calva sin sembrar acaba
    echando otro hierbajo al cabo de unos minutos.
 
-Todos los números (precios, daño, áreas, tiempos, rebrote) están en `scripts/datos.gd`.
+## Economía
+
+Toda la economía está en `herramientas_dev/economia.py`, que además **simula una partida**
+(un jugador que siempre quita lo más rentable y compra la mejora más barata que puede) y
+genera `scripts/datos.gd`. Para ajustar el juego: cambia números allí y ejecútalo.
+
+- **Ingresos:** el camión paga el valor de lo que haya en el contenedor multiplicado por el
+  nivel de reciclaje; cada calva sembrada da 1 moneda.
+- **Gastos (tienda):** herramientas (12 → 1300), bolsa (15 → 120 de capacidad), reciclaje
+  (el camión paga x1 → x2 y el contenedor crece) y semillas (30 por 10 monedas).
+- **Ritmo simulado** (jugador perfecto; una persona tardará bastante más): primera compra a
+  los 40 s, una mejora cada 1-2 minutos, motosierra hacia el minuto 15 y jardín completo en
+  unos 19 minutos.
+
+## Interfaz 3D
+
+`scripts/hud.gd` monta la interfaz con los propios modelos: moneda que gira, bolsa,
+contenedor, saco de semillas y hoja sobre tablones de madera; pista y barra de vida abajo;
+y el panel de la tienda con el modelo de cada compra. Viven en un visor 3D aparte (cámara
+ortográfica, fondo transparente) que se pinta encima del juego.
 
 Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6
 (clic derecho + arrastrar: girar · rueda: zoom · WASD / Q E: moverse).
@@ -75,7 +94,7 @@ assets/modelos/*.gltf      los modelos (indice.json dice la categoría y el tama
   vegetación:    arbol_gigante, arbol_otono, hierbajo, hierbajo_grande, matorral, zarza,
                  girasol_gigante, amapola_gigante, seta_gigante, tocon, roca,
                  monton_hojas, alfombra_hojas
-  jugabilidad:   bolsa_basura, cubo_basura, contenedor, camion_basura, moneda
+  jugabilidad:   bolsa_basura, saco_semillas, cubo_basura, contenedor, camion_basura, moneda
   herramientas:  guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra
   bichos:        escarabajo, caracol, avispa
   ui:            cartel_tienda, panel_madera, boton_madera, boton_verde,
@@ -84,8 +103,8 @@ assets/modelos/texturas/   texturas compartidas por todos los modelos
 escenas/principal.tscn     escena principal del juego
 escenas/galeria.tscn       escena de prueba con todos los modelos
 scripts/juego.gd           lógica: cortar, bolsa, contenedor, camión, tienda
-scripts/datos.gd           herramientas y plantas (precios, daño, vida...)
-scripts/hud.gd             contadores, mira, pistas y mensajes
+scripts/datos.gd           tablas del juego (lo genera herramientas_dev/economia.py)
+scripts/hud.gd             interfaz hecha con modelos 3D
 scripts/jugador.gd         jugador en primera persona y herramienta en la mano
 scripts/camara_orbital.gd  cámara de la galería
 herramientas_dev/          scripts en Python que generan texturas, modelos y escenas

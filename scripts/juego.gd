@@ -7,13 +7,14 @@ extends Node3D
 ## las calvas cercanas. Las calvas sin sembrar acaban echando malas hierbas otra vez.
 ##
 ## Controles: clic izquierdo (mantener) = quitar · clic derecho (mantener) = sembrar
-##            E = vaciar bolsa / comprar herramienta · R = mejorar bolsa · T = comprar semillas
+##            E = vaciar bolsa / comprar herramienta · R = bolsa · F = reciclaje · T = semillas
 
 const Datos = preload("res://scripts/datos.gd")
 
 var monedas: int = 0
 var nivel: int = 0                 # mejor herramienta comprada (índice en Datos.HERRAMIENTAS)
 var nivel_bolsa: int = 0
+var nivel_reciclaje: int = 0
 var semillas: int = Datos.SEMILLAS_INICIALES
 var bolsa_volumen: int = 0
 var bolsa_valor: int = 0
@@ -178,6 +179,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_R:
 				if _cerca_de(tienda, 3.2):
 					_comprar_bolsa()
+			KEY_F:
+				if _cerca_de(tienda, 3.2):
+					_comprar_reciclaje()
 			KEY_T:
 				if _cerca_de(tienda, 3.2):
 					_comprar_semillas()
@@ -197,6 +201,10 @@ func _junto_a_deposito() -> bool:
 
 func _capacidad_bolsa() -> int:
 	return int(Datos.BOLSAS[nivel_bolsa]["capacidad"])
+
+
+func _capacidad_contenedor() -> int:
+	return int(Datos.RECICLAJE[nivel_reciclaje]["capacidad"])
 
 
 # ---------------------------------------------------------------- quitar plantas
@@ -451,7 +459,7 @@ func _vaciar_bolsa() -> void:
 	bolsa_valor = 0
 	hud.mensaje("Bolsa vaciada")
 	_refrescar_hud()
-	if contenedor_volumen >= Datos.CAPACIDAD_CONTENEDOR and not _camion_ocupado:
+	if contenedor_volumen >= _capacidad_contenedor() and not _camion_ocupado:
 		_llamar_camion()
 
 
@@ -484,6 +492,19 @@ func _comprar_bolsa() -> void:
 		nivel_bolsa += 1
 		hud.mensaje("¡Bolsa más grande: caben %d!" % int(siguiente["capacidad"]), 4.0)
 		_refrescar_hud()
+
+
+func _comprar_reciclaje() -> void:
+	if nivel_reciclaje + 1 >= Datos.RECICLAJE.size():
+		hud.mensaje("El reciclaje ya está al máximo")
+		return
+	var siguiente: Dictionary = Datos.RECICLAJE[nivel_reciclaje + 1]
+	if _pagar(int(siguiente["precio"]), String(siguiente["nombre"])):
+		nivel_reciclaje += 1
+		hud.mensaje("¡%s! El camión paga x%s" % [siguiente["nombre"], str(siguiente["multiplicador"])], 4.0)
+		_refrescar_hud()
+		if contenedor_volumen >= _capacidad_contenedor() and not _camion_ocupado:
+			_llamar_camion()
 
 
 func _comprar_semillas() -> void:
@@ -521,12 +542,12 @@ func _llamar_camion() -> void:
 	await t.finished
 	camion.visible = false
 	_camion_ocupado = false
-	if contenedor_volumen >= Datos.CAPACIDAD_CONTENEDOR:
+	if contenedor_volumen >= _capacidad_contenedor():
 		_llamar_camion()
 
 
 func _cobrar() -> void:
-	var pago: int = contenedor_valor
+	var pago: int = int(round(contenedor_valor * float(Datos.RECICLAJE[nivel_reciclaje]["multiplicador"])))
 	monedas += pago
 	contenedor_volumen = 0
 	contenedor_valor = 0
@@ -541,33 +562,47 @@ func _porcentaje(parte: int, total: int) -> int:
 
 func _refrescar_hud() -> void:
 	hud.actualizar({
-		"monedas": "Monedas: %d" % monedas,
-		"bolsa": "Bolsa: %d / %d" % [bolsa_volumen, _capacidad_bolsa()],
-		"contenedor": "Contenedor: %d / %d" % [contenedor_volumen, Datos.CAPACIDAD_CONTENEDOR],
-		"semillas": "Semillas: %d" % semillas,
-		"jardin": "Despejado: %d %%  ·  Césped: %d %%" % [
+		"monedas": str(monedas),
+		"bolsa": "%d / %d" % [bolsa_volumen, _capacidad_bolsa()],
+		"contenedor": "%d / %d" % [contenedor_volumen, _capacidad_contenedor()],
+		"semillas": str(semillas),
+		"jardin": "%d %% limpio · %d %% césped" % [
 			_porcentaje(_total_plantas - _plantas.size(), _total_plantas),
 			_porcentaje(_cesped_hecho, _total_calvas)],
 	})
 
 
-func _texto_tienda() -> String:
-	var lineas: PackedStringArray = []
+## Filas del panel de la tienda: tecla, nombre, precio (-1 = ya no hay más), modelo del icono.
+func _filas_tienda() -> Array:
+	var filas: Array = []
 	if nivel + 1 < Datos.HERRAMIENTAS.size():
 		var h: Dictionary = Datos.HERRAMIENTAS[nivel + 1]
-		lineas.append("E: %s (%d)" % [h["nombre"], int(h["precio"])])
+		filas.append({"tecla": "E", "nombre": h["nombre"], "precio": int(h["precio"]), "modelo": h["modelo"]})
+	else:
+		filas.append({"tecla": "E", "nombre": "Herramientas: todas", "precio": -1, "modelo": Datos.HERRAMIENTAS[nivel]["modelo"]})
 	if nivel_bolsa + 1 < Datos.BOLSAS.size():
 		var b: Dictionary = Datos.BOLSAS[nivel_bolsa + 1]
-		lineas.append("R: bolsa de %d (%d)" % [int(b["capacidad"]), int(b["precio"])])
-	lineas.append("T: %d semillas (%d)" % [Datos.PAQUETE_SEMILLAS, Datos.PRECIO_SEMILLAS])
-	return "Tienda  ·  " + "  ·  ".join(lineas)
+		filas.append({"tecla": "R", "nombre": "Bolsa de %d" % int(b["capacidad"]), "precio": int(b["precio"]), "modelo": "bolsa_basura"})
+	else:
+		filas.append({"tecla": "R", "nombre": "Bolsa: máxima", "precio": -1, "modelo": "bolsa_basura"})
+	if nivel_reciclaje + 1 < Datos.RECICLAJE.size():
+		var r: Dictionary = Datos.RECICLAJE[nivel_reciclaje + 1]
+		filas.append({"tecla": "F", "nombre": "%s (paga x%s)" % [r["nombre"], str(r["multiplicador"])], "precio": int(r["precio"]), "modelo": "contenedor"})
+	else:
+		filas.append({"tecla": "F", "nombre": "Reciclaje: máximo", "precio": -1, "modelo": "contenedor"})
+	filas.append({"tecla": "T", "nombre": "%d semillas" % Datos.PAQUETE_SEMILLAS, "precio": Datos.PRECIO_SEMILLAS, "modelo": "saco_semillas"})
+	for f in filas:
+		f["puede"] = int(f["precio"]) >= 0 and monedas >= int(f["precio"])
+	return filas
 
 
 func _actualizar_pista() -> void:
+	var en_tienda: bool = _cerca_de(tienda, 3.2) and not _junto_a_deposito()
+	hud.tienda(en_tienda, _filas_tienda() if en_tienda else [])
 	if _junto_a_deposito():
 		hud.pista("E: vaciar la bolsa", -1.0)
 	elif _cerca_de(tienda, 3.2):
-		hud.pista(_texto_tienda(), -1.0)
+		hud.pista("", -1.0)
 	elif _objetivo != null:
 		var p: Dictionary = _objetivo
 		var d: Dictionary = Datos.PLANTAS[p["tipo"]]

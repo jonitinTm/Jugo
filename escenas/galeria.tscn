@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" path="res://assets/modelos/contenedor.gltf" id="m_contenedor"]
 [ext_resource type="PackedScene" path="res://assets/modelos/camion_basura.gltf" id="m_camion_basura"]
 [ext_resource type="PackedScene" path="res://assets/modelos/moneda.gltf" id="m_moneda"]
+[ext_resource type="PackedScene" path="res://assets/modelos/saco_semillas.gltf" id="m_saco_semillas"]
 [ext_resource type="PackedScene" path="res://assets/modelos/guantes.gltf" id="m_guantes"]
 [ext_resource type="PackedScene" path="res://assets/modelos/hoz.gltf" id="m_hoz"]
 [ext_resource type="PackedScene" path="res://assets/modelos/tijeras_podar.gltf" id="m_tijeras_podar"]
@@ -346,6 +347,16 @@ billboard = 1
 font_size = 48
 outline_size = 12
 text = "moneda"
+
+[node name="saco_semillas" parent="Modelos" instance=ExtResource("m_saco_semillas")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.805, 0.000, -33.763)
+
+[node name="Etiqueta_saco_semillas" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.805, 1.185, -33.763)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "saco_semillas"
 
 [node name="guantes" parent="Modelos" instance=ExtResource("m_guantes")]
 transform = Transform3D(4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.0000, 0.0000, 0.0000, 4.0000, 0.848, 0.000, -44.050)

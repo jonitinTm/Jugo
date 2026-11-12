@@ -65,6 +65,7 @@ PALETA = {
     "calva": "#6E4E34", "cesped_parche": "#6FA03A",
     "cesped": "#5E8A30", "tierra_suelo": "#6E4E34", "asfalto": "#3A3A3E",
     # jugabilidad
+    "saco": "#C8A66E", "saco_osc": "#9A7B4A",
     "plastico_negro": "#25252B", "plastico_negro_brillo": "#3A3A44", "lazo_amarillo": "#F2C230",
     "contenedor": "#3A7A4E", "contenedor_osc": "#2A5A3A",
     "camion": "#E8762C", "camion_osc": "#B9561D", "blanco": "#F0EEE8",
@@ -127,6 +128,7 @@ MATS = {
     "tierra": dict(tex="tierra", normal="tierra_n", esc=0.6, tinte=None, fijo=True, rug=1.0),
     "tierra_suelo": dict(tex="tierra", normal="tierra_n", esc=0.4, tinte=None, fijo=True, rug=1.0),
     "asfalto": dict(tex="asfalto", normal="asfalto_n", esc=0.3, tinte=None, fijo=True, rug=0.9),
+    "saco": dict(normal="arrugas_n", esc=4.0, rug=0.95), "saco_osc": dict(rug=0.9),
     "plastico_negro": dict(normal="arrugas_n", esc=2.5, rug=0.3),
     "plastico_negro_brillo": dict(normal="arrugas_n", esc=2.5, rug=0.25),
     "cristal": dict(tex=None, rug=0.08, met=0.2), "cristal_luz": dict(tex=None, rug=0.08, met=0.2),
@@ -1349,6 +1351,22 @@ def parcela():
     return m
 
 
+def saco_semillas():
+    """Saco de semillas de césped (icono de la tienda y del HUD)."""
+    m = Modelo("saco_semillas")
+    rng = np.random.default_rng(27)
+    m.add(torno([(0.0, 0.0), (0.2, 0.0), (0.26, 0.07), (0.27, 0.28), (0.22, 0.44), (0.12, 0.5), (0.11, 0.54), (0.17, 0.62)], 14), "saco")
+    m.add(torno([(0.115, 0.5), (0.135, 0.515), (0.135, 0.535), (0.115, 0.55)], 12), "saco_osc")
+    m.add(disco(0.15, 0.585, 12, domo=0.02), "tierra")
+    hoja = T(hoja_plana(0.2, 0.15, 0.01), (0, -0.1, 0))
+    hoja.apply_transform(rotation_matrix(-math.pi / 2, (1, 0, 0)))
+    m.add(T(hoja, (0.0, 0.25, 0.268)), "hoja")
+    for i in range(5):
+        m.add(tira((rng.uniform(-0.05, 0.05), 0.59, rng.uniform(-0.05, 0.05)), i * 72 + rng.uniform(-20, 20), rng.uniform(0.14, 0.24), 0.035,
+                   rng.uniform(65, 85), rng.uniform(20, 50), 3, pliegue=0.2), "hierba_clara" if i % 2 else "hierba")
+    return m
+
+
 def bolsa_basura():
     m = Modelo("bolsa_basura")
     rng = np.random.default_rng(25)
@@ -1887,7 +1905,7 @@ CATALOGO = {
                    lambda: arbol("arbol_otono", ("hojas_otono", "hojas_otono"), 2, alto=7.0, r0=0.5),
                    hierbajo, hierbajo_grande, matorral, zarza, girasol_gigante, amapola_gigante,
                    seta_gigante, tocon, roca, monton_hojas, alfombra_hojas],
-    "jugabilidad": [bolsa_basura, cubo_basura, contenedor, camion_basura, moneda],
+    "jugabilidad": [bolsa_basura, saco_semillas, cubo_basura, contenedor, camion_basura, moneda],
     "herramientas": [guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra],
     "enemigos": [escarabajo, caracol, avispa],
     "ui": [cartel_tienda, panel_madera, boton_madera, boton_verde, flecha_mejora,

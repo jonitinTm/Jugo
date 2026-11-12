@@ -28,6 +28,7 @@ var _tiempo_mensaje: float = 0.0
 var _tienda: Node3D
 var _tienda_filas: Array = []             # [{"icono": Node3D, "nombre": Label3D, "precio": Label3D}]
 var _tienda_firma: String = ""
+var _destello: ColorRect
 
 
 func _ready() -> void:
@@ -36,6 +37,11 @@ func _ready() -> void:
 	_crear_pista()
 	_crear_tienda()
 	_crear_mira()
+	_destello = ColorRect.new()
+	_destello.color = Color(0.8, 0.05, 0.05, 0.0)
+	_destello.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_destello.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_destello)
 	get_viewport().size_changed.connect(_recolocar)
 	_recolocar()
 
@@ -83,6 +89,7 @@ func _crear_contadores() -> void:
 	_vp.add_child(_contadores)
 	var datos := [
 		["monedas", "moneda", Vector3.ZERO, 56, COLOR_ORO],
+		["vida", "corazon", Vector3.ZERO, 44, COLOR_TEXTO],
 		["bolsa", "bolsa_basura", Vector3(0, -20, 0), 44, COLOR_TEXTO],
 		["contenedor", "contenedor", Vector3(12, -30, 0), 44, COLOR_TEXTO],
 		["semillas", "saco_semillas", Vector3(8, -20, 0), 44, COLOR_TEXTO],
@@ -91,7 +98,7 @@ func _crear_contadores() -> void:
 	for i in range(datos.size()):
 		var d: Array = datos[i]
 		var y: float = -0.84 * i
-		var ancho: float = 2.05 if i == 4 else 1.55
+		var ancho: float = 2.05 if d[0] == "jardin" else 1.55
 		var tablon := _modelo("boton_madera")
 		tablon.scale = Vector3(ancho, 1.25, 1.0)
 		tablon.position = Vector3(0.8 * ancho, y, -0.6)
@@ -137,17 +144,17 @@ func _crear_tienda() -> void:
 	_tienda.visible = false
 	_vp.add_child(_tienda)
 	var panel := _modelo("panel_madera")
-	panel.scale = Vector3(2.1, 2.1, 1.0)
+	panel.scale = Vector3(2.1, 2.35, 1.0)
 	panel.position = Vector3(0, 0, -0.6)
 	_tienda.add_child(panel)
 	var titulo := _texto(60, HORIZONTAL_ALIGNMENT_CENTER)
 	titulo.text = "TIENDA"
 	titulo.modulate = COLOR_ORO
-	titulo.position = Vector3(0, 1.62, 0.6)
+	titulo.position = Vector3(0, 1.88, 0.6)
 	_tienda.add_child(titulo)
-	for i in range(4):
-		var y: float = 0.78 - 0.8 * i
-		var nombre := _texto(34, HORIZONTAL_ALIGNMENT_LEFT)
+	for i in range(5):
+		var y: float = 1.05 - 0.72 * i
+		var nombre := _texto(40, HORIZONTAL_ALIGNMENT_LEFT)
 		nombre.position = Vector3(-2.05, y, 0.6)
 		_tienda.add_child(nombre)
 		var precio := _texto(40, HORIZONTAL_ALIGNMENT_RIGHT)
@@ -260,7 +267,7 @@ func _saltito(nodo: Node3D) -> void:
 
 
 # ---------------------------------------------------------------- lo que usa juego.gd
-## textos: diccionario clave → texto (monedas, bolsa, contenedor, semillas, jardin)
+## textos: diccionario clave → texto (monedas, vida, bolsa, contenedor, semillas, jardin)
 func actualizar(textos: Dictionary) -> void:
 	for clave in textos:
 		if not _filas.has(clave):
@@ -280,6 +287,14 @@ func pista(texto: String, vida: float) -> void:
 	_barra.visible = vida >= 0.0
 	if vida >= 0.0 and _barra_relleno != null:
 		_barra_relleno.scale.x = clampf(vida, 0.001, 1.0)
+
+
+## Destello rojo en pantalla cuando un bicho muerde al jugador.
+func golpe_recibido() -> void:
+	_destello.color.a = 0.35
+	_destello.create_tween().tween_property(_destello, "color:a", 0.0, 0.5)
+	if _filas.has("vida"):
+		_saltito(_filas["vida"]["icono"])
 
 
 func mensaje(texto: String, segundos: float = 2.5) -> void:
@@ -319,7 +334,7 @@ func tienda(mostrar: bool, filas: Array) -> void:
 		precio.text = "" if agotado else str(int(f["precio"]))
 		precio.modulate = COLOR_ORO if f["puede"] else COLOR_CARO
 		moneda.visible = not agotado
-		var icono := _icono(String(f["modelo"]), 0.62, Vector3(12, -30, 0))
+		var icono := _icono(String(f["modelo"]), 0.8, Vector3(12, -30, 0))
 		icono.position = Vector3(-2.55, float(hueco["y"]), 0.2)
 		_tienda.add_child(icono)
 		hueco["icono"] = icono

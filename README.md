@@ -41,10 +41,11 @@ de Godot serán algo distintos.
 |---|---|
 | WASD / flechas, ratón | moverse y mirar |
 | Shift / Espacio | correr / saltar |
-| Clic izquierdo (mantener) | quitar la planta a la que apuntas |
+| Clic izquierdo (mantener) | quitar la planta o atacar al bicho al que apuntas |
 | Clic derecho (mantener) | sembrar césped en las calvas de tierra cercanas |
-| E | vaciar la bolsa (cubo o contenedor) · comprar la siguiente herramienta (tienda) |
-| R / F / T | en la tienda: bolsa más grande / reciclaje / semillas |
+| E | vaciar la bolsa (cubo o contenedor) · abrir una zona (en su puerta) · comprar herramienta (tienda) |
+| R / F / G / T | en la tienda: bolsa · reciclaje · afilar · semillas |
+| F5 / F9 | guardar · borrar la partida y empezar de cero |
 | Esc | soltar el ratón |
 
 **El bucle:**
@@ -52,28 +53,53 @@ de Godot serán algo distintos.
 1. Empiezas con las **manos**, arrancando hierbajos de uno en uno. Lo que quitas va a la bolsa.
 2. Vacías la bolsa en el **cubo** (junto a la puerta del jardín) o en el **contenedor** de la
    calle. Cuando se junta bastante viene el **camión**, lo vuelca y te paga.
-3. En la **tienda** (cartel de madera junto al porche) compras herramientas, bolsas más
-   grandes y semillas. Cada herramienta cambia *cómo* limpias: el rastrillo arrastra varios
-   hierbajos y barre hojas, la hoz siega un arco, las tijeras y el machete abren matorrales y
-   zarzas, la desbrozadora limpia mientras andas y la motosierra tala tocones y árboles.
-   **La herramienta se elige sola** según la planta a la que apuntas.
-4. Cada planta quitada deja una **calva de tierra**. Con clic derecho siembras césped en todas
-   las calvas cercanas a la vez; crece solo y da una moneda. Una calva sin sembrar acaba
-   echando otro hierbajo al cabo de unos minutos.
+3. En la **tienda** (cartel de madera junto al porche) compras herramientas, bolsas, reciclaje,
+   afilado y semillas. **La herramienta se elige sola** según a qué apuntes.
+4. Cada planta quitada deja una **calva de tierra**: con clic derecho siembras césped en todas
+   las cercanas. Una calva sin sembrar acaba echando otro hierbajo.
+5. Con lo ganado **abres la puerta de la zona siguiente**, con plantas más duras y valiosas.
+
+La partida se guarda sola cada 30 segundos y en cada compra (`user://partida.json`).
+
+## Mapa por zonas
+
+![](docs/previews/mapa_zonas.jpg)
+
+| Zona | Precio | Vida de plantas y bichos | Valor | Bichos |
+|---|---|---|---|---|
+| Jardín delantero | — | x1 | x1 | caracoles |
+| Patio trasero | 400 | x2 | x2,5 | caracoles, escarabajos |
+| Huerto abandonado | 1.900 | x4 | x6 | + avispas |
+| Arboleda | 13.000 | x8 | x14 | escarabajos, avispas |
+| El Zarzal | 80.000 | x16 | x32 | de todo, y muchas zarzas |
+
+Cada zona está vallada; su puerta tiene un cartel con el precio y se abre con E.
+
+## Bichos
+
+Solo se activan en las zonas abiertas. Deambulan cerca de su sitio y, si te acercas, te
+persiguen y muerden. Si tu vida llega a cero reapareces junto al porche y pierdes lo que
+llevabas en la bolsa; la vida se recupera sola tras unos segundos sin recibir daño.
+
+| Bicho | Arma mínima | Comportamiento |
+|---|---|---|
+| Caracol | Rastrillo | lento, muerde flojo |
+| Escarabajo | Hoz | rápido |
+| Avispa | Machete | vuela, muy rápida y hace más daño |
+
+Matarlos da monedas directamente.
 
 ## Economía
 
 Toda la economía está en `herramientas_dev/economia.py`, que además **simula una partida**
-(un jugador que siempre quita lo más rentable y compra la mejora más barata que puede) y
-genera `scripts/datos.gd`. Para ajustar el juego: cambia números allí y ejecútalo.
+(un jugador que siempre quita lo más rentable y compra en cuanto puede) y genera
+`scripts/datos.gd`. Para ajustar el juego: cambia números allí y ejecútalo.
 
-- **Ingresos:** el camión paga el valor de lo que haya en el contenedor multiplicado por el
-  nivel de reciclaje; cada calva sembrada da 1 moneda.
-- **Gastos (tienda):** herramientas (12 → 1300), bolsa (15 → 120 de capacidad), reciclaje
-  (el camión paga x1 → x2 y el contenedor crece) y semillas (30 por 10 monedas).
-- **Ritmo simulado** (jugador perfecto; una persona tardará bastante más): primera compra a
-  los 40 s, una mejora cada 1-2 minutos, motosierra hacia el minuto 15 y jardín completo en
-  unos 19 minutos.
+- **Ingresos:** camión (valor de la planta x valor de la zona x reciclaje), césped y bichos.
+- **Gastos:** herramientas (12 → 60.000), bolsa (15 → 500), reciclaje (x1 → x2,5), afilado
+  (24 niveles, +20 % de daño cada uno), zonas, semillas y el **trofeo final** (620.000).
+- **Duración:** el jugador perfecto del simulador abre la última zona en el minuto 35, compra
+  el trofeo en el 63 y lo limpia todo en 76. Una persona real debería rondar las 2 horas.
 
 ## Interfaz 3D
 
@@ -81,6 +107,13 @@ genera `scripts/datos.gd`. Para ajustar el juego: cambia números allí y ejecú
 contenedor, saco de semillas y hoja sobre tablones de madera; pista y barra de vida abajo;
 y el panel de la tienda con el modelo de cada compra. Viven en un visor 3D aparte (cámara
 ortográfica, fondo transparente) que se pinta encima del juego.
+
+| | |
+|---|---|
+| ![](docs/previews/ui_juego.jpg) | ![](docs/previews/ui_tienda.jpg) |
+
+Estas dos imágenes son una recreación en el visor glTF con los mismos modelos y medidas que
+usa `hud.gd`, no capturas de Godot.
 
 Para ver los modelos sueltos, abre `escenas/galeria.tscn` y pulsa F6
 (clic derecho + arrastrar: girar · rueda: zoom · WASD / Q E: moverse).
@@ -98,7 +131,7 @@ assets/modelos/*.gltf      los modelos (indice.json dice la categoría y el tama
   herramientas:  guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra
   bichos:        escarabajo, caracol, avispa
   ui:            cartel_tienda, panel_madera, boton_madera, boton_verde,
-                 flecha_mejora, icono_hoja, etiqueta_precio, barra_progreso
+                 flecha_mejora, icono_hoja, etiqueta_precio, barra_progreso, corazon
 assets/modelos/texturas/   texturas compartidas por todos los modelos
 escenas/principal.tscn     escena principal del juego
 escenas/galeria.tscn       escena de prueba con todos los modelos

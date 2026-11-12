@@ -44,6 +44,7 @@
 [ext_resource type="PackedScene" path="res://assets/modelos/icono_hoja.gltf" id="m_icono_hoja"]
 [ext_resource type="PackedScene" path="res://assets/modelos/etiqueta_precio.gltf" id="m_etiqueta_precio"]
 [ext_resource type="PackedScene" path="res://assets/modelos/barra_progreso.gltf" id="m_barra_progreso"]
+[ext_resource type="PackedScene" path="res://assets/modelos/corazon.gltf" id="m_corazon"]
 [ext_resource type="Script" path="res://scripts/camara_orbital.gd" id="camara"]
 
 [sub_resource type="ProceduralSkyMaterial" id="cielo_mat"]
@@ -459,81 +460,91 @@ outline_size = 12
 text = "avispa"
 
 [node name="cartel_tienda" parent="Modelos" instance=ExtResource("m_cartel_tienda")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.400, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.400, 0.800, -57.122)
 
 [node name="Etiqueta_cartel_tienda" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.400, 3.880, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 1.400, 3.880, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "cartel_tienda"
 
 [node name="panel_madera" parent="Modelos" instance=ExtResource("m_panel_madera")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.800, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.800, 0.800, -57.122)
 
 [node name="Etiqueta_panel_madera" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.800, 3.200, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 5.800, 3.200, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "panel_madera"
 
 [node name="boton_madera" parent="Modelos" instance=ExtResource("m_boton_madera")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 9.600, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 9.600, 0.800, -57.122)
 
 [node name="Etiqueta_boton_madera" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 9.600, 1.750, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 9.600, 1.750, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "boton_madera"
 
 [node name="boton_verde" parent="Modelos" instance=ExtResource("m_boton_verde")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.700, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.700, 0.800, -57.122)
 
 [node name="Etiqueta_boton_verde" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.700, 1.750, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 12.700, 1.750, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "boton_verde"
 
 [node name="flecha_mejora" parent="Modelos" instance=ExtResource("m_flecha_mejora")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.504, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.504, 0.800, -57.122)
 
 [node name="Etiqueta_flecha_mejora" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.504, 2.320, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 15.504, 2.320, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "flecha_mejora"
 
 [node name="icono_hoja" parent="Modelos" instance=ExtResource("m_icono_hoja")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.900, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.900, 0.800, -57.122)
 
 [node name="Etiqueta_icono_hoja" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.900, 2.494, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 17.900, 2.494, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "icono_hoja"
 
 [node name="etiqueta_precio" parent="Modelos" instance=ExtResource("m_etiqueta_precio")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.092, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.092, 0.800, -57.122)
 
 [node name="Etiqueta_etiqueta_precio" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.092, 2.254, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 20.092, 2.254, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "etiqueta_precio"
 
 [node name="barra_progreso" parent="Modelos" instance=ExtResource("m_barra_progreso")]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.505, 0.800, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.505, 0.800, -57.122)
 
 [node name="Etiqueta_barra_progreso" type="Label3D" parent="Etiquetas"]
-transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.505, 1.725, -57.098)
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 23.505, 1.725, -57.122)
 billboard = 1
 font_size = 48
 outline_size = 12
 text = "barra_progreso"
+
+[node name="corazon" parent="Modelos" instance=ExtResource("m_corazon")]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 27.087, 0.800, -57.122)
+
+[node name="Etiqueta_corazon" type="Label3D" parent="Etiquetas"]
+transform = Transform3D(1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000, 27.087, 2.070, -57.122)
+billboard = 1
+font_size = 48
+outline_size = 12
+text = "corazon"

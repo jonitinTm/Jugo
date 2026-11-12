@@ -1306,7 +1306,7 @@ def cesped_nuevo():
     return m
 
 
-PARCELA = dict(x0=-15.0, x1=15.0, z0=-11.0, z1=23.0, puerta_x=1.6, casa_frente=3.0)
+PARCELA = dict(x0=-50.0, x1=45.0, z0=-45.0, z1=23.0, puerta_x=1.6, casa_frente=3.0)  # todo el mapa (ver ZONAS en economia.py)
 
 
 def parcela():
@@ -1364,6 +1364,17 @@ def saco_semillas():
     for i in range(5):
         m.add(tira((rng.uniform(-0.05, 0.05), 0.59, rng.uniform(-0.05, 0.05)), i * 72 + rng.uniform(-20, 20), rng.uniform(0.14, 0.24), 0.035,
                    rng.uniform(65, 85), rng.uniform(20, 50), 3, pliegue=0.2), "hierba_clara" if i % 2 else "hierba")
+    return m
+
+
+def corazon():
+    """Corazón para la vida del jugador en la interfaz (origen en el centro)."""
+    m = Modelo("corazon")
+    for sx in (-1, 1):
+        m.add(T(bola(0.27, 2, escala=(1, 1, 0.75)), (sx * 0.2, 0.12, 0)), "rojo_luz")
+    m.add(hull([(-0.44, 0.02, 0), (0.44, 0.02, 0), (0, -0.48, 0), (0, 0.0, 0.2), (0, 0.0, -0.2),
+                (-0.3, 0.1, 0.15), (0.3, 0.1, 0.15), (-0.3, 0.1, -0.15), (0.3, 0.1, -0.15)], 80.0), "rojo_luz")
+    m.add(T(bola(0.07, 1, escala=(1.4, 0.8, 0.5)), (-0.24, 0.24, 0.17)), "blanco")
     return m
 
 
@@ -1908,7 +1919,7 @@ CATALOGO = {
     "jugabilidad": [bolsa_basura, saco_semillas, cubo_basura, contenedor, camion_basura, moneda],
     "herramientas": [guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra],
     "enemigos": [escarabajo, caracol, avispa],
-    "ui": [cartel_tienda, panel_madera, boton_madera, boton_verde, flecha_mejora,
+    "ui": [corazon, cartel_tienda, panel_madera, boton_madera, boton_verde, flecha_mejora,
            icono_hoja, etiqueta_precio, barra_progreso],
 }
 

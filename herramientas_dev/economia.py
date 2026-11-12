@@ -29,7 +29,6 @@ import sys
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ------------------------------------------------------------------ tablas
-ALCANCE = 2.6
 SEMILLAS_INICIALES = 15
 PAQUETE_SEMILLAS = 30
 PRECIO_SEMILLAS = 10
@@ -39,7 +38,9 @@ PREMIO_CESPED = 1                  # se multiplica por el "valor" de la zona
 REBROTE_MIN = 300.0
 REBROTE_MAX = 480.0
 
-# Jugador
+# Jugador: se empieza andando despacio; las botas de la tienda lo mejoran (MEJORAS)
+VELOCIDAD_ANDAR = 3.2              # m/s
+VELOCIDAD_CORRER = 5.0             # m/s con Shift
 VIDA_JUGADOR = 100
 REGENERACION = 6.0                 # vida por segundo...
 ESPERA_REGENERACION = 4.0          # ...tras estos segundos sin recibir daño
@@ -62,14 +63,14 @@ ZONAS = [
     dict(id="delantero", nombre="Jardín delantero", rect=(-15, 1, 15, 23), precio=0, vida=1, valor=1, dano=1.0, puerta=None,
          contenido=dict(arbol_otono=1, roca=3, matorral=8, girasol_gigante=8, amapola_gigante=8, monton_hojas=3,
                         hierbajo_grande=30, hierbajo=200, caracol=4)),
-    dict(id="patio", nombre="Patio trasero", rect=(-15, -11, 15, 1), precio=400, vida=2, valor=2.5, dano=1.3, puerta=(-9.5, 1, 0),
+    dict(id="patio", nombre="Patio trasero", rect=(-15, -11, 15, 1), precio=250, vida=2, valor=2.5, dano=1.3, puerta=(-9.5, 1, 0),
          contenido=dict(arbol_gigante=2, tocon=2, roca=3, seta_gigante=3, zarza=8, matorral=14, girasol_gigante=5,
                         amapola_gigante=5, hierbajo_grande=40, hierbajo=110, caracol=3, escarabajo=4)),
     dict(id="huerto", nombre="Huerto abandonado", rect=(15, -11, 45, 23), precio=1900, vida=4, valor=6, dano=1.6, puerta=(15, 12, 90),
          contenido=dict(arbol_otono=2, arbol_gigante=1, tocon=3, roca=6, seta_gigante=6, zarza=16, matorral=30,
                         girasol_gigante=25, amapola_gigante=20, monton_hojas=4, hierbajo_grande=90, hierbajo=260,
                         caracol=4, escarabajo=8, avispa=3)),
-    dict(id="arboleda", nombre="Arboleda", rect=(-15, -45, 45, -11), precio=13000, vida=8, valor=14, dano=2.0, puerta=(0, -11, 0),
+    dict(id="arboleda", nombre="Arboleda", rect=(-15, -45, 45, -11), precio=8000, vida=8, valor=14, dano=2.0, puerta=(0, -11, 0),
          contenido=dict(arbol_gigante=9, arbol_otono=5, tocon=10, roca=12, seta_gigante=24, zarza=30, matorral=50,
                         amapola_gigante=15, monton_hojas=8, hierbajo_grande=120, hierbajo=300, escarabajo=10, avispa=8)),
     dict(id="zarzal", nombre="El Zarzal", rect=(-50, -45, -15, 23), precio=80000, vida=16, valor=32, dano=2.5, puerta=(-15, -28, 90),
@@ -78,28 +79,67 @@ ZONAS = [
 ]
 
 # usos: clase -> (daño por golpe, radio de área). La clase "bicho" es el daño contra bichos.
+# empuje: la herramienta se empuja (cortacésped): corta todo lo que pisa, sin apuntar.
+# sonido: assets/sonidos/<sonido>.wav al golpear.
 HERRAMIENTAS = [
     dict(nombre="Manos", modelo="guantes", precio=0, cadencia=0.35,
-         usos={"hierba": (1, 0), "hojas": (1, 0)},
+         usos={"hierba": (1, 0), "hojas": (1, 0)}, empuje=False, sonido="arrancar",
          pos=(0.0, -0.32, -0.55), rot=(-35, 0, 0), escala=1.6),
     dict(nombre="Rastrillo", modelo="rastrillo", precio=12, cadencia=0.35,
-         usos={"hojas": (3, 1.8), "hierba": (1, 1.0), "bicho": (1, 0)},
+         usos={"hojas": (3, 1.8), "hierba": (1, 1.0), "bicho": (1, 0)}, empuje=False, sonido="arrancar",
          pos=(0.32, -0.3, -0.25), rot=(78, 0, 0), escala=1.0),
     dict(nombre="Hoz", modelo="hoz", precio=60, cadencia=0.35,
-         usos={"hierba": (2, 1.4), "bicho": (2, 0)},
+         usos={"hierba": (2, 1.4), "bicho": (2, 0)}, empuje=False, sonido="corte",
          pos=(0.32, -0.3, -0.5), rot=(-40, 20, 0), escala=1.3),
     dict(nombre="Tijeras de podar", modelo="tijeras_podar", precio=200, cadencia=0.3,
-         usos={"lenoso": (4, 0), "bicho": (3, 0)},
+         usos={"lenoso": (4, 0), "bicho": (3, 0)}, empuje=False, sonido="corte",
          pos=(0.3, -0.45, -0.45), rot=(-50, 0, 0), escala=1.1),
     dict(nombre="Machete", modelo="machete", precio=1000, cadencia=0.3,
-         usos={"lenoso": (7, 1.0), "hierba": (4, 1.6), "bicho": (6, 1.2)},
+         usos={"lenoso": (7, 1.0), "hierba": (4, 1.6), "bicho": (6, 1.2)}, empuje=False, sonido="corte",
          pos=(0.32, -0.28, -0.5), rot=(-45, 0, -10), escala=1.3),
+    # se empuja: siega en una franja ancha todo lo que tiene delante, sin apuntar
+    dict(nombre="Cortacésped", modelo="cortacesped", precio=3500, cadencia=0.15,
+         usos={"hierba": (6, 1.3), "hojas": (6, 1.3)}, empuje=True, sonido="motor_herramienta",
+         pos=(0.0, -0.72, -0.42), rot=(0, 180, 0), escala=1.0),
     dict(nombre="Desbrozadora", modelo="desbrozadora", precio=9000, cadencia=0.15,
-         usos={"hierba": (4, 2.4), "lenoso": (4, 1.6), "hojas": (2, 2.4), "bicho": (3, 2.0)},
-         pos=(0.3, -0.25, -0.35), rot=(70, 0, 0), escala=1.0),
+         usos={"hierba": (4, 2.4), "lenoso": (4, 1.6), "hojas": (2, 2.4), "bicho": (3, 2.0)}, empuje=False,
+         sonido="motor_herramienta", pos=(0.3, -0.25, -0.35), rot=(70, 0, 0), escala=1.0),
     dict(nombre="Motosierra", modelo="motosierra", precio=60000, cadencia=0.15,
-         usos={"tronco": (8, 0), "lenoso": (8, 0), "bicho": (8, 0)},
+         usos={"tronco": (8, 0), "lenoso": (8, 0), "bicho": (8, 0)}, empuje=False, sonido="motor_herramienta",
          pos=(0.3, -0.38, -0.45), rot=(0, 180, 0), escala=1.2),
+]
+
+# Mejoras del jugador (cada lista: nivel 0 = lo de partida)
+#   VELOCIDAD: multiplica andar y correr · RITMO: multiplica la cadencia (menos = más rápido)
+#   ALCANCE: metros a los que llegas · CARRETILLA: bolsas llenas que llevas además de la de la mano
+VELOCIDAD = [
+    dict(nombre="Zapatillas viejas", valor=1.0, precio=0),
+    dict(nombre="Botas de goma", valor=1.15, precio=25),
+    dict(nombre="Botas de trabajo", valor=1.3, precio=180),
+    dict(nombre="Botas de montaña", valor=1.45, precio=900),
+    dict(nombre="Zapatillas de correr", valor=1.65, precio=6000),
+    dict(nombre="Botas con muelles", valor=1.85, precio=40000),
+]
+RITMO = [
+    dict(nombre="Sin práctica", valor=1.0, precio=0),
+    dict(nombre="Guantes de agarre", valor=0.88, precio=35),
+    dict(nombre="Buena técnica", valor=0.77, precio=320),
+    dict(nombre="Jardinero curtido", valor=0.66, precio=2200),
+    dict(nombre="Manos de oro", valor=0.56, precio=14000),
+    dict(nombre="Leyenda del jardín", valor=0.48, precio=90000),
+]
+ALCANCE = [
+    dict(nombre="Brazo normal", valor=2.6, precio=0),
+    dict(nombre="Mango largo", valor=3.1, precio=90),
+    dict(nombre="Mango telescópico", valor=3.7, precio=1500),
+    dict(nombre="Brazo extensible", valor=4.4, precio=18000),
+]
+CARRETILLA = [
+    dict(nombre="Sin carretilla", valor=0, precio=0),
+    dict(nombre="Carretilla", valor=1, precio=70),
+    dict(nombre="Carretilla grande", valor=2, precio=700),
+    dict(nombre="Remolque", valor=4, precio=5500),
+    dict(nombre="Furgoneta", valor=8, precio=45000),
 ]
 
 BOLSAS = [
@@ -131,9 +171,9 @@ PLANTAS = {
     "matorral": dict(nombre="Matorral", clase="lenoso", vida=24, nivel=3, volumen=5, valor=28, radio=1.1, alto=1.4, calva=1.3),
     "seta_gigante": dict(nombre="Seta gigante", clase="lenoso", vida=20, nivel=3, volumen=4, valor=30, radio=1.0, alto=1.6, calva=1.1),
     "zarza": dict(nombre="Zarza", clase="lenoso", vida=42, nivel=4, volumen=6, valor=60, radio=1.3, alto=1.4, calva=1.5),
-    "tocon": dict(nombre="Tocón", clase="tronco", vida=80, nivel=6, volumen=10, valor=80, radio=1.2, alto=0.8, calva=1.6),
-    "arbol_gigante": dict(nombre="Árbol gigante", clase="tronco", vida=200, nivel=6, volumen=15, valor=200, radio=0.9, alto=2.4, calva=2.2),
-    "arbol_otono": dict(nombre="Árbol de otoño", clase="tronco", vida=160, nivel=6, volumen=15, valor=180, radio=0.8, alto=2.4, calva=2.0),
+    "tocon": dict(nombre="Tocón", clase="tronco", vida=80, nivel=7, volumen=10, valor=80, radio=1.2, alto=0.8, calva=1.6),
+    "arbol_gigante": dict(nombre="Árbol gigante", clase="tronco", vida=200, nivel=7, volumen=15, valor=200, radio=0.9, alto=2.4, calva=2.2),
+    "arbol_otono": dict(nombre="Árbol de otoño", clase="tronco", vida=160, nivel=7, volumen=15, valor=180, radio=0.8, alto=2.4, calva=2.0),
 }
 
 # Bichos: nivel = herramienta mínima para poder hacerles daño · dano = lo que quitan por
@@ -183,13 +223,18 @@ def precio_afilado(n):
     return int(round(AFILADO_PRECIO * AFILADO_FACTOR ** n))
 
 
+MEJORAS = {"v": ("VELOCIDAD", VELOCIDAD), "t": ("RITMO", RITMO), "l": ("ALCANCE", ALCANCE), "c": ("CARRETILLA", CARRETILLA)}
+
+
 def simular(verboso=True, t_mover=2.0, t_viaje=20.0, t_siembra=0.3, t_bicho=4.0):
     """Jugador 'tipo': quita siempre lo más rentable que puede, vacía la bolsa cuando se llena
-    y compra la mejora más barata en cuanto le llega el dinero."""
+    y compra la mejora más barata en cuanto le llega el dinero. Las botas acortan los paseos,
+    el ritmo acorta cada golpe y la carretilla ahorra viajes al cubo."""
     quedan = inventario()
     t = monedas = bolsa = bolsa_valor = cont = cont_valor = ganado = 0.0
-    nivel = nb = nr = na = 0
-    nz = 0                               # última zona abierta
+    carro, carro_valor, carro_bolsas = 0.0, 0.0, 0
+    nivel = nb = nr = na = nz = 0
+    mej = {k: 0 for k in MEJORAS}
     semillas = SEMILLAS_INICIALES
     hitos, golpes_max = [], {}
     trofeo = [None]
@@ -208,15 +253,19 @@ def simular(verboso=True, t_mover=2.0, t_viaje=20.0, t_siembra=0.3, t_bicho=4.0)
                 ops.append((BOLSAS[nb + 1]["precio"], "b"))
             if nr + 1 < len(RECICLAJE):
                 ops.append((RECICLAJE[nr + 1]["precio"], "r"))
+            for k, (_, tabla) in MEJORAS.items():
+                if mej[k] + 1 < len(tabla):
+                    ops.append((tabla[mej[k] + 1]["precio"], k))
             if na < AFILADO_MAX:
                 ops.append((precio_afilado(na), "a"))
             if nz + 1 < len(ZONAS):
                 ops.append((ZONAS[nz + 1]["precio"], "z"))
-            orden = {"z": 0, "h": 1, "b": 2, "r": 3, "a": 4}
-            # ahorra para la siguiente zona: no compra bolsa/reciclaje caros antes de abrirla
+            orden = {"z": 0, "h": 1, "b": 2, "c": 3, "v": 4, "t": 5, "r": 6, "l": 7, "a": 8}
+            # ahorra para la siguiente zona: no compra mejoras caras antes de abrirla
             tope = ZONAS[nz + 1]["precio"] * 0.5 if nz + 1 < len(ZONAS) else float("inf")
+            # mejoras: solo si cuestan poco frente a lo que lleva ahorrado (no se gasta lo de la zona)
             ops = [o for o in ops if o[0] <= monedas and (o[1] != "a" or o[0] <= monedas * 0.25)
-                   and (o[1] not in "br" or o[0] <= tope)]
+                   and (o[1] in "zha" or (o[0] <= tope and o[0] <= monedas * 0.5))]
             if not ops:
                 return
             precio, que = min(ops, key=lambda o: orden[o[1]])
@@ -230,16 +279,29 @@ def simular(verboso=True, t_mover=2.0, t_viaje=20.0, t_siembra=0.3, t_bicho=4.0)
             elif que == "r":
                 nr += 1
                 hitos.append((t, f"Reciclaje: {RECICLAJE[nr]['nombre']} ({precio})"))
+            elif que in MEJORAS:
+                mej[que] += 1
+                hitos.append((t, f"Mejora: {MEJORAS[que][1][mej[que]]['nombre']} ({precio})"))
             elif que == "a":
                 na += 1
             else:
                 nz += 1
                 hitos.append((t, f"=== ZONA: {ZONAS[nz]['nombre']} ({precio}) · afilado nivel {na} ==="))
 
+    def vel():
+        return VELOCIDAD[mej["v"]]["valor"]
+
     def vaciar(forzar=False):
-        nonlocal t, bolsa, bolsa_valor, cont, cont_valor, monedas, ganado
-        t += t_viaje
-        cont, cont_valor, bolsa, bolsa_valor = cont + bolsa, cont_valor + bolsa_valor, 0, 0
+        nonlocal t, bolsa, bolsa_valor, cont, cont_valor, monedas, ganado, carro, carro_valor, carro_bolsas
+        # con hueco en la carretilla la bolsa llena se carga y se sigue trabajando
+        if not forzar and carro_bolsas < CARRETILLA[mej["c"]]["valor"]:
+            carro, carro_valor, carro_bolsas = carro + bolsa, carro_valor + bolsa_valor, carro_bolsas + 1
+            bolsa = bolsa_valor = 0
+            return
+        t += t_viaje / vel()
+        cont, cont_valor = cont + bolsa + carro, cont_valor + bolsa_valor + carro_valor
+        bolsa = bolsa_valor = carro = carro_valor = 0
+        carro_bolsas = 0
         if cont >= RECICLAJE[nr]["capacidad"] or forzar:
             pago = round(cont_valor * RECICLAJE[nr]["multiplicador"])
             monedas, ganado, cont, cont_valor = monedas + pago, ganado + pago, 0, 0
@@ -248,6 +310,7 @@ def simular(verboso=True, t_mover=2.0, t_viaje=20.0, t_siembra=0.3, t_bicho=4.0)
     while True:
         mejor = None
         afilado = AFILADO_DANO ** na
+        ritmo = RITMO[mej["t"]]["valor"]
         for (zi, tipo), n in quedan.items():
             if n <= 0 or zi > nz:
                 continue
@@ -267,13 +330,13 @@ def simular(verboso=True, t_mover=2.0, t_viaje=20.0, t_siembra=0.3, t_bicho=4.0)
                 if zj == zi and k in PLANTAS and PLANTAS[k]["clase"] == clase and PLANTAS[k]["nivel"] <= nivel) / ((x1 - x0) * (z1 - z0))
             k = min(n, max(1.0, 1 + math.pi * radio ** 2 * densidad * 0.6)) if radio > 0 else 1.0
             golpes = math.ceil(d["vida"] * zo["vida"] / (dano * afilado))
-            tiempo = golpes * h["cadencia"] + (t_bicho if es_bicho else t_mover)
+            tiempo = golpes * h["cadencia"] * ritmo + (t_bicho if es_bicho else t_mover) / vel()
             valor = (d["premio"] if es_bicho else d["valor"]) * zo["valor"]
             rent = k * valor / tiempo
             if mejor is None or rent > mejor[0]:
                 mejor = (rent, zi, tipo, k, tiempo, golpes)
         if mejor is None:
-            if bolsa > 0 or cont > 0:
+            if bolsa > 0 or cont > 0 or carro > 0:
                 vaciar(forzar=True)
                 continue
             break
@@ -351,7 +414,9 @@ def escribir_gd():
 ## ARCHIVO GENERADO por herramientas_dev/economia.py: cambia los números allí (tiene un
 ## simulador para ver cómo queda el ritmo) y vuelve a ejecutarlo.
 
-const ALCANCE := {ALCANCE}               # metros a los que llegas con la herramienta
+## Jugador: velocidad de partida (las botas de VELOCIDAD la multiplican)
+const VELOCIDAD_ANDAR := {VELOCIDAD_ANDAR}
+const VELOCIDAD_CORRER := {VELOCIDAD_CORRER}
 
 ## Césped: se siembra con clic derecho sobre las calvas de tierra.
 const SEMILLAS_INICIALES := {SEMILLAS_INICIALES}
@@ -385,13 +450,20 @@ const TROFEO_PRECIO := {TROFEO_PRECIO}
 {_lista("BOLSAS", BOLSAS)}
 ## Reciclaje: capacidad del contenedor y multiplicador de lo que paga el camión.
 {_lista("RECICLAJE", RECICLAJE)}
+## Mejoras del jugador. Nivel 0 = lo de partida.
+## VELOCIDAD: multiplica andar y correr · RITMO: multiplica la cadencia de las herramientas
+## ALCANCE: metros a los que llegas · CARRETILLA: bolsas llenas que llevas además de la de la mano
+{_lista("VELOCIDAD", [dict(m, valor=float(m["valor"])) for m in VELOCIDAD])}
+{_lista("RITMO", [dict(m, valor=float(m["valor"])) for m in RITMO])}
+{_lista("ALCANCE", [dict(m, valor=float(m["valor"])) for m in ALCANCE])}
+{_lista("CARRETILLA", CARRETILLA)}
 ## clase: qué herramientas le sirven · nivel: herramienta mínima · calva: tierra que deja
 const PLANTAS := {dic(plantas)}
 
 ## nivel: herramienta mínima para hacerles daño · dano: vida que quitan por mordisco
 const BICHOS := {dic(bichos)}
 """
-    with open(os.path.join(RAIZ, "scripts", "datos.gd"), "w") as f:
+    with open(os.path.join(RAIZ, "scripts", "datos.gd"), "w", encoding="utf-8", newline="\n") as f:
         f.write(txt)
     print("\nscripts/datos.gd actualizado")
 

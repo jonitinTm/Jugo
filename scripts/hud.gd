@@ -14,6 +14,7 @@ const COLOR_TEXTO := Color(1.0, 0.97, 0.88)
 const COLOR_BORDE := Color(0.16, 0.09, 0.04)
 const COLOR_CARO := Color(1.0, 0.5, 0.42)
 const COLOR_ORO := Color(1.0, 0.86, 0.4)
+const FILAS_TIENDA := 9                   # teclas 1-9
 
 var _vp: SubViewport
 var _contadores: Node3D
@@ -98,7 +99,7 @@ func _crear_contadores() -> void:
 	for i in range(datos.size()):
 		var d: Array = datos[i]
 		var y: float = -0.84 * i
-		var ancho: float = 2.05 if d[0] == "jardin" else 1.55
+		var ancho: float = 2.05 if d[0] == "jardin" else (1.85 if d[0] == "bolsa" else 1.55)
 		var tablon := _modelo("boton_madera")
 		tablon.scale = Vector3(ancho, 1.25, 1.0)
 		tablon.position = Vector3(0.8 * ancho, y, -0.6)
@@ -144,23 +145,23 @@ func _crear_tienda() -> void:
 	_tienda.visible = false
 	_vp.add_child(_tienda)
 	var panel := _modelo("panel_madera")
-	panel.scale = Vector3(2.1, 2.35, 1.0)
+	panel.scale = Vector3(2.15, 2.55, 1.0)
 	panel.position = Vector3(0, 0, -0.6)
 	_tienda.add_child(panel)
-	var titulo := _texto(60, HORIZONTAL_ALIGNMENT_CENTER)
+	var titulo := _texto(56, HORIZONTAL_ALIGNMENT_CENTER)
 	titulo.text = "TIENDA"
 	titulo.modulate = COLOR_ORO
-	titulo.position = Vector3(0, 1.88, 0.6)
+	titulo.position = Vector3(0, 2.18, 0.6)
 	_tienda.add_child(titulo)
-	for i in range(5):
-		var y: float = 1.05 - 0.72 * i
-		var nombre := _texto(40, HORIZONTAL_ALIGNMENT_LEFT)
-		nombre.position = Vector3(-2.05, y, 0.6)
+	for i in range(FILAS_TIENDA):
+		var y: float = 1.62 - 0.44 * i
+		var nombre := _texto(30, HORIZONTAL_ALIGNMENT_LEFT)
+		nombre.position = Vector3(-2.1, y, 0.6)
 		_tienda.add_child(nombre)
-		var precio := _texto(40, HORIZONTAL_ALIGNMENT_RIGHT)
-		precio.position = Vector3(2.35, y, 0.6)
+		var precio := _texto(30, HORIZONTAL_ALIGNMENT_RIGHT)
+		precio.position = Vector3(2.4, y, 0.6)
 		_tienda.add_child(precio)
-		var moneda := _icono("moneda", 0.36, Vector3(0, 25, 0))
+		var moneda := _icono("moneda", 0.28, Vector3(0, 25, 0))
 		moneda.position = Vector3(2.68, y, 0.3)
 		_tienda.add_child(moneda)
 		_tienda_filas.append({"icono": null, "nombre": nombre, "precio": precio, "moneda": moneda, "y": y})
@@ -334,7 +335,7 @@ func tienda(mostrar: bool, filas: Array) -> void:
 		precio.text = "" if agotado else str(int(f["precio"]))
 		precio.modulate = COLOR_ORO if f["puede"] else COLOR_CARO
 		moneda.visible = not agotado
-		var icono := _icono(String(f["modelo"]), 0.8, Vector3(12, -30, 0))
-		icono.position = Vector3(-2.55, float(hueco["y"]), 0.2)
+		var icono := _icono(String(f["modelo"]), 0.42, Vector3(12, -30, 0))
+		icono.position = Vector3(-2.45, float(hueco["y"]), 0.2)
 		_tienda.add_child(icono)
 		hueco["icono"] = icono

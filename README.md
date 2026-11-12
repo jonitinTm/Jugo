@@ -41,23 +41,31 @@ de Godot serán algo distintos.
 |---|---|
 | WASD / flechas, ratón | moverse y mirar |
 | Shift / Espacio | correr / saltar |
-| Clic izquierdo (mantener) | quitar la planta o atacar al bicho al que apuntas |
+| Clic izquierdo (mantener) | quitar la planta o atacar al bicho al que apuntas · empujar el cortacésped |
 | Clic derecho (mantener) | sembrar césped en las calvas de tierra cercanas |
-| E | vaciar la bolsa (cubo o contenedor) · abrir una zona (en su puerta) · comprar herramienta (tienda) |
-| R / F / G / T | en la tienda: bolsa · reciclaje · afilar · semillas |
+| E | tirar las bolsas (cubo o contenedor) · coger una bolsa del suelo · abrir una zona (en su puerta) |
+| Q | dejar una bolsa en el suelo (para seguir trabajando y volver a por ella) |
+| 1 – 9 | comprar en la tienda (de pie junto al cartel) |
 | F5 / F9 | guardar · borrar la partida y empezar de cero |
 | Esc | soltar el ratón |
 
 **El bucle:**
 
-1. Empiezas con las **manos**, arrancando hierbajos de uno en uno. Lo que quitas va a la bolsa.
-2. Vacías la bolsa en el **cubo** (junto a la puerta del jardín) o en el **contenedor** de la
-   calle. Cuando se junta bastante viene el **camión**, lo vuelca y te paga.
-3. En la **tienda** (cartel de madera junto al porche) compras herramientas, bolsas, reciclaje,
-   afilado y semillas. **La herramienta se elige sola** según a qué apuntes.
-4. Cada planta quitada deja una **calva de tierra**: con clic derecho siembras césped en todas
+1. Empiezas con las **manos** y andando despacio, arrancando hierbajos de uno en uno. Lo que
+   quitas **sale volando a la bolsa** que llevas en la mano izquierda, que se va hinchando.
+2. Cuando la bolsa se llena: la llevas al **cubo** (junto a la puerta del jardín) o al
+   **contenedor** de la calle, o la **dejas en el suelo (Q)** y vuelves luego a por ella (E).
+   Con una **carretilla** la bolsa llena se carga sola y sigues con otra.
+3. Cuando el contenedor se llena **viene el camión**: se oye el motor, pita al llegar, el
+   **basurero** baja del estribo, vacía el contenedor (con su pitido de marcha atrás y el
+   compactador), saluda, vuelve a subir y **te paga** (¡ka-ching!).
+4. En la **tienda** (cartel de madera junto al porche) compras con las teclas 1-9:
+   herramientas, bolsa más grande, carretilla, botas (velocidad), ritmo (golpes más rápidos),
+   alcance, afilado (daño), reciclaje (el camión paga más) y semillas.
+   **La herramienta se elige sola** según a qué apuntes.
+5. Cada planta quitada deja una **calva de tierra**: con clic derecho siembras césped en todas
    las cercanas. Una calva sin sembrar acaba echando otro hierbajo.
-5. Con lo ganado **abres la puerta de la zona siguiente**, con plantas más duras y valiosas.
+6. Con lo ganado **abres la puerta de la zona siguiente**, con plantas más duras y valiosas.
 
 La partida se guarda sola cada 30 segundos y en cada compra (`user://partida.json`).
 
@@ -68,9 +76,9 @@ La partida se guarda sola cada 30 segundos y en cada compra (`user://partida.jso
 | Zona | Precio | Vida de plantas y bichos | Valor | Bichos |
 |---|---|---|---|---|
 | Jardín delantero | — | x1 | x1 | caracoles |
-| Patio trasero | 400 | x2 | x2,5 | caracoles, escarabajos |
+| Patio trasero | 250 | x2 | x2,5 | caracoles, escarabajos |
 | Huerto abandonado | 1.900 | x4 | x6 | + avispas |
-| Arboleda | 13.000 | x8 | x14 | escarabajos, avispas |
+| Arboleda | 8.000 | x8 | x14 | escarabajos, avispas |
 | El Zarzal | 80.000 | x16 | x32 | de todo, y muchas zarzas |
 
 Cada zona está vallada; su puerta tiene un cartel con el precio y se abre con E.
@@ -98,8 +106,17 @@ Toda la economía está en `herramientas_dev/economia.py`, que además **simula 
 - **Ingresos:** camión (valor de la planta x valor de la zona x reciclaje), césped y bichos.
 - **Gastos:** herramientas (12 → 60.000), bolsa (15 → 500), reciclaje (x1 → x2,5), afilado
   (24 niveles, +20 % de daño cada uno), zonas, semillas y el **trofeo final** (620.000).
-- **Duración:** el jugador perfecto del simulador abre la última zona en el minuto 35, compra
-  el trofeo en el 63 y lo limpia todo en 76. Una persona real debería rondar las 2 horas.
+- **Mejoras del jugador** (tablas `VELOCIDAD`, `RITMO`, `ALCANCE` y `CARRETILLA`):
+
+  | Mejora | De | A | Precios |
+  |---|---|---|---|
+  | Botas (velocidad) | 3,2 m/s andando | x1,85 | 25 → 40.000 |
+  | Ritmo (cadencia de los golpes) | x1 | x0,48 (el doble de rápido) | 35 → 90.000 |
+  | Alcance | 2,6 m | 4,4 m | 90 → 18.000 |
+  | Carretilla (bolsas llenas que llevas) | 0 | 8 (furgoneta) | 70 → 45.000 |
+
+- **Duración:** el jugador perfecto del simulador abre la última zona en el minuto 44, compra
+  el trofeo en el 51 y lo tiene todo en 60. Una persona real debería rondar 1,5–2 horas.
 
 ## Interfaz 3D
 
@@ -127,8 +144,10 @@ assets/modelos/*.gltf      los modelos (indice.json dice la categoría y el tama
   vegetación:    arbol_gigante, arbol_otono, hierbajo, hierbajo_grande, matorral, zarza,
                  girasol_gigante, amapola_gigante, seta_gigante, tocon, roca,
                  monton_hojas, alfombra_hojas
-  jugabilidad:   bolsa_basura, saco_semillas, cubo_basura, contenedor, camion_basura, moneda
-  herramientas:  guantes, hoz, tijeras_podar, rastrillo, machete, desbrozadora, motosierra
+  jugabilidad:   bolsa_basura, saco_semillas, cubo_basura, contenedor, camion_basura, moneda,
+                 basurero
+  herramientas:  guantes, hoz, tijeras_podar, rastrillo, machete, cortacesped, desbrozadora,
+                 motosierra
   bichos:        escarabajo, caracol, avispa
   ui:            cartel_tienda, panel_madera, boton_madera, boton_verde,
                  flecha_mejora, icono_hoja, etiqueta_precio, barra_progreso, corazon
@@ -140,26 +159,36 @@ scripts/datos.gd           tablas del juego (lo genera herramientas_dev/economia
 scripts/hud.gd             interfaz hecha con modelos 3D
 scripts/jugador.gd         jugador en primera persona y herramienta en la mano
 scripts/camara_orbital.gd  cámara de la galería
-herramientas_dev/          scripts en Python que generan texturas, modelos y escenas
+assets/sonidos/*.wav       efectos (los genera herramientas_dev/generar_sonidos.py)
+herramientas_dev/          scripts que generan texturas, modelos, sonidos y escenas, y pruebas
 docs/previews/             capturas
 ```
 
-## Progresión propuesta (herramientas → qué rompen)
+## Progresión (herramientas → qué rompen)
 
-| Nivel | Herramienta | Despeja | Contra bichos |
-|---|---|---|---|
-| 0 | Guantes | hierbajo pequeño, montón de hojas | — |
-| 1 | Rastrillo | montones de hojas grandes y rápido | — |
-| 2 | Hoz | hierbajo grande, flores gigantes | caracol |
-| 3 | Tijeras de podar | matorral, setas | escarabajo |
-| 4 | Machete | zarza | avispa |
-| 5 | Desbrozadora | todo lo verde en área | todos (área) |
-| 6 | Motosierra | tocones y árboles gigantes | — |
+| Nivel | Herramienta | Precio | Despeja | Contra bichos |
+|---|---|---|---|---|
+| 0 | Manos (guantes) | — | hierbajo pequeño, montón de hojas | — |
+| 1 | Rastrillo | 12 | montones de hojas grandes y rápido | caracol |
+| 2 | Hoz | 60 | hierbajo grande, flores gigantes | escarabajo |
+| 3 | Tijeras de podar | 200 | matorral, setas | sí |
+| 4 | Machete | 1.000 | zarza | avispa |
+| 5 | Cortacésped | 3.500 | **se empuja**: siega toda la hierba y las hojas que pisa, sin apuntar | — |
+| 6 | Desbrozadora | 9.000 | todo lo verde en área | todos (área) |
+| 7 | Motosierra | 60.000 | tocones y árboles gigantes | sí |
 
-El bucle sería: despejar → la vegetación llena tu bolsa → bolsa al contenedor →
-contenedor lleno = llega el `camion_basura`, levanta el contenedor con su `brazo` y
-te paga en `moneda` → compras en el `cartel_tienda` → la barra de zona
-(`barra_progreso`) marca cuánto llevas de cada parte del jardín.
+## Probar el juego automáticamente
+
+`herramientas_dev/prueba_juego.gd` recorre el bucle entero (comprar, arrancar, bolsa,
+carretilla, dejar y coger una bolsa, cortacésped, contenedor, camión y basurero), escribe
+`OK`/`FALLO` por cada paso y guarda capturas:
+
+```bash
+godot --path . -s herramientas_dev/prueba_juego.gd -- capturas_prueba
+```
+
+Usa la partida guardada del proyecto (`user://partida.json`): hazlo en una copia del proyecto
+con otro `config/name` en `project.godot` si no quieres perder la tuya.
 
 ## Convenciones de los modelos
 
@@ -167,6 +196,8 @@ te paga en `moneda` → compras en el `cartel_tienda` → la barra de zona
 - Origen en la base (en el suelo). Herramientas: origen en el agarre. UI: origen en el centro.
 - Las piezas animables son **nodos hijos con el origen en su punto de giro**:
   - `camion_basura`: `rueda_*` (giran en X), `brazo` (elevador trasero).
+  - `basurero`: `pierna_izq/der` (cadera), `brazo_izq/der` (hombro).
+  - `cortacesped`: origen en el manillar; el suelo queda 0,9 m por debajo.
   - `contenedor`: `tapa_izq`, `tapa_der` (bisagra atrás), `rueda_*`.
   - `cubo_basura`: `tapa`, `rueda_izq`, `rueda_der`.
   - `puerta_jardin`: `hoja_izq`, `hoja_der` (bisagras en los postes).
@@ -187,13 +218,33 @@ Todo sale de código, así que se puede cambiar y regenerar en segundos:
 ```bash
 pip install trimesh numpy scipy pillow
 python3 herramientas_dev/generar_texturas.py              # texturas
+python3 herramientas_dev/generar_sonidos.py               # sonidos
+python3 herramientas_dev/economia.py                      # equilibrio → scripts/datos.gd
 python3 herramientas_dev/generar_modelos.py               # todos los modelos
 python3 herramientas_dev/generar_modelos.py casa zarza    # solo algunos
+blender -b --factory-startup -P herramientas_dev/blender_pulir.py           # pulido (biseles)
+blender -b --factory-startup -P herramientas_dev/blender_capturas.py        # capturas
 python3 herramientas_dev/generar_escena.py                # escena principal
 python3 herramientas_dev/generar_galeria.py               # galería
 ```
 
+### Pulido y capturas con Blender
+
+- `blender_pulir.py` se pasa **después** de `generar_modelos.py`. Funde las caras planas, bisela
+  las aristas vivas de las piezas duras (madera, metal, plástico, interfaz) para que atrapen la
+  luz y recalcula sus normales. Las hojas, briznas y pétalos no se tocan: llevan las dos caras en
+  la geometría y Blender las descartaría al importar, así que el `.gltf` final se monta con las
+  piezas biseladas de Blender y el resto del original. Un modelo ya pulido se salta (usa
+  `--forzar` para repetirlo). Si regeneras un modelo, vuelve a pulirlo:
+  `blender -b --factory-startup -P herramientas_dev/blender_pulir.py -- casa valla`.
+- `blender_capturas.py` renderiza cada modelo (EEVEE, cielo físico) y una hoja de contactos por
+  categoría en `docs/previews/blender/`. Con `-- <carpeta> modelo1 modelo2` saca solo esos.
+- Sin Python instalado vale el de Blender:
+  `"C:\Program Files\Blender Foundation\Blender 5.0\5.0\python\bin\python.exe" -m pip install --target <carpeta> trimesh scipy pillow`
+  y luego `PYTHONPATH=<carpeta>` al ejecutar los generadores.
+
 - Colores: `PALETA` al principio de `generar_modelos.py`. Materiales y texturas: `MATS`.
+  Suavidad de las piezas redondas (lados de tubos, tornos y cilindros): `DETALLE`.
 - Densidad y colocación del jardín: función `componer()` de `generar_escena.py`
   (cantidades de cada planta, árboles, zona despejada, semilla aleatoria).
 - Si retocas `principal.tscn` a mano en Godot, no vuelvas a ejecutar `generar_escena.py`

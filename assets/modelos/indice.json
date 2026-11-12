@@ -11,7 +11,7 @@
    6.98,
    5.43
   ],
-  "tris": 7036
+  "tris": 24596
  },
  "valla": {
   "categoria": "entorno",
@@ -25,7 +25,7 @@
    2.2,
    0.08
   ],
-  "tris": 516
+  "tris": 4676
  },
  "puerta_jardin": {
   "categoria": "entorno",
@@ -39,7 +39,7 @@
    2.79,
    0.125
   ],
-  "tris": 504
+  "tris": 4568
  },
  "parcela": {
   "categoria": "entorno",
@@ -87,7 +87,7 @@
   "categoria": "vegetacion",
   "min": [
    -6.396,
-   -0.046,
+   -0.091,
    -5.403
   ],
   "max": [
@@ -95,13 +95,13 @@
    13.574,
    5.152
   ],
-  "tris": 5348
+  "tris": 12584
  },
  "arbol_otono": {
   "categoria": "vegetacion",
   "min": [
    -6.713,
-   -0.035,
+   -0.085,
    -4.856
   ],
   "max": [
@@ -109,147 +109,147 @@
    12.075,
    5.084
   ],
-  "tris": 5348
+  "tris": 12584
  },
  "hierbajo": {
   "categoria": "vegetacion",
   "min": [
    -0.571,
-   -0.004,
+   -0.022,
    -0.696
   ],
   "max": [
-   0.653,
-   1.491,
-   0.579
+   0.694,
+   1.454,
+   0.637
   ],
-  "tris": 944
+  "tris": 2996
  },
  "hierbajo_grande": {
   "categoria": "vegetacion",
   "min": [
    -1.574,
-   -0.009,
+   -0.027,
    -1.513
   ],
   "max": [
    1.204,
-   3.022,
+   2.934,
    1.146
   ],
-  "tris": 2660
+  "tris": 3240
  },
  "matorral": {
   "categoria": "vegetacion",
   "min": [
-   -1.594,
-   -0.342,
-   -1.716
+   -1.526,
+   -0.562,
+   -1.656
   ],
   "max": [
-   1.751,
-   1.819,
-   1.477
+   2.055,
+   2.099,
+   1.652
   ],
-  "tris": 1254
+  "tris": 7724
  },
  "zarza": {
   "categoria": "vegetacion",
   "min": [
-   -1.926,
-   -0.025,
-   -1.781
+   -1.648,
+   -0.02,
+   -1.804
   ],
   "max": [
-   1.369,
-   1.822,
-   1.345
+   1.558,
+   1.885,
+   1.799
   ],
-  "tris": 6286
+  "tris": 12113
  },
  "girasol_gigante": {
   "categoria": "vegetacion",
   "min": [
-   -0.885,
-   -0.007,
+   -0.962,
+   -0.008,
    -0.894
   ],
   "max": [
    1.084,
-   4.403,
-   0.858
+   4.406,
+   0.871
   ],
-  "tris": 2296
+  "tris": 3964
  },
  "amapola_gigante": {
   "categoria": "vegetacion",
   "min": [
    -0.62,
-   -0.007,
+   -0.008,
    -0.49
   ],
   "max": [
-   0.756,
-   2.983,
-   0.656
+   0.783,
+   2.928,
+   0.636
   ],
-  "tris": 3294
+  "tris": 6504
  },
  "seta_gigante": {
   "categoria": "vegetacion",
   "min": [
-   -1.161,
-   -0.022,
-   -1.163
+   -1.177,
+   -0.026,
+   -1.186
   ],
   "max": [
-   1.275,
+   1.295,
    1.946,
-   1.252
+   1.286
   ],
-  "tris": 4066
+  "tris": 6196
  },
  "tocon": {
   "categoria": "vegetacion",
   "min": [
-   -1.589,
-   -0.099,
-   -1.534
+   -1.715,
+   -0.105,
+   -1.533
   ],
   "max": [
-   1.608,
+   1.913,
    0.933,
    1.476
   ],
-  "tris": 3092
+  "tris": 6516
  },
  "roca": {
   "categoria": "vegetacion",
   "min": [
-   -1.197,
+   -1.714,
    -0.179,
-   -1.008
+   -1.266
   ],
   "max": [
-   1.487,
-   1.062,
-   1.351
+   1.781,
+   1.067,
+   1.344
   ],
-  "tris": 3816
+  "tris": 11064
  },
  "monton_hojas": {
   "categoria": "vegetacion",
   "min": [
-   -2.031,
-   -0.043,
-   -2.046
+   -2.089,
+   -0.037,
+   -2.041
   ],
   "max": [
-   2.037,
-   0.618,
-   1.881
+   2.247,
+   0.675,
+   2.102
   ],
-  "tris": 3680
+  "tris": 5408
  },
  "alfombra_hojas": {
   "categoria": "vegetacion",
@@ -263,7 +263,7 @@
    0.127,
    3.652
   ],
-  "tris": 1844
+  "tris": 1886
  },
  "bolsa_basura": {
   "categoria": "jugabilidad",
@@ -277,7 +277,7 @@
    1.274,
    0.503
   ],
-  "tris": 1696
+  "tris": 1882
  },
  "cubo_basura": {
   "categoria": "jugabilidad",
@@ -291,7 +291,7 @@
    1.075,
    0.38
   ],
-  "tris": 368
+  "tris": 2016
  },
  "contenedor": {
   "categoria": "jugabilidad",
@@ -305,7 +305,7 @@
    1.405,
    0.71
   ],
-  "tris": 452
+  "tris": 2796
  },
  "camion_basura": {
   "categoria": "jugabilidad",
@@ -319,21 +319,21 @@
    3.4,
    3.445
   ],
-  "tris": 1452
+  "tris": 9092
  },
  "moneda": {
   "categoria": "jugabilidad",
   "min": [
-   -0.5,
-   0.0,
-   -0.114
+   -0.506,
+   -0.006,
+   -0.077
   ],
   "max": [
-   0.5,
-   1.0,
-   0.114
+   0.506,
+   1.006,
+   0.077
   ],
-  "tris": 192
+  "tris": 4800
  },
  "guantes": {
   "categoria": "herramientas",
@@ -347,21 +347,21 @@
    0.139,
    0.034
   ],
-  "tris": 1500
+  "tris": 1724
  },
  "hoz": {
   "categoria": "herramientas",
   "min": [
-   -0.027,
-   -0.28,
-   -0.027
+   -0.028,
+   -0.298,
+   -0.029
   ],
   "max": [
    0.358,
    0.307,
-   0.027
+   0.029
   ],
-  "tris": 512
+  "tris": 3896
  },
  "tijeras_podar": {
   "categoria": "herramientas",
@@ -375,7 +375,7 @@
    0.75,
    0.026
   ],
-  "tris": 328
+  "tris": 3056
  },
  "rastrillo": {
   "categoria": "herramientas",
@@ -389,77 +389,77 @@
    1.25,
    0.051
   ],
-  "tris": 588
+  "tris": 4668
  },
  "machete": {
   "categoria": "herramientas",
   "min": [
-   -0.03,
-   -0.06,
-   -0.016
+   -0.031,
+   -0.092,
+   -0.019
   ],
   "max": [
    0.05,
-   0.55,
-   0.016
+   0.566,
+   0.019
   ],
-  "tris": 144
+  "tris": 3702
  },
  "desbrozadora": {
   "categoria": "herramientas",
   "min": [
    -0.353,
-   -1.13,
+   -1.17,
    -0.17
   ],
   "max": [
    0.353,
-   0.74,
+   0.79,
    0.166
   ],
-  "tris": 570
+  "tris": 5672
  },
  "motosierra": {
   "categoria": "herramientas",
   "min": [
-   -0.085,
+   -0.16,
    0.0,
    -0.38
   ],
   "max": [
    0.16,
    0.358,
-   0.665
+   0.676
   ],
-  "tris": 564
+  "tris": 13940
  },
  "escarabajo": {
   "categoria": "enemigos",
   "min": [
-   -0.258,
-   -0.023,
+   -0.277,
+   -0.014,
    -0.29
   ],
   "max": [
-   0.258,
-   0.49,
-   0.42
+   0.277,
+   0.494,
+   0.444
   ],
-  "tris": 5120
+  "tris": 8272
  },
  "caracol": {
   "categoria": "enemigos",
   "min": [
-   -0.15,
+   -0.155,
    -0.006,
-   -0.454
+   -0.443
   ],
   "max": [
-   0.15,
-   0.623,
-   0.423
+   0.155,
+   0.575,
+   0.424
   ],
-  "tris": 11312
+  "tris": 11196
  },
  "avispa": {
   "categoria": "enemigos",
@@ -470,10 +470,10 @@
   ],
   "max": [
    0.439,
-   0.848,
-   0.363
+   0.851,
+   0.362
   ],
-  "tris": 5170
+  "tris": 6642
  },
  "cartel_tienda": {
   "categoria": "ui",
@@ -487,7 +487,7 @@
    2.68,
    0.15
   ],
-  "tris": 380
+  "tris": 2164
  },
  "panel_madera": {
   "categoria": "ui",
@@ -501,7 +501,7 @@
    1.0,
    0.13
   ],
-  "tris": 332
+  "tris": 1516
  },
  "boton_madera": {
   "categoria": "ui",
@@ -515,7 +515,7 @@
    0.275,
    0.13
   ],
-  "tris": 412
+  "tris": 1372
  },
  "boton_verde": {
   "categoria": "ui",
@@ -529,7 +529,7 @@
    0.275,
    0.125
   ],
-  "tris": 316
+  "tris": 764
  },
  "flecha_mejora": {
   "categoria": "ui",
@@ -543,7 +543,7 @@
    0.554,
    0.11
   ],
-  "tris": 52
+  "tris": 388
  },
  "icono_hoja": {
   "categoria": "ui",
@@ -557,7 +557,7 @@
    0.594,
    0.062
   ],
-  "tris": 116
+  "tris": 852
  },
  "etiqueta_precio": {
   "categoria": "ui",
@@ -571,7 +571,7 @@
    0.654,
    0.04
   ],
-  "tris": 128
+  "tris": 728
  },
  "barra_progreso": {
   "categoria": "ui",
@@ -585,7 +585,7 @@
    0.275,
    0.125
   ],
-  "tris": 268
+  "tris": 940
  },
  "calva_tierra": {
   "categoria": "entorno",
@@ -618,29 +618,57 @@
  "saco_semillas": {
   "categoria": "jugabilidad",
   "min": [
-   -0.27,
+   -0.267,
    0.0,
-   -0.263
+   -0.269
   ],
   "max": [
    0.27,
    0.785,
    0.378
   ],
-  "tris": 398
+  "tris": 543
  },
  "corazon": {
   "categoria": "ui",
   "min": [
-   -0.47,
-   -0.48,
-   -0.203
+   -0.442,
+   -0.415,
+   -0.2
   ],
   "max": [
-   0.47,
-   0.39,
-   0.205
+   0.442,
+   0.384,
+   0.2
   ],
-  "tris": 2894
+  "tris": 3688
+ },
+ "basurero": {
+  "categoria": "jugabilidad",
+  "min": [
+   -0.345,
+   0.008,
+   -0.238
+  ],
+  "max": [
+   0.345,
+   1.9,
+   0.238
+  ],
+  "tris": 16470
+ },
+ "cortacesped": {
+  "categoria": "herramientas",
+  "min": [
+   -0.318,
+   -0.9,
+   -0.017
+  ],
+  "max": [
+   0.317,
+   0.017,
+   1.04
+  ],
+  "tris": 6356
  }
 }

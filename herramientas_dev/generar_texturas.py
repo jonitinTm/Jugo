@@ -315,7 +315,7 @@ def pintar_hoja(d, cx, cy, ang, largo, ancho, color, rng, venas=False, dentado=0
                 d.line([p, (p[0] + math.cos(a2) * L, p[1] + math.sin(a2) * L)], fill=claro, width=max(1, int(ancho / 45)))
 
 
-def racimo_hojas(nombre, paleta, semilla, n_hojas=300):
+def racimo_hojas(nombre, paleta, semilla, n_hojas=210):
     S = 1024
     rng = np.random.default_rng(semilla)
     fondo = tuple(int(x) for x in np.mean(paleta, 0))
@@ -328,7 +328,7 @@ def racimo_hojas(nombre, paleta, semilla, n_hojas=300):
         d.line([(S / 2, S / 2), (S / 2 + math.cos(a) * L, S / 2 + math.sin(a) * L)], fill=(70, 50, 34, 255), width=7)
     hojas = []
     for i in range(n_hojas):
-        r = 0.44 * S * rng.uniform(0, 1) ** 0.62
+        r = 0.44 * S * rng.uniform(0, 1) ** 0.5
         a = rng.uniform(0, 2 * math.pi)
         cx, cy = S / 2 + math.cos(a) * r, S / 2 + math.sin(a) * r
         ang = a + rng.normal(0, 1.1)
@@ -420,11 +420,120 @@ def parches():
     guardar("cesped_parche", mezcla((0.27, 0.45, 0.13), (0.5, 0.68, 0.26), val), alfa)
 
 
+def _recortar(im, fondo, nombre, ruido_sem=None, tam=None):
+    """Guarda una imagen RGBA dibujada a doble tamaño: alfa binario y color de fondo bajo lo transparente."""
+    w, h = im.size
+    im = im.resize(tam or (w // 2, h // 2), Image.LANCZOS)
+    arr = np.asarray(im) / 255.0
+    alfa = (arr[..., 3] > 0.5).astype(float)
+    rgb = arr[..., :3]
+    if ruido_sem is not None:
+        n = max(rgb.shape[:2])
+        rgb = rgb * (0.88 + 0.24 * ruido(n, 2.0, ruido_sem)[:rgb.shape[0], :rgb.shape[1]])[..., None]
+    rgb = rgb * alfa[..., None] + np.array(fondo) / 255.0 * (1 - alfa[..., None])
+    guardar(nombre, rgb, alfa)
+
+
+def hoja_dentada(nombre, color, n_dientes, fondo_diente, punta, semilla, espinas=False):
+    """Hoja alargada con dientes (diente de león, cardo). Base abajo, punta arriba."""
+    W, H = 512, 1024
+    rng = np.random.default_rng(semilla)
+    im = Image.new("RGBA", (W, H), color + (0,))
+    d = ImageDraw.Draw(im)
+    izq, der = [], []
+    y0, y1 = H - 30, 40
+    for i in range(n_dientes * 2 + 1):
+        t = i / (n_dientes * 2)
+        y = y0 + (y1 - y0) * t
+        env = math.sin(math.pi * (0.06 + 0.94 * t) ** 1.25) ** 0.7
+        w = W * 0.46 * env * (1.0 if i % 2 else fondo_diente) * rng.uniform(0.85, 1.0)
+        dy = -punta * (H / n_dientes) * (1 if i % 2 else 0)
+        izq.append((W / 2 - w, y - dy))
+        der.append((W / 2 + w, y - dy))
+    d.polygon(izq + der[::-1], fill=color + (255,))
+    claro = tuple(min(255, int(c * 1.3 + 20)) for c in color)
+    d.polygon(izq + [(W / 2, y1), (W / 2, y0)], fill=tuple(int(c * 0.86) for c in color) + (255,))
+    d.line([(W / 2, H), (W / 2, y1)], fill=claro + (255,), width=16)
+    for i in range(1, n_dientes * 2, 2):
+        d.line([(W / 2, izq[i][1] + 30), izq[i]], fill=claro + (255,), width=5)
+        d.line([(W / 2, der[i][1] + 30), der[i]], fill=claro + (255,), width=5)
+        if espinas:
+            for p_, sx in ((izq[i], -1), (der[i], 1)):
+                d.line([p_, (p_[0] + sx * 34, p_[1] - 26)], fill=(235, 230, 190, 255), width=6)
+    _recortar(im, color, nombre, semilla + 1)
+
+
+def fronda():
+    W, H = 512, 1024
+    col = (62, 122, 48)
+    im = Image.new("RGBA", (W, H), col + (0,))
+    d = ImageDraw.Draw(im)
+    rng = np.random.default_rng(70)
+    d.line([(W / 2, H), (W / 2, 20)], fill=(96, 120, 60, 255), width=12)
+    n = 26
+    for i in range(n):
+        t = i / (n - 1)
+        y = H - 60 - (H - 110) * t
+        largo = W * 0.47 * math.sin(math.pi * (0.1 + 0.9 * t) ** 0.7) ** 0.8
+        for lado in (-1, 1):
+            ang = -math.pi / 2 + lado * (math.pi / 2 - 0.35)
+            c = tuple(int(x * rng.uniform(0.85, 1.15)) for x in col)
+            pintar_hoja(d, W / 2, y, ang, largo, 44, c, rng)
+    _recortar(im, col, "fronda", 71)
+
+
+def trebol():
+    S = 512
+    col = (70, 140, 58)
+    im = Image.new("RGBA", (S, S), col + (0,))
+    d = ImageDraw.Draw(im)
+    for k in range(3):
+        a = -math.pi / 2 + k * 2 * math.pi / 3
+        cx, cy = S / 2 + math.cos(a) * 118, S / 2 + math.sin(a) * 118
+        d.ellipse([cx - 118, cy - 118, cx + 118, cy + 118], fill=col + (255,))
+        # marca clara en forma de V
+        for s_ in (-1, 1):
+            b = a + s_ * 0.55
+            d.line([(S / 2 + math.cos(a) * 60, S / 2 + math.sin(a) * 60), (cx + math.cos(b) * 70, cy + math.sin(b) * 70)],
+                   fill=(150, 200, 130, 255), width=12)
+        d.line([(S / 2, S / 2), (cx + math.cos(a) * 100, cy + math.sin(a) * 100)], fill=(52, 112, 44, 255), width=5)
+    _recortar(im, col, "trebol", 72)
+
+
+def flores_blancas():
+    """Umbela vista desde arriba: radios verdes acabados en ramilletes de florecillas blancas."""
+    S = 1024
+    rng = np.random.default_rng(73)
+    im = Image.new("RGBA", (S, S), (236, 236, 222, 0))
+    d = ImageDraw.Draw(im)
+    puntos = []
+    for i in range(60):
+        r = S * 0.44 * math.sqrt((i + 0.5) / 60)
+        a = i * math.radians(137.5)
+        puntos.append((S / 2 + math.cos(a) * r, S / 2 + math.sin(a) * r))
+    for x, y in puntos:
+        d.line([(S / 2, S / 2), (x, y)], fill=(110, 150, 70, 255), width=5)
+    for x, y in puntos:
+        for k in range(9):
+            fx, fy = x + rng.normal(0, 22), y + rng.normal(0, 22)
+            rr = rng.uniform(11, 16)
+            tono = int(rng.uniform(225, 255))
+            for p_ in range(5):
+                a = p_ * 2 * math.pi / 5 + k
+                d.ellipse([fx + math.cos(a) * rr * 0.7 - rr * 0.6, fy + math.sin(a) * rr * 0.7 - rr * 0.6,
+                           fx + math.cos(a) * rr * 0.7 + rr * 0.6, fy + math.sin(a) * rr * 0.7 + rr * 0.6], fill=(tono, tono, tono - 12, 255))
+            d.ellipse([fx - 4, fy - 4, fx + 4, fy + 4], fill=(225, 205, 90, 255))
+    _recortar(im, (236, 236, 222), "flores_blancas")
+
+
 def main():
     os.makedirs(SALIDA, exist_ok=True)
     for f in (liso, estuco, madera, tejas, piedra_muro, roca, corteza, cesped, tierra, asfalto,
-              arrugas, anillos, girasol_centro, brizna, petalo, hoja_ancha, hojas_caidas, hojarasca, parches):
+              arrugas, anillos, girasol_centro, brizna, petalo, hoja_ancha, hojas_caidas, hojarasca, parches,
+              fronda, trebol, flores_blancas):
         f()
+    hoja_dentada("hoja_diente", (74, 138, 52), 7, 0.42, 0.35, 80)
+    hoja_dentada("hoja_cardo", (88, 128, 92), 6, 0.35, 0.1, 82, espinas=True)
     racimo_hojas("hojas_verde", [(74, 128, 44), (96, 150, 52), (58, 108, 40), (118, 160, 60)], 50)
     racimo_hojas("hojas_otono", [(226, 124, 40), (240, 178, 56), (200, 76, 40), (214, 150, 48)], 51)
     with open(os.path.join(SALIDA, "medias.json"), "w") as f:
